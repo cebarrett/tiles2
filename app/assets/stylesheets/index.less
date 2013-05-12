@@ -1,7 +1,21 @@
-body {
-	padding: 1em;
+html, body, div[ng-app], div[ng-view] {
+	height: 100%;
 }
 
-h1 {
-	margin-top: 0;
+#content {
+	height: 100%;
+	background-color: #8F8;
+}
+
+#panel {
+	z-index: 1;
+	position: absolute;
+	display: inline;
+
+	top: 2em;
+	left: 2em;
+	height: 20em;
+	width: 5em;
+
+	background-color: #F88;
 }
