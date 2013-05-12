@@ -1,2 +1,17 @@
-<div id="panel"></div>
-<div id="content"></div>
+<div id="panel">
+	<ul class="itemList">
+		<li class="item-stack" ng-repeat="itemStack in inventory">
+			<span>{{itemStack.count}}</span>
+			<span>{{itemStack.item}}</span>
+		</li>
+	</ul>
+</div>
+<div id="content">
+	<ul class="chunkList">
+		<li class="chunk" style="top: {{chunk.cy*tileSizeEm*chunkLen}}em; left: {{chunk.cx*tileSizeEm*chunkLen}}em;" ng-repeat="chunk in chunks">
+			<ul class="tileList">
+				<li class="tile tile{{tile.id}}" style="top: {{tile.ty*tileSizeEm}}em; left: {{tile.tx*tileSizeEm}}em;" ng-repeat="tile in chunk.tiles"></li>
+			</ul>
+		</li>
+	</ul>
+</div>

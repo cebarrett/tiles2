@@ -4,7 +4,9 @@ html, body, div[ng-app], div[ng-view] {
 
 #content {
 	height: 100%;
-	background-color: #8F8;
+	background-color: black;
+	color: white;
+	overflow: hidden;
 }
 
 #panel {
@@ -15,7 +17,53 @@ html, body, div[ng-app], div[ng-view] {
 	top: 2em;
 	left: 2em;
 	height: 20em;
-	width: 5em;
+	width: 10em;
 
-	background-color: #F88;
+	background-color: white;
+	opacity: 0.9;
 }
+
+.reset-list-styles {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+}
+
+@tileSize: 0.5em;
+@chunkLength: 16;
+
+ul.chunkList {
+	.reset-list-styles;
+	line-height: 0;
+	li.chunk {
+		width: @chunkLength * @tileSize;
+		height: @chunkLength * @tileSize;
+		position: absolute;
+	}
+}
+
+ul.itemList {
+	.reset-list-styles;
+	li {
+		/* itemstack count */
+		span:first-child {
+			min-width: 3em;
+			text-align: right;
+			display: inline-block;
+		}
+	}
+}
+
+ul.tileList {
+	.reset-list-styles;
+	line-height: 0;
+	li.tile {
+		display: inline-block;
+		width: @tileSize;
+		height: @tileSize;
+		position: absolute;
+	}
+}
+
+.tile0 { background-color: #888; }
+.tile1 { background-color: #555; }
