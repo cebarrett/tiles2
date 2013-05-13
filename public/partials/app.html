@@ -1,6 +1,7 @@
 <div id="panel">
+	<span>{{player.name}}</span>
 	<ul class="itemList">
-		<li class="item-stack" ng-repeat="itemStack in inventory">
+		<li class="item-stack" ng-repeat="itemStack in player.inventory">
 			<span>{{itemStack.count}}</span>
 			<span>{{itemStack.item}}</span>
 		</li>
@@ -10,7 +11,7 @@
 	<ul class="chunkList">
 		<li class="chunk" style="top: {{chunk.cy*tileSizeEm*chunkLen}}em; left: {{chunk.cx*tileSizeEm*chunkLen}}em;" ng-repeat="chunk in chunks">
 			<ul class="tileList">
-				<li class="tile tile{{tile.id}}" style="top: {{tile.ty*tileSizeEm}}em; left: {{tile.tx*tileSizeEm}}em;" ng-repeat="tile in chunk.tiles"></li>
+				<li class="tile terrain{{tile.terrain.id}} entity{{tile.entity.id}}" style="top: {{tile.ty*tileSizeEm}}em; left: {{tile.tx*tileSizeEm}}em;" ng-repeat="tile in chunk.tiles"></li>
 			</ul>
 		</li>
 	</ul>

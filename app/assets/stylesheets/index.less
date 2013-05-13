@@ -34,6 +34,7 @@ html, body, div[ng-app], div[ng-view] {
 
 ul.chunkList {
 	.reset-list-styles;
+	font-family: monospace;
 	line-height: 0;
 	li.chunk {
 		width: @chunkLength * @tileSize;
@@ -44,7 +45,7 @@ ul.chunkList {
 
 ul.itemList {
 	.reset-list-styles;
-	li {
+	li.item {
 		/* itemstack count */
 		span:first-child {
 			min-width: 3em;
@@ -62,8 +63,23 @@ ul.tileList {
 		width: @tileSize;
 		height: @tileSize;
 		position: absolute;
+		text-align: center;
 	}
 }
 
-.tile0 { background-color: #888; }
-.tile1 { background-color: #555; }
+.terrain0 { background-color: #888; }
+.terrain1 { background-color: #555; }
+
+.entity0 {
+	&:after {
+		content: "@";
+		line-height: 0;
+		border: 0;
+		padding: 0;
+		margin: 0;
+		font-size: 0.5em;
+		position: absolute;
+		top: 0.5em;
+		left: 0.2em;
+	}
+}
