@@ -1,6 +1,6 @@
 controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
-controllers.controller "AppCtrl", ["$scope", "$log", ($scope, $log) ->
+controllers.controller "AppCtrl", ["$scope", "$log", "server", ($scope, $log, server) ->
 	$scope.tileSizeEm = 0.5;	# also defined in LESS
 	$scope.chunkLen = 16;		# also defined in LESS
 	$scope.player = {
@@ -37,13 +37,13 @@ controllers.controller "AppCtrl", ["$scope", "$log", ($scope, $log) ->
 			}
 		randChunkForIndex i for i in [1..worldLen*worldLen];
 	$scope.north = ->
-		$log.info "north"
+		server.north()
 	$scope.east = ->
-		$log.info "east"
+		server.east();
 	$scope.south = ->
-		$log.info "south"
+		server.south();
 	$scope.west = ->
-		$log.info "west"
+		server.west();
 	$scope.use = ->
-		$log.info "use"
+		server.use();
 ];
