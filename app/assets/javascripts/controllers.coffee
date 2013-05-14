@@ -1,10 +1,14 @@
-controllers = angular.module "app.controllers", []
+controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
-controllers.controller "AppCtrl", ["$scope", ($scope) ->
+controllers.controller "AppCtrl", ["$scope", "playerService", ($scope, playerService) ->
+	console.log($scope)
+	playerService.scope = $scope
 	$scope.tileSizeEm = 0.5;	# also defined in LESS
 	$scope.chunkLen = 16;		# also defined in LESS
 	$scope.player = {
 		name: "mock_player"
+		x: 0
+		y: 0
 		inventory: 	[
 			{count: 1, item: "Sword"},
 			{count: 9, item: "Apple"}

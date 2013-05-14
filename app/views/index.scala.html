@@ -1,8 +1,8 @@
-@(message: String)
+@(title: String)
 <!doctype html>
 <html ng-app="app" app-controls>
 	<head>
-		<title>Web App Template</title>
+		<title>@title</title>
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/normalize.css")">
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/index.css")">
 	</head>
@@ -10,6 +10,7 @@
 		<div ng-view></div>
 		<script src="@routes.Assets.at("javascripts/angular.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.at("javascripts/index.js")" type="text/javascript"></script>
+		<script src="@routes.Assets.at("javascripts/services.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.at("javascripts/directives.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.at("javascripts/controllers.js")" type="text/javascript"></script>
 	</body>
