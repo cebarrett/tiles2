@@ -1,8 +1,6 @@
 controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
-controllers.controller "AppCtrl", ["$scope", "playerService", ($scope, playerService) ->
-	console.log($scope)
-	playerService.scope = $scope
+controllers.controller "AppCtrl", ["$scope", "$log", ($scope, $log) ->
 	$scope.tileSizeEm = 0.5;	# also defined in LESS
 	$scope.chunkLen = 16;		# also defined in LESS
 	$scope.player = {
@@ -38,4 +36,14 @@ controllers.controller "AppCtrl", ["$scope", "playerService", ($scope, playerSer
 				tiles: randTileForIndex i for i in [1..chunkLen*chunkLen]
 			}
 		randChunkForIndex i for i in [1..worldLen*worldLen];
+	$scope.north = ->
+		$log.info "north"
+	$scope.east = ->
+		$log.info "east"
+	$scope.south = ->
+		$log.info "south"
+	$scope.west = ->
+		$log.info "west"
+	$scope.use = ->
+		$log.info "use"
 ];

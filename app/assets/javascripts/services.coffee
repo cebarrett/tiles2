@@ -1,11 +1,10 @@
 services = angular.module "app.services", []
 
-services.factory "playerService", ["$log", ($log) ->
-	# temporary method
+services.factory "server", ["$rootScope", "$log", ($rootScope, $log) ->
 	move = (x, y) ->
-		$log.log "playerService: move invoked [x="+x+" y="+y+"]";
+		$log.log "server: move invoked [x="+x+" y="+y+"]";
 	use = ->
-		$log.log "playerService: use invoked"
+		$log.log "server: use invoked"
 	{
 		north: () -> move 0,1
 		south: () -> move 0,-1

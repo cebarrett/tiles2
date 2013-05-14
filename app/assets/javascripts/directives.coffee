@@ -1,13 +1,21 @@
-directives = angular.module "app.directives", ["app.services"]
-directives.directive "appControls", ["$document", "playerService", ($document, playerService) ->
+directives = angular.module "app.directives", []
+
+directives.directive "appControls", ["$document", "$parse", ($document, $parse) ->
 	(scope, elm, attrs) ->
-		elm? and elm.length>0 and elm[0].addEventListener 'keydown', (e) ->
+		# XXX: there must be a better way to do this
+		north = $parse("north()")
+		east = $parse("east()")
+		west = $parse("west()")
+		south = $parse("south()")
+		use = $parse("use()")
+		$document[0].body.addEventListener 'keydown', (e) ->
 			# first check that user isn't typing in an input
-			return undefined if $document[0].querySelectorAll(":focus").length > 0
+			# FIXME: tab still prevents input
+			return if $document[0].querySelectorAll("input:focus, textarea:focus").length > 0
 			# now move
-			playerService.north() if e.keyCode is 87	# w
-			playerService.south() if e.keyCode is 83	# s
-			playerService.west() if e.keyCode is 65		# a
-			playerService.east() if e.keyCode is 68		# d
-			playerService.use() if e.keyCode is 32		# space
+			scope.$eval north if e.keyCode is 87	# w
+			scope.$eval south if e.keyCode is 83	# s
+			scope.$eval west if e.keyCode is 65		# a
+			scope.$eval east if e.keyCode is 68		# d
+			scope.$eval use if e.keyCode is 32		# space
 ];
