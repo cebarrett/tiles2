@@ -3,6 +3,7 @@ controllers = angular.module "app.controllers", ["app.services", "app.directives
 controllers.controller "AppCtrl", ["$rootScope", "$scope", "$log", "server", ($rootScope, $scope, $log, server) ->
 	$scope.tileSizeEm = 0.5;	# also defined in LESS
 	$rootScope.chunkLen = 16;	# also defined in LESS
+	$rootScope.worldLen = 4;
 	$rootScope.player = {
 		name: "mock_player"
 		x: 0
@@ -14,8 +15,8 @@ controllers.controller "AppCtrl", ["$rootScope", "$scope", "$log", "server", ($r
 	}
 	$rootScope.chunks = do ->
 		# generate some mock chunk data
-		worldLen = 4;
 		chunkLen = $rootScope.chunkLen;
+		worldLen = $rootScope.worldLen;
 		randTerrain = -> {id: Math.round Math.random()}
 		randChunkForIndex = (i) ->
 			cx = Math.floor((i-1)/worldLen)

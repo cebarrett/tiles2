@@ -5,15 +5,19 @@ services.factory "server", ["$rootScope", "$log", ($rootScope, $log) ->
 		$log.log "server: move invoked [x="+x+" y="+y+"]";
 		
 		player = $rootScope.player;
+		worldLen = $rootScope.worldLen;
 		chunkLen = $rootScope.chunkLen;
 		
 		tileAt = (x, y) ->
-			cx = x / chunkLen;
-			cy = y / chunkLen;
+			cx = Math.floor(x / chunkLen);
+			cy = Math.floor(y / chunkLen);
 			tx = (x + chunkLen) % chunkLen;
 			ty = (y + chunkLen) % chunkLen;
-			chunk = $rootScope.chunks[0];	# FIXME: doesn't work
-			tile = chunk.tiles[tx*chunkLen+ty];
+			chunk = $rootScope.chunks[cx*worldLen+cy]
+			if chunk?
+				chunk.tiles[tx*chunkLen+ty];
+			else
+				null
 		prevTile = tileAt(player.x, player.y)
 		nextTile = tileAt(player.x+x, player.y+y);
 		if prevTile? and nextTile? and !(nextTile.entity?)
@@ -21,6 +25,7 @@ services.factory "server", ["$rootScope", "$log", ($rootScope, $log) ->
 			prevTile.entity = null;
 			$rootScope.player.x += x;
 			$rootScope.player.y += y;
+			$rootScope.$digest()		# FIXME: slow!
 	use = ->
 		$log.log "server: use invoked"
 	{
