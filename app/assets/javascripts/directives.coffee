@@ -19,3 +19,18 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 			scope.$eval east if e.keyCode is 68		# d
 			scope.$eval use if e.keyCode is 32		# space
 ];
+
+directives.directive "renderWorld", [->
+	(scope, element, attributes) ->
+		chunks = scope.chunks;
+		size = scope.worldLen*scope.chunkLen;
+		#element.attr "rows", size
+		#element.attr "cols", size
+		element.addClass "render-world"
+		fillInTextArea = () ->
+			drawRow = () ->
+				element.append('<span>.</span>') for j in [1..size]
+				element.append('<br/>')
+			drawRow() for i in [1..size]
+		fillInTextArea()
+];
