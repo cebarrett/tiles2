@@ -1,7 +1,7 @@
 controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
 controllers.controller "AppCtrl", ["$rootScope", "$scope", "$log", "server", ($rootScope, $scope, $log, server) ->
-	$scope.tileSizeEm = 0.5;	# also defined in LESS
+	$scope.tileSizeEm = 1.5;	# also defined in LESS
 	$rootScope.chunkLen = 16;	# also defined in LESS
 	$rootScope.worldLen = 4;
 	$rootScope.player = {

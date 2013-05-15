@@ -25,7 +25,7 @@ services.factory "server", ["$rootScope", "$log", ($rootScope, $log) ->
 			prevTile.entity = null;
 			$rootScope.player.x += x;
 			$rootScope.player.y += y;
-			$rootScope.$digest()		# FIXME: slow!
+			$rootScope.$apply()		# FIXME: slow!
 	use = ->
 		$log.log "server: use invoked"
 	{
@@ -34,5 +34,21 @@ services.factory "server", ["$rootScope", "$log", ($rootScope, $log) ->
 		east: () -> move 1,0
 		west: () -> move -1,0
 		use: () -> use()
+	}
+];
+
+# Net service
+# Responsible for sending commands to the server and also receiving
+# events from the server and updating the model accordingly.
+services.factory "net", ["$rootScope", "$log", ($rootScope, $log) ->
+	command = (commandName) ->
+		console.log "pretending to send network request: " + commandName
+	{
+		north:	-> sendCommand("north")
+		south:	-> sendCommand("south")
+		east:	-> sendCommand("east")
+		west:	-> sendCommand("west")
+		use:	-> sendCommand("use")
+		
 	}
 ];
