@@ -20,17 +20,24 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 			scope.$eval use if e.keyCode is 32		# space
 ];
 
-directives.directive "renderWorld", [->
-	(scope, element, attributes) ->
-		chunks = scope.chunks;
-		size = scope.worldLen*scope.chunkLen;
-		#element.attr "rows", size
-		#element.attr "cols", size
-		element.addClass "render-world"
-		fillInTextArea = () ->
-			drawRow = () ->
-				element.append('<span>.</span>') for j in [1..size]
-				element.append('<br/>')
-			drawRow() for i in [1..size]
-		fillInTextArea()
+directives.directive "world", [->
+	(scope, elm, attr) ->
+		# doesn't do much yet
+		elm.addClass "world"
+];
+
+directives.directive "chunk", [->
+	(scope, elm, attr) ->
+		elm.addClass "chunk"
+		elm.css "top", -((1+scope.chunk.cy)*scope.tileSizePx*scope.chunkLen)+"px"
+		elm.css "left", ((1+scope.chunk.cx)*scope.tileSizePx*scope.chunkLen)+"px"
+];
+
+directives.directive "tile", [->
+	(scope, elm, attr) ->
+		elm.addClass "tile"
+		elm.css "top", -((1-scope.chunkLen+scope.tile.ty)*scope.tileSizePx)+"px"
+		elm.css "left", ((scope.tile.tx)*scope.tileSizePx)+"px"
+		elm.css "background-position-x", (-scope.tileSizePx*0)+"px"
+		elm.css "background-position-y", (-scope.tileSizePx*4)+"px"
 ];

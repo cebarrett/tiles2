@@ -1,9 +1,9 @@
 controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
 controllers.controller "AppCtrl", ["$rootScope", "$scope", "$log", "server", ($rootScope, $scope, $log, server) ->
-	$scope.tileSizeEm = 1.5;	# also defined in LESS
+	$scope.tileSizePx = 12;	# also defined in LESS
 	$rootScope.chunkLen = 16;	# also defined in LESS
-	$rootScope.worldLen = 4;
+	$rootScope.worldLen = 3;
 	$rootScope.player = {
 		name: "mock_player"
 		x: 0

@@ -1,3 +1,7 @@
+
+@tileSize: 12px;
+@chunkLength: 16;
+
 html, body, div[ng-app], div[ng-view] {
 	height: 100%;
 }
@@ -7,6 +11,8 @@ html, body, div[ng-app], div[ng-view] {
 	background-color: black;
 	color: white;
 	overflow: hidden;
+	top: -600px;
+	left: 200px;
 }
 
 #panel {
@@ -29,64 +35,35 @@ html, body, div[ng-app], div[ng-view] {
 	list-style-type: none;
 }
 
-@tileSize: 1.5em;
-@chunkLength: 16;
-
-ul.chunkList {
+.itemList {
 	.reset-list-styles;
-	font-family: monospace;
-	line-height: 0;
-	li.chunk {
-		width: @chunkLength * @tileSize;
-		height: @chunkLength * @tileSize;
-		position: absolute;
-	}
 }
 
-ul.itemList {
-	.reset-list-styles;
-	li.item {
-		/* itemstack count */
-		span:first-child {
-			min-width: 3em;
-			text-align: right;
-			display: inline-block;
-		}
-	}
-}
-
-ul.tileList {
-	.reset-list-styles;
-	line-height: 0;
-	li.tile {
+.item {
+	/* itemstack count */
+	span:first-child {
+		width: 3em;
+		text-align: right;
 		display: inline-block;
-		width: @tileSize;
-		height: @tileSize;
-		position: absolute;
-		text-align: center;
 	}
 }
 
-.terrain0 { background-color: #002; }
-.terrain1 { background-color: #020; }
-
-.entityChar(@char: ".", @color: white) {
-	&:after {
-		content: @char;
-		color: @color;
-		line-height: 0;
-		border: 0;
-		padding: 0;
-		margin: 0;
-		font-size: @tileSize;
-		position: absolute;
-		top: 0.5em;
-		left: 0.2em;
-	}
+.world {
+	position: absolute;
+	overflow: visible;
+	top: 600px;
+	left: 2em;
 }
 
-.entity0 { .entityChar("@", gold) }
+.chunk {
+	width:  @tileSize * @chunkLength;
+	height: @tileSize * @chunkLength;
+	position: absolute;
+}
 
-.render-world {
-	font-family: monospace;
+.tile {
+	position: absolute;
+	width: @tileSize;
+	height: @tileSize;
+	background-image: url("../images/tileset.png");
 }

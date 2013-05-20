@@ -9,6 +9,10 @@
 	</ul>
 </div>
 <div id="content">
-	<div render-world></textarea>
+	<div world>
+		<div chunk ng-repeat="chunk in chunks">
+			<div tile ng-repeat="tile in chunk.tiles"></div>
+		</div>
+	</div>
 </div>
 
