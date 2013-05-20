@@ -38,6 +38,12 @@ directives.directive "tile", [->
 		elm.addClass "tile"
 		elm.css "top", -((1-scope.chunkLen+scope.tile.ty)*scope.tileSizePx)+"px"
 		elm.css "left", ((scope.tile.tx)*scope.tileSizePx)+"px"
-		elm.css "background-position-x", (-scope.tileSizePx*0)+"px"
-		elm.css "background-position-y", (-scope.tileSizePx*4)+"px"
+		setTileImage = (x, y) ->	
+			elm.css "background-position-x", (-scope.tileSizePx*x)+"px"
+			elm.css "background-position-y", (-scope.tileSizePx*y)+"px"
+		renderTile = ()->
+			setTileImage(0,4) if scope.tile.entity?;
+			setTileImage(10,10) if !(scope.tile.entity?)
+		scope.$watch("tile.entity", renderTile);
+		renderTile();
 ];
