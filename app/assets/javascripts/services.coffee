@@ -10,21 +10,35 @@ services.factory "server", ["$log", ($log) ->
 
 	init = (theScope) ->
 		scope = theScope
-		scope.player = {
-			# FIXME: this should all be part of the player entity
-			name: "mock_player"
-			x: 25
-			y: 25
-			inventory: 	[
-				{count: 1, item: "Naginata"},
-				{count: 9, item: "Kiwi"}
-			]
-		}
+		# define some constants
+		scope.tileSizePx = 12;	# also defined in LESS
+		scope.chunkLen = 16;	# also defined in LESS
+		scope.worldLen = 3;
+		# mock world object, should own the chunks but
+		# for now this just holds some clunky utility methods
+		scope.world = 
+			chunkAt: (x, y) ->
+				cx = Math.floor (x / scope.chunkLen);
+				cy = Math.floor (y / scope.chunkLen);
+				chunk = null
+				for obj in scope.chunks
+					do (obj) ->
+						if obj.cx == cx and obj.cy == cy then chunk = obj;
+				return chunk
+			tileAt: (x, y) ->
+				chunk = this.chunkAt x, y
+				tx = ((scope.chunkLen)+(x%scope.chunkLen))%scope.chunkLen
+				ty = ((scope.chunkLen)+(y%scope.chunkLen))%scope.chunkLen
+				tile = null
+				for obj in chunk.tiles
+					do (obj) ->
+						if obj.tx == tx and obj.ty == ty then tile = obj;
+				return tile
+		# generate some mock chunk data
 		scope.chunks = do ->
-			# generate some mock chunk data
 			chunkLen = scope.chunkLen;
 			worldLen = scope.worldLen;
-			randTerrain = -> {id: Math.round Math.random()}
+			randTerrainType = -> if (Math.random() > 0.5) then "dirt" else "water"
 			randChunkForIndex = (i) ->
 				cx = Math.floor((i-1)/worldLen)
 				cy = (i-1)%worldLen
@@ -34,10 +48,9 @@ services.factory "server", ["$log", ($log) ->
 					{
 						tx: tx
 						ty: ty
-						terrain: randTerrain()
-						entity: do ->
-							# player entity
-							if tx is 9 and ty is 9 and cx is 1 and cy is 1 then {id: 0} else null
+						terrain:
+							type: randTerrainType()
+						entity: null
 					}
 				{
 					cx: cx
@@ -45,8 +58,24 @@ services.factory "server", ["$log", ($log) ->
 					tiles: randTileForIndex i for i in [1..chunkLen*chunkLen]
 				}
 			randChunkForIndex i for i in [1..worldLen*worldLen];
-	use = ->
-		$log.log "server: use invoked"
+		# mock player and inventory
+		scope.player = {
+			name: "mock_player"
+			x: 25
+			y: 25
+			inventory: [
+				{count: 1, item: "Naginata"}
+				{count: 9, item: "Kiwi"}
+			]
+		}
+		# place some mock entities
+		scope.world.tileAt(scope.player.x, scope.player.y).entity = {
+			type: "player"
+			player: scope.player
+		}
+		scope.world.tileAt(5,5).entity = {
+			type: "tree"
+		}
 	move = (x, y) ->
 		$log.log "server: move invoked [x="+x+" y="+y+"]";
 		
@@ -77,13 +106,6 @@ services.factory "server", ["$log", ($log) ->
 		south: () -> move 0,-1
 		east: () -> move 1,0
 		west: () -> move -1,0
-		use: use
 		init: init
 	}
 ];
-
-services.factory "mockdata", [->
-	{
-		addToScope: (scope) ->
-	}
-]
