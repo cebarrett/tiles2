@@ -54,11 +54,11 @@ directives.directive "tile", [->
 			if scope.tile.entity?
 				switch scope.tile.entity.type
 					when "player" then setTileImage 0,4
-					when "tree" then setTileImage 5,0
+					when "tree" then setTileImage 6,8
 			else
 				switch scope.tile.terrain.type
-					when "water" then setTileImage 7,15
-					when "dirt" then setTileImage 7,0
+					when "water" then setTileImage 14,7
+					when "dirt" then setTileImage 14,2
 					else setTileImage 0,0 # unknown terrain type
 		scope.$watch("tile.entity", renderTile);
 		renderTile();
