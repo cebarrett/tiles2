@@ -24,6 +24,15 @@ directives.directive "world", [->
 	(scope, elm, attr) ->
 		# doesn't do much yet
 		elm.addClass "world"
+		renderPlayerMove = () ->
+			elm.css {
+				# XXX: hardcoded base offsets
+				top: (500+scope.player.y*scope.tileSizePx)+"px"
+				left: (0-scope.player.x*scope.tileSizePx)+"px"
+			}
+		scope.$watch("player.x", renderPlayerMove)
+		scope.$watch("player.y", renderPlayerMove)
+		renderPlayerMove()
 ];
 
 directives.directive "chunk", [->
