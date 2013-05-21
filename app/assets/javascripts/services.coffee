@@ -11,7 +11,7 @@ services.factory "server", ["$log", ($log) ->
 	init = (theScope) ->
 		scope = theScope
 		# define some constants
-		scope.tileSizePx = 24;	# also defined in LESS
+		scope.tileSizePx = 32;	# also defined in LESS
 		scope.chunkLen = 16;	# also defined in LESS
 		scope.worldLen = 3;
 		# mock world object, should own the chunks but
@@ -73,9 +73,11 @@ services.factory "server", ["$log", ($log) ->
 			type: "player"
 			player: scope.player
 		}
-		scope.world.tileAt(5,5).entity = {
+		scope.world.tileAt(10,10).entity = {
 			type: "tree"
 		}
+		scope.world.tileAt(10,20).entity =
+			type: "hydra"
 	move = (x, y) ->
 		$log.log "server: move invoked [x="+x+" y="+y+"]";
 		

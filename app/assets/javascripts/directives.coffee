@@ -7,7 +7,6 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 		east = $parse("east()")
 		west = $parse("west()")
 		south = $parse("south()")
-		use = $parse("use()")
 		$document[0].body.addEventListener 'keydown', (e) ->
 			# first check that user isn't typing in an input
 			# FIXME: tab still prevents input
@@ -17,7 +16,6 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 			scope.$eval south if e.keyCode is 83	# s
 			scope.$eval west if e.keyCode is 65		# a
 			scope.$eval east if e.keyCode is 68		# d
-			scope.$eval use if e.keyCode is 32		# space
 ];
 
 directives.directive "world", ["$window", ($window) ->
@@ -47,7 +45,10 @@ directives.directive "tile", [ () ->
 	tileRender = {
 		player:
 			text: "@"
-			color: "white" 
+			color: "white"
+		hydra:
+			text: "∭"
+			color: "#6F6"
 		tree:
 			text: "♠"
 			color: "green"
@@ -61,6 +62,7 @@ directives.directive "tile", [ () ->
 
 	return (scope, elm, attr) ->
 		elm.addClass "tile"
+		elm.bind 'selectstart', () -> false
 		elm.css "top", -((1-scope.chunkLen+scope.tile.ty)*scope.tileSizePx)+"px"
 		elm.css "left", ((scope.tile.tx)*scope.tileSizePx)+"px"
 		updateTile = ->
