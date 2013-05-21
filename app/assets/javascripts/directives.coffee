@@ -20,18 +20,19 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 			scope.$eval use if e.keyCode is 32		# space
 ];
 
-directives.directive "world", [->
+directives.directive "world", ["$window", ($window) ->
 	(scope, elm, attr) ->
 		# doesn't do much yet
 		elm.addClass "world"
 		renderPlayerMove = () ->
 			elm.css {
 				# FIXME: hardcoded base offsets
-				top: (300+scope.player.y*scope.tileSizePx)+"px"
-				left: (330-scope.player.x*scope.tileSizePx)+"px"
+				top: ($window.innerHeight/2+(scope.player.y)*scope.tileSizePx)+"px"
+				left: ($window.innerWidth/2+(-scope.player.x)*scope.tileSizePx)+"px"
 			}
-		scope.$watch("player.x", renderPlayerMove)
-		scope.$watch("player.y", renderPlayerMove)
+		scope.$watch "player.x", renderPlayerMove
+		scope.$watch "player.y", renderPlayerMove
+		$window.addEventListener "resize", renderPlayerMove, false
 		renderPlayerMove()
 ];
 
@@ -39,27 +40,39 @@ directives.directive "chunk", [->
 	(scope, elm, attr) ->
 		elm.addClass "chunk"
 		elm.css "top", -((1+scope.chunk.cy)*scope.tileSizePx*scope.chunkLen)+"px"
-		elm.css "left", ((1+scope.chunk.cx)*scope.tileSizePx*scope.chunkLen)+"px"
+		elm.css "left", ((scope.chunk.cx)*scope.tileSizePx*scope.chunkLen)+"px"
 ];
 
-directives.directive "tile", [->
-	(scope, elm, attr) ->
+directives.directive "tile", [ () ->
+	tileRender = {
+		player:
+			text: "@"
+			color: "white" 
+		tree:
+			text: "♠"
+			color: "green"
+		water:
+			text: "≈"
+			color: "#4444CC"
+		dirt:
+			text: "."
+			color: "brown"
+	}
+
+	return (scope, elm, attr) ->
 		elm.addClass "tile"
 		elm.css "top", -((1-scope.chunkLen+scope.tile.ty)*scope.tileSizePx)+"px"
 		elm.css "left", ((scope.tile.tx)*scope.tileSizePx)+"px"
-		setTileImage = (x, y) ->	
-			elm.css "background-position-x", (-scope.tileSizePx*x)+"px"
-			elm.css "background-position-y", (-scope.tileSizePx*y)+"px"
-		renderTile = ->
-			if scope.tile.entity?
-				switch scope.tile.entity.type
-					when "player" then setTileImage 0,4
-					when "tree" then setTileImage 6,8
-			else
-				switch scope.tile.terrain.type
-					when "water" then setTileImage 14,7
-					when "dirt" then setTileImage 14,2
-					else setTileImage 0,0 # unknown terrain type
-		scope.$watch("tile.entity", renderTile);
-		renderTile();
+		updateTile = ->
+			type =
+				if scope.tile.entity?
+					scope.tile.entity.type
+				else
+					scope.tile.terrain.type
+			render = tileRender[type];
+			elm[0].innerHTML = "&#"+render.text.charCodeAt(0)+";"
+			elm.css {color: render.color}
+		scope.$watch("tile.entity", updateTile);
+		scope.$watch("tile.terrain", updateTile);
+		updateTile();
 ];

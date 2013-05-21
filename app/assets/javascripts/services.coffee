@@ -11,7 +11,7 @@ services.factory "server", ["$log", ($log) ->
 	init = (theScope) ->
 		scope = theScope
 		# define some constants
-		scope.tileSizePx = 16;	# also defined in LESS
+		scope.tileSizePx = 24;	# also defined in LESS
 		scope.chunkLen = 16;	# also defined in LESS
 		scope.worldLen = 3;
 		# mock world object, should own the chunks but
