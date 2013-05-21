@@ -26,9 +26,9 @@ directives.directive "world", [->
 		elm.addClass "world"
 		renderPlayerMove = () ->
 			elm.css {
-				# XXX: hardcoded base offsets
-				top: (500+scope.player.y*scope.tileSizePx)+"px"
-				left: (0-scope.player.x*scope.tileSizePx)+"px"
+				# FIXME: hardcoded base offsets
+				top: (300+scope.player.y*scope.tileSizePx)+"px"
+				left: (330-scope.player.x*scope.tileSizePx)+"px"
 			}
 		scope.$watch("player.x", renderPlayerMove)
 		scope.$watch("player.y", renderPlayerMove)
