@@ -5,7 +5,7 @@ services = angular.module "app.services", []
 # subscriber can hold a $scope but publisher should not.
 # both can depend on a third service that handles networking.
 # also move chunk/tile utility methods elsewhere
-services.factory "server", ["$log", ($log) ->
+services.factory "server", ["$log", "mock", ($log, mock) ->
 	scope = null
 
 	init = (theScope) ->
@@ -14,6 +14,45 @@ services.factory "server", ["$log", ($log) ->
 		scope.tileSizePx = 32;	# also defined in LESS
 		scope.chunkLen = 16;	# also defined in LESS
 		scope.worldLen = 3;
+		# populate mock data
+		mock.populate scope
+
+	move = (x, y) ->
+		$log.log "server: move invoked [x="+x+" y="+y+"]";
+		
+		player = scope.player;
+		worldLen = scope.worldLen;
+		chunkLen = scope.chunkLen;
+		
+		tileAt = (x, y) ->
+			cx = Math.floor(x / chunkLen);
+			cy = Math.floor(y / chunkLen);
+			tx = (x + chunkLen) % chunkLen;
+			ty = (y + chunkLen) % chunkLen;
+			chunk = scope.chunks[cx*worldLen+cy]
+			if chunk?
+				chunk.tiles[tx*chunkLen+ty];
+			else
+				null
+		prevTile = tileAt(player.x, player.y)
+		nextTile = tileAt(player.x+x, player.y+y);
+		if prevTile? and nextTile? and !(nextTile.entity?)
+			nextTile.entity = prevTile.entity;
+			prevTile.entity = null;
+			scope.player.x += x;
+			scope.player.y += y;
+			scope.$apply()
+	{
+		north: () -> move 0,1
+		south: () -> move 0,-1
+		east: () -> move 1,0
+		west: () -> move -1,0
+		init: init
+	}
+];
+
+services.factory "mock", [->
+	populate = (scope) ->
 		# mock world object, should own the chunks but
 		# for now this just holds some clunky utility methods
 		scope.world = 
@@ -78,36 +117,6 @@ services.factory "server", ["$log", ($log) ->
 		}
 		scope.world.tileAt(10,20).entity =
 			type: "hydra"
-	move = (x, y) ->
-		$log.log "server: move invoked [x="+x+" y="+y+"]";
-		
-		player = scope.player;
-		worldLen = scope.worldLen;
-		chunkLen = scope.chunkLen;
-		
-		tileAt = (x, y) ->
-			cx = Math.floor(x / chunkLen);
-			cy = Math.floor(y / chunkLen);
-			tx = (x + chunkLen) % chunkLen;
-			ty = (y + chunkLen) % chunkLen;
-			chunk = scope.chunks[cx*worldLen+cy]
-			if chunk?
-				chunk.tiles[tx*chunkLen+ty];
-			else
-				null
-		prevTile = tileAt(player.x, player.y)
-		nextTile = tileAt(player.x+x, player.y+y);
-		if prevTile? and nextTile? and !(nextTile.entity?)
-			nextTile.entity = prevTile.entity;
-			prevTile.entity = null;
-			scope.player.x += x;
-			scope.player.y += y;
-			scope.$apply()
-	{
-		north: () -> move 0,1
-		south: () -> move 0,-1
-		east: () -> move 1,0
-		west: () -> move -1,0
-		init: init
-	}
-];
+			
+	return {populate: populate}
+]
