@@ -51,6 +51,24 @@ services.factory "server", ["$log", "mock", ($log, mock) ->
 	}
 ];
 
+services.factory "client", ["net", (net) ->
+	send = (message) ->
+		net.send {message: message}
+	service =
+		north: -> send "north"
+		east:  -> send "east"
+		west:  -> send "west"
+		south: -> send "south"
+]
+
+services.factory "net", ["$window", ($window) ->
+	send = (message) ->
+		# TODO
+
+	service =
+		send: send
+]
+
 services.factory "mock", [->
 	populate = (scope) ->
 		# mock world object, should own the chunks but
