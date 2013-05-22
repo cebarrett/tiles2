@@ -1,24 +1,42 @@
 services = angular.module "app.services", []
 
+#
+# Service that handles communication with the server.
+# All communication with the game server is asynchronous publish/subscribe - no RPC.
+# The connect(scope) method must be invoked before calling any other
+# method, and accepts one parameter, a scope that will be
+# populated with all model data received from the server.
+# To send messages to the server, call the other methods on this object.
+#
 services.factory "net", ["pub", "sub", (pub, sub) ->
 	service =
-		init: (scope) ->
+		connect: (scope) ->
+			sub scope
 			pub {message: "init"}
-			return sub.registerScope scope
 		north: -> pub {message: "north"}
 		south: -> pub {message: "south"}
 		east:  -> pub {message: "east"}
 		west:  -> pub {message: "west"}
 ]
 
+#
+# Sends messages to the server.
+#
 services.factory "pub", ["socket", (socket) ->
 	(object) -> socket.send object
 ]
 
+#
+# Listens for game events from the server and 
+# updates the model data in the application
+# controller's scope.
+#
 services.factory "sub", ["socket", "mock", (socket, mock) ->
 	appScope = null
-	service =
-		registerScope: (scope) ->
+	socket.setMessageCallback (message) ->
+		console.log(message)	# TODO
+
+	return (scope) ->
 			appScope = scope
 			mock.populate(appScope)
 ]
@@ -27,6 +45,8 @@ services.factory "socket", ["$window", ($window) ->
 	wsUrl = $window.location.origin.replace(/^https/, "wss").replace(/^http/, "ws") + "/ws"
 	ws = new $window.WebSocket wsUrl
 
+	messageCallback = null
+
 	ws.onerror = (err) ->
 		# FIXME
 		$window.console.error err
@@ -34,15 +54,17 @@ services.factory "socket", ["$window", ($window) ->
 		# FIXME
 		$window.console.error err
 	ws.onmessage = (event) ->
-		# FIXME
-		$window.console.log event.data
+		msg = $window.JSON.parse event.data
+		messageCallback msg if messageCallback?
 
 	service =
+		setMessageCallback: (obj) ->
+			messageCallback = obj
 		send: (object) ->
 			json = $window.JSON.stringify(object)
 			if !ws.readyState
 				# FIXME !!!
-				console.warn "discarding message, socket not ready: " + json
+				$window.console.warn "discarding message, socket not ready: " + json
 			else
 				ws.send json
 ]
@@ -100,11 +122,6 @@ services.factory "server", ["$log", "mock", ($log, mock) ->
 
 services.factory "mock", [->
 	populate = (scope) ->
-
-		# define some constants
-		scope.tileSizePx = 32;	# also defined in LESS
-		scope.chunkLen = 16;	# also defined in LESS
-		scope.worldLen = 3;
 
 		# mock world object, should own the chunks but
 		# for now this just holds some clunky utility methods

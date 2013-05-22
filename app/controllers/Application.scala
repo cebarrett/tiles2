@@ -13,7 +13,7 @@ object Application extends Controller {
 	def ws = WebSocket.using[String] { request =>
 		val in = Iteratee.foreach[String](println)
 
-		val out = Enumerator("pong");
+		val out = Enumerator("{'message': 'pong'}");
 
 		(in, out)
 	}
