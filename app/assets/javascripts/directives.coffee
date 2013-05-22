@@ -24,9 +24,8 @@ directives.directive "world", ["$window", ($window) ->
 		elm.addClass "world"
 		renderPlayerMove = () ->
 			elm.css {
-				# FIXME: hardcoded base offsets
-				top: ($window.innerHeight/2+(scope.player.y)*scope.tileSizePx)+"px"
-				left: ($window.innerWidth/2+(-scope.player.x)*scope.tileSizePx)+"px"
+				top:  ($window.innerHeight/2+scope.player.y*scope.tileSizePx)+"px"
+				left: ($window.innerWidth /2-scope.player.x*scope.tileSizePx)+"px"
 			}
 		scope.$watch "player.x", renderPlayerMove
 		scope.$watch "player.y", renderPlayerMove
@@ -42,6 +41,7 @@ directives.directive "chunk", [->
 ];
 
 directives.directive "tile", [ () ->
+	# FIXME: use a filter
 	tileRender = {
 		player:
 			text: "@"

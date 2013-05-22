@@ -1,5 +1,56 @@
 services = angular.module "app.services", []
 
+services.factory "net", ["pub", "sub", (pub, sub) ->
+	service =
+		init: (scope) ->
+			pub {message: "init"}
+			return sub.registerScope scope
+		north: -> pub {message: "north"}
+		south: -> pub {message: "south"}
+		east:  -> pub {message: "east"}
+		west:  -> pub {message: "west"}
+]
+
+services.factory "pub", ["socket", (socket) ->
+	(object) -> socket.send object
+]
+
+services.factory "sub", ["socket", "mock", (socket, mock) ->
+	appScope = null
+	service =
+		registerScope: (scope) ->
+			appScope = scope
+			mock.populate(appScope)
+]
+
+services.factory "socket", ["$window", ($window) ->
+	wsUrl = $window.location.origin.replace(/^https/, "wss").replace(/^http/, "ws") + "/ws"
+	ws = new $window.WebSocket wsUrl
+
+	ws.onerror = (err) ->
+		# FIXME
+		$window.console.error err
+	ws.onclose = (err) ->
+		# FIXME
+		$window.console.error err
+	ws.onmessage = (event) ->
+		# FIXME
+		$window.console.log event.data
+
+	service =
+		send: (object) ->
+			json = $window.JSON.stringify(object)
+			if !ws.readyState
+				# FIXME !!!
+				console.warn "discarding message, socket not ready: " + json
+			else
+				ws.send json
+]
+
+##
+## Deprecated Services
+##
+
 # FIXME: refactor
 # split this service into two services, publisher and subscriber.
 # subscriber can hold a $scope but publisher should not.
@@ -10,10 +61,6 @@ services.factory "server", ["$log", "mock", ($log, mock) ->
 
 	init = (theScope) ->
 		scope = theScope
-		# define some constants
-		scope.tileSizePx = 32;	# also defined in LESS
-		scope.chunkLen = 16;	# also defined in LESS
-		scope.worldLen = 3;
 		# populate mock data
 		mock.populate scope
 
@@ -51,26 +98,14 @@ services.factory "server", ["$log", "mock", ($log, mock) ->
 	}
 ];
 
-services.factory "client", ["net", (net) ->
-	send = (message) ->
-		net.send {message: message}
-	service =
-		north: -> send "north"
-		east:  -> send "east"
-		west:  -> send "west"
-		south: -> send "south"
-]
-
-services.factory "net", ["$window", ($window) ->
-	send = (message) ->
-		# TODO
-
-	service =
-		send: send
-]
-
 services.factory "mock", [->
 	populate = (scope) ->
+
+		# define some constants
+		scope.tileSizePx = 32;	# also defined in LESS
+		scope.chunkLen = 16;	# also defined in LESS
+		scope.worldLen = 3;
+
 		# mock world object, should own the chunks but
 		# for now this just holds some clunky utility methods
 		scope.world = 
@@ -86,6 +121,7 @@ services.factory "mock", [->
 				chunk = this.chunkAt x, y
 				tx = ((scope.chunkLen)+(x%scope.chunkLen))%scope.chunkLen
 				ty = ((scope.chunkLen)+(y%scope.chunkLen))%scope.chunkLen
+				console.log [x,y]
 				tile = null
 				for obj in chunk.tiles
 					do (obj) ->
@@ -138,3 +174,4 @@ services.factory "mock", [->
 			
 	return {populate: populate}
 ]
+
