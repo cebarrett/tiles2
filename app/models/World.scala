@@ -1,11 +1,9 @@
 package models
 
-import scala.collection.mutable._
-
 class World {
 
 	private val chunks  = Array.ofDim[Chunk](World.length, World.length)
-	private val players = new HashSet[Player]
+	val players = Set.empty[String]
 
 	def chunk(x:Int, y:Int, newChunk:Chunk = null):Chunk = {
 		require(0 <= x && x < World.length && 0 <= y && y < World.length)
