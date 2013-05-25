@@ -14,6 +14,8 @@ import akka.pattern.ask
 import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
 
+// FIXME: this class is getting too big
+
 object Game {
 	
 	implicit val timeout = Timeout(1 second)
@@ -77,6 +79,7 @@ class Game extends Actor {
 
 		case Talk(playerName:String, message:JsValue) => {
 			// TODO: implement
+			Logger("Talk").info(playerName+": "+message.toString)
 		}
 
 		case Quit(playerName:String) => {
@@ -86,10 +89,10 @@ class Game extends Actor {
 
 	}
 	
-	def notifyAll(id:String, player:String) {
+	def notifyAll(message:String, player:String) {
 		val msg = JsObject(
 			Seq(
-				"id" -> JsString(id),
+				"message" -> JsString(message),
 				"player" -> JsString(player)
 			)
 		)
