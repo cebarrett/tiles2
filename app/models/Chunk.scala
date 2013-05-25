@@ -14,5 +14,5 @@ class Chunk (val cx:Int, val cy:Int, val tiles:Array[Array[Tile]] = Array.ofDim[
 
 object Chunk {
 	val length:Int = 16
-	def coord(worldCoord:Int):Int = math.floor(worldCoord/16).toInt
+	def coord(worldCoord:Int):Int = math.floor(worldCoord/length).toInt
 }
