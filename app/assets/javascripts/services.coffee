@@ -148,7 +148,7 @@ services.factory "mock", [->
 		scope.chunks = do ->
 			chunkLen = scope.chunkLen;
 			worldLen = scope.worldLen;
-			randTerrainType = -> if (Math.random() > 0.5) then "dirt" else "water"
+			randTerrainId = -> if (Math.random() > 0.5) then "dirt" else "water"
 			randChunkForIndex = (i) ->
 				cx = Math.floor((i-1)/worldLen)
 				cy = (i-1)%worldLen
@@ -159,7 +159,7 @@ services.factory "mock", [->
 						tx: tx
 						ty: ty
 						terrain:
-							type: randTerrainType()
+							id: randTerrainId()
 						entity: null
 					}
 				{
@@ -169,7 +169,7 @@ services.factory "mock", [->
 				}
 			randChunkForIndex i for i in [1..worldLen*worldLen];
 		# mock player and inventory
-		scope.player = {
+		scope.player =
 			name: "mock_player"
 			x: 25
 			y: 25
@@ -177,17 +177,14 @@ services.factory "mock", [->
 				{count: 1, item: "Naginata"}
 				{count: 9, item: "Kiwi"}
 			]
-		}
 		# place some mock entities
-		scope.world.tileAt(scope.player.x, scope.player.y).entity = {
-			type: "player"
+		scope.world.tileAt(scope.player.x, scope.player.y).entity =
+			id: "player"
 			player: scope.player
-		}
-		scope.world.tileAt(10,10).entity = {
-			type: "tree"
-		}
+		scope.world.tileAt(10,10).entity =
+			id: "tree"
 		scope.world.tileAt(10,20).entity =
-			type: "hydra"
+			id: "hydra"
 			
 	return {populate: populate}
 ]

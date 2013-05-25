@@ -1,5 +1,5 @@
 package models
 
-class Entity (var id:Int) {
+class Entity (val id:String) {
 
 }

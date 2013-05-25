@@ -1,5 +1,5 @@
 package models
 
-class Terrain (var id:Int) {
+class Terrain (val id:String) {
 
 }

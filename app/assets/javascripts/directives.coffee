@@ -66,12 +66,12 @@ directives.directive "tile", [ () ->
 		elm.css "top", -((1-scope.chunkLen+scope.tile.ty)*scope.tileSizePx)+"px"
 		elm.css "left", ((scope.tile.tx)*scope.tileSizePx)+"px"
 		updateTile = ->
-			type =
+			id =
 				if scope.tile.entity?
-					scope.tile.entity.type
+					scope.tile.entity.id
 				else
-					scope.tile.terrain.type
-			render = tileRender[type];
+					scope.tile.terrain.id
+			render = tileRender[id];
 			elm[0].innerHTML = "&#"+render.text.charCodeAt(0)+";"
 			elm.css {color: render.color}
 		scope.$watch("tile.entity", updateTile);

@@ -1,5 +1,7 @@
 package models
 
-class Game (var world:World) {
+object Game {
+
+	var world = new World
 
 }
