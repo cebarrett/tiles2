@@ -1,18 +1,20 @@
 package models
 
-import akka.actor._
 import scala.concurrent.duration._
 
+import akka.actor._
+import akka.pattern.ask
+import akka.util.Timeout
+
 import play.api._
+import play.api.Play.current
 import play.api.libs.json._
 import play.api.libs.iteratee._
+import play.api.libs.iteratee.Concurrent._
 import play.api.libs.concurrent._
-
-import akka.util.Timeout
-import akka.pattern.ask
-
-import play.api.Play.current
 import play.api.libs.concurrent.Execution.Implicits._
+
+
 
 // FIXME: this class is getting too big
 
@@ -65,28 +67,38 @@ object Game {
 class Game extends Actor {
 
 	private def world = new World
+	private var playerChannels = Map.empty[String, Channel[JsValue]]
 	val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
 	def receive = {
-
 		case Join(playerName:String) => {
-			sender ! Connected(chatEnumerator)
-			// if (players.contains(playerName)) {
-			// 	world.players += new Player(playerName)
-			// }
+			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
+			playerChannels = playerChannels.+((playerName, playerChannel))
+			sender ! Connected(chatEnumerator >- playerEnumerator)
 			notifyAll("playerJoin", playerName)
 		}
 
-		case Talk(playerName:String, message:JsValue) => {
+		case Talk(playerName:String, data:JsValue) => {
 			// TODO: implement
-			Logger("Talk").info(playerName+": "+message.toString)
+			Logger.debug(s"Received message from $playerName: $data")
+			val message:String = (data \ "message").asOpt[String].getOrElse(null)
+			message match {
+				case "init" =>
+					Logger.info("Init new player: " + playerName)
+					// FIXME: push to a channel for this player
+					playerChannels.get(playerName).map({
+						_.push(JsObject(Seq("message" -> JsString("hi"))))
+					})
+				case _ =>
+					Logger.warn("unknown message: " + message)
+			}
 		}
 
 		case Quit(playerName:String) => {
 			// TODO: implement
+			notifyAll("playerQuit", playerName)
+			playerChannels = playerChannels - playerName
 		}
-
-
 	}
 	
 	def notifyAll(message:String, player:String) {
@@ -105,28 +117,3 @@ case class Talk(playerName: String, message:JsValue)
 case class Quit(playerName: String)
 case class Connected(enumerator:Enumerator[JsValue])
 case class CannotConnect(msg:String)
-/*
-private object Robot {
-
-	def apply(chatRoom: ActorRef) {
-		
-		// Create an Iteratee that logs all messages to the console.
-		val loggerIteratee = Iteratee.foreach[JsValue](event => Logger("robot").info(event.toString))
-		
-		implicit val timeout = Timeout(1 second)
-		// Make the robot join the room
-		chatRoom ? (Join("Robot")) map {
-			case Connected(robotChannel) => 
-				// Apply this Enumerator on the logger.
-				robotChannel |>> loggerIteratee
-		}
-		
-		// Make the robot talk every 30 seconds
-		Akka.system.scheduler.schedule(
-			30 seconds,
-			30 seconds,
-			chatRoom,
-			Talk("Robot", "I'm still alive")
-		)
-	}
-*/
