@@ -35,5 +35,5 @@ class World {
 }
 
 object World {
-	def length:Int = 3;
+	def length:Int = 1;
 }

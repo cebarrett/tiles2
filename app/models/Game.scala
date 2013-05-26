@@ -8,13 +8,13 @@ import akka.util.Timeout
 
 import play.api._
 import play.api.Play.current
+import play.api.libs.functional.syntax._
 import play.api.libs.json._
+import play.api.libs.json.Writes._
 import play.api.libs.iteratee._
 import play.api.libs.iteratee.Concurrent._
 import play.api.libs.concurrent._
 import play.api.libs.concurrent.Execution.Implicits._
-
-
 
 // FIXME: this class is getting too big
 
@@ -66,6 +66,19 @@ object Game {
 
 class Game extends Actor {
 
+	implicit val terrainWrites = Json.writes[Terrain]
+	implicit val entityWrites = Json.writes[Entity]
+	implicit val tileWrites = new Writes[Tile] {
+		def writes(t:Tile):JsValue = {
+			var obj = Json.obj("terrain" -> terrainWrites.writes(t.terrain))
+			if (t.entity != null) {
+				obj = obj + ("entity" -> entityWrites.writes(t.entity))
+			}
+			obj
+		}
+	}
+	implicit val chunkWrites = Json.writes[Chunk]
+
 	private def world = new World
 	private var playerChannels = Map.empty[String, Channel[JsValue]]
 	val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
@@ -78,19 +91,23 @@ class Game extends Actor {
 			notifyAll("playerJoin", playerName)
 		}
 
-		case Talk(playerName:String, data:JsValue) => {
+		case Talk(playerName:String, message:JsValue) => {
 			// TODO: implement
-			Logger.debug(s"Received message from $playerName: $data")
-			val message:String = (data \ "message").asOpt[String].getOrElse(null)
-			message match {
+			Logger.debug(s"Received message from $playerName: $message")
+			val id:String = (message \ "id").asOpt[String].getOrElse(null)
+			id match {
 				case "init" =>
 					Logger.info("Init new player: " + playerName)
 					// FIXME: push to a channel for this player
 					playerChannels.get(playerName).map({
-						_.push(JsObject(Seq("message" -> JsString("hi"))))
+						val chunk = world.chunk(0,0)
+						_.push(JsObject(Seq(
+							"id" -> JsString("spawn"),
+							"chunk" -> Json.toJson[Chunk](chunk)
+						)))
 					})
 				case _ =>
-					Logger.warn("unknown message: " + message)
+					Logger.warn("unknown message id: " + id)
 			}
 		}
 
@@ -101,14 +118,14 @@ class Game extends Actor {
 		}
 	}
 	
-	def notifyAll(message:String, player:String) {
-		val msg = JsObject(
+	def notifyAll(id:String, player:String) {
+		val message = JsObject(
 			Seq(
-				"message" -> JsString(message),
+				"id" -> JsString(id),
 				"player" -> JsString(player)
 			)
 		)
-		chatChannel.push(msg)
+		chatChannel.push(message)
 	}
 }
 
@@ -117,3 +134,5 @@ case class Talk(playerName: String, message:JsValue)
 case class Quit(playerName: String)
 case class Connected(enumerator:Enumerator[JsValue])
 case class CannotConnect(msg:String)
+
+

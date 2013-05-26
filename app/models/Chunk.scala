@@ -1,7 +1,6 @@
 package models
 
-
-class Chunk (val cx:Int, val cy:Int, val tiles:Array[Array[Tile]] = Array.ofDim[Tile](Chunk.length, Chunk.length)) {
+case class Chunk (val cx:Int, val cy:Int, val tiles:Array[Array[Tile]] = Array.ofDim[Tile](Chunk.length, Chunk.length)) {
 
 	def tile(x:Int, y:Int, tile:Tile = null):Tile = {
 		if (tile != null) {

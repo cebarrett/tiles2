@@ -1,5 +1,5 @@
 package models
 
-class Terrain (val id:String) {
+case class Terrain (val id:String) {
 
 }
