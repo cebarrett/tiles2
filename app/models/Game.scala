@@ -112,10 +112,9 @@ class Game extends Actor {
 				case "init" =>
 					Logger.info("Init new player: " + playerName)
 					playerChannels.get(playerName).map({
-						val chunk = world.chunk(0,0)
 						_.push(JsObject(Seq(
 							"id" -> JsString("spawn"),
-							"chunk" -> Json.toJson(Seq(
+							"chunks" -> Json.toJson(Seq(
 								world.chunk(0,0),
 								world.chunk(0,1),
 								world.chunk(1,0),

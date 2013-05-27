@@ -38,8 +38,7 @@ services.factory "sub", ["socket", (socket) ->
 			when "spawn" then do ->
 				console.log("got a spawn message")
 				appScope.spawnTime = new Date().getTime()
-				if (!appScope.chunks?) then appScope.chunks = []
-				appScope.chunks.push message.chunk
+				appScope.chunks = message.chunks
 				appScope.$apply()
 			else console.log("unknown message id: " + message.id)
 
