@@ -2,22 +2,20 @@ package models
 
 class World {
 
-	private val chunks  = Array.ofDim[Chunk](World.length, World.length)
+	private val chunks  = Array.ofDim[Option[Chunk]](World.length, World.length)
 	val players = Set.empty[String]
 
 	def chunk(x:Int, y:Int):Chunk = {
 		val coords = WorldCoordinates(x, y)
 		val cx = Chunk.coord(x)
 		val cy = Chunk.coord(y)
-		var c = chunks(cx)(cy);
 
 		/* chunks are lazy created */
-		if (c == null) {
-			chunks(cx)(cy) = ChunkGenerator.generate(cx, cy)
-			c = chunk(x,y)
+		if (chunks(cx)(cy) == null) {
+			chunks(cx)(cy) = Option.apply[Chunk](ChunkGenerator.generate(cx, cy))
 		}
 
-		return c
+		return (chunks(cx)(cy) getOrElse null)
 	}
 
 	def tile(x:Int, y:Int):Tile = {
@@ -32,5 +30,5 @@ case class WorldCoordinates(val x:Int, val y:Int) {
 }
 
 object World {
-	def length:Int = 1;	// length in chunks
+	def length:Int = 2;	// length in chunks
 }

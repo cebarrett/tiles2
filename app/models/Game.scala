@@ -83,6 +83,14 @@ class Game extends Actor {
 		}
 	}
 	implicit val chunkWrites = Json.writes[Chunk]
+	implicit val chunkOptWrites = new Writes[Option[Chunk]] {
+		def writes(c:Option[Chunk]):JsValue = {
+			(c getOrElse null) match {
+				case null => JsNull
+				case _    => chunkWrites.writes(c getOrElse null)
+			}
+		}
+	}
 
 	val world = Game.world
 	private var playerChannels = Map.empty[String, Channel[JsValue]]
@@ -107,7 +115,12 @@ class Game extends Actor {
 						val chunk = world.chunk(0,0)
 						_.push(JsObject(Seq(
 							"id" -> JsString("spawn"),
-							"chunk" -> Json.toJson[Chunk](chunk)
+							"chunk" -> Json.toJson(Seq(
+								world.chunk(0,0),
+								world.chunk(0,1),
+								world.chunk(1,0),
+								world.chunk(1,1)
+							))
 						)))
 					})
 				case _ =>
