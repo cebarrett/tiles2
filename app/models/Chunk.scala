@@ -15,3 +15,7 @@ object Chunk {
 	val length:Int = 16
 	def coord(worldCoord:Int):Int = math.floor(worldCoord/length).toInt
 }
+
+case class ChunkCoordinates(val x:Int, val y:Int) {
+	require(0 <= x && x < Chunk.length && 0 <= y && y < Chunk.length)
+}

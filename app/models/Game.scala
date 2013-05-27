@@ -21,6 +21,8 @@ import play.api.libs.concurrent.Execution.Implicits._
 object Game {
 	
 	implicit val timeout = Timeout(1 second)
+
+	def world = new World
 	
 	lazy val default = {
 		val roomActor = Akka.system.actorOf(Props[Game])
@@ -59,18 +61,21 @@ object Game {
 				(iteratee,enumerator)
 				 
 		}
-
 	}
-	
 }
 
 class Game extends Actor {
 
+	/* JSON methods */
 	implicit val terrainWrites = Json.writes[Terrain]
 	implicit val entityWrites = Json.writes[Entity]
 	implicit val tileWrites = new Writes[Tile] {
 		def writes(t:Tile):JsValue = {
-			var obj = Json.obj("terrain" -> terrainWrites.writes(t.terrain))
+			var obj = JsObject(Seq(
+				"terrain" -> terrainWrites.writes(t.terrain),
+				"tx" -> JsNumber(t.tx),
+				"ty" -> JsNumber(t.ty)
+			))
 			if (t.entity != null) {
 				obj = obj + ("entity" -> entityWrites.writes(t.entity))
 			}
@@ -79,7 +84,7 @@ class Game extends Actor {
 	}
 	implicit val chunkWrites = Json.writes[Chunk]
 
-	private def world = new World
+	val world = Game.world
 	private var playerChannels = Map.empty[String, Channel[JsValue]]
 	val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
@@ -98,7 +103,6 @@ class Game extends Actor {
 			id match {
 				case "init" =>
 					Logger.info("Init new player: " + playerName)
-					// FIXME: push to a channel for this player
 					playerChannels.get(playerName).map({
 						val chunk = world.chunk(0,0)
 						_.push(JsObject(Seq(

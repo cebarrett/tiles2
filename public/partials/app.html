@@ -13,7 +13,10 @@
 <div id="content">
 	<div world>
 		<div chunk ng-repeat="chunk in chunks">
-			<div tile ng-repeat="tile in chunk.tiles"></div>
+			<div tile-column ng-repeat="column in chunk.tiles">
+				<div tile ng-repeat="tile in column">
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

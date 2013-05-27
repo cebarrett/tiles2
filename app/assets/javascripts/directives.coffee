@@ -23,11 +23,12 @@ directives.directive "world", ["$window", ($window) ->
 		# doesn't do much yet
 		elm.addClass "world"
 		renderPlayerMove = () ->
-
-			if scope.player? then elm.css {
-				top:  ($window.innerHeight/2+scope.player.y*scope.tileSizePx)+"px"
-				left: ($window.innerWidth /2-scope.player.x*scope.tileSizePx)+"px"
-			}
+			elm.css {top: "550px", left: "200px"}
+			# FIXME: uncomment when scope.player is available again
+			# if scope.player? then elm.css {
+			# 	top:  ($window.innerHeight/2+scope.player.y*scope.tileSizePx)+"px"
+			# 	left: ($window.innerWidth /2-scope.player.x*scope.tileSizePx)+"px"
+			# }
 		scope.$watch "player.x", renderPlayerMove
 		scope.$watch "player.y", renderPlayerMove
 		$window.addEventListener "resize", renderPlayerMove, false
@@ -41,31 +42,33 @@ directives.directive "chunk", [->
 		elm.css "left", ((scope.chunk.cx)*scope.tileSizePx*scope.chunkLen)+"px"
 ];
 
+directives.directive "tileColumn", [->
+	(scope, elm, attr) ->
+		elm.addClass "tile-column"
+		elm.css "left", (scope.$index*scope.tileSizePx)+"px"
+];
+
 directives.directive "tile", [ () ->
-	# FIXME: use a filter
+	# FIXME: put this in its own service
 	tileRender = {
 		player:
 			text: "@"
 			color: "white"
-		hydra:
-			text: "∭"
-			color: "#6F6"
 		tree:
 			text: "♠"
-			color: "green"
+			color: "#22DD22"
 		water:
 			text: "≈"
-			color: "#4444CC"
+			color: "#6666FF"
 		dirt:
 			text: "."
-			color: "brown"
+			color: "#A06030"
 	}
 
 	return (scope, elm, attr) ->
 		elm.addClass "tile"
 		elm.bind 'selectstart', () -> false
-		elm.css "top", -((1-scope.chunkLen+scope.tile.ty)*scope.tileSizePx)+"px"
-		elm.css "left", ((scope.tile.tx)*scope.tileSizePx)+"px"
+		elm.css "top", -((1-scope.chunkLen+scope.$index)*scope.tileSizePx)+"px"
 		updateTile = ->
 			id =
 				if scope.tile.entity?

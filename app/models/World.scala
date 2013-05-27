@@ -5,35 +5,32 @@ class World {
 	private val chunks  = Array.ofDim[Chunk](World.length, World.length)
 	val players = Set.empty[String]
 
-	def chunk(x:Int, y:Int, newChunk:Chunk = null):Chunk = {
-		require(0 <= x && x < World.length && 0 <= y && y < World.length)
-		var c = newChunk
-		if (c != null) {
-			chunks(Chunk.coord(x))(Chunk.coord(y)) = c;
-		} else {
-			c = chunks(Chunk.coord(x))(Chunk.coord(y));
-		}
+	def chunk(x:Int, y:Int):Chunk = {
+		val coords = WorldCoordinates(x, y)
+		val cx = Chunk.coord(x)
+		val cy = Chunk.coord(y)
+		var c = chunks(cx)(cy);
+
 		/* chunks are lazy created */
 		if (c == null) {
-			chunks(Chunk.coord(x))(Chunk.coord(y)) = ChunkGenerator.generate(Chunk.coord(x),Chunk.coord(y))
+			chunks(cx)(cy) = ChunkGenerator.generate(cx, cy)
 			c = chunk(x,y)
 		}
-		c
+
+		return c
 	}
 
-	def tile(x:Int, y:Int, newTile:Tile = null):Tile = {
-		require(0 <= x && x < Chunk.length && 0 <= y && y < Chunk.length)
-		var t = newTile
-		if (t != null) {
-			chunk(x,y).tile(x,y,t)
-		} else {
-			t = chunk(x,y).tile(x,y)
-		}
-		t
+	def tile(x:Int, y:Int):Tile = {
+		WorldCoordinates(x, y)
+		return chunk(x,y).tile(x,y)
 	}
 
 }
 
+case class WorldCoordinates(val x:Int, val y:Int) {
+	require(0 <= x && x < World.length*Chunk.length && 0 <= y && y < World.length*Chunk.length)
+}
+
 object World {
-	def length:Int = 1;
+	def length:Int = 1;	// length in chunks
 }
