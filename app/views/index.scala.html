@@ -9,7 +9,29 @@
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/index.css")">
 	</head>
 	<body>
-		<div ng-app="app" ng-view></div>
+		<div ng-app="app" ng-controller="AppCtrl">
+			<span app-controls></span>
+			<div id="panel">
+				<div>{{player.name}}</div>
+				<div>X: {{player.x}}</div>
+				<div>Y: {{player.y}}</div>
+				<ul class="itemList">
+					<li class="item-stack" ng-repeat="item in player.inventory">
+						<span>{{item.count}}</span>
+						<span>{{item.id}}</span>
+					</li>
+				</ul>
+			</div>
+			<div id="content">
+				<div world>
+					<div chunk ng-repeat="chunk in chunks">
+						<div tile-column ng-repeat="column in chunk.tiles">
+							<div tile ng-repeat="tile in column"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
 		<script src="@routes.Assets.at("javascripts/lodash.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.at("javascripts/angular.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.at("javascripts/index.js")" type="text/javascript"></script>

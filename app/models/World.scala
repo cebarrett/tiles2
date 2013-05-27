@@ -24,7 +24,7 @@ class World {
 
 case class WorldCoordinates(val x:Int, val y:Int) {
 	require(0 <= x && x < World.length*Chunk.length && 0 <= y && y < World.length*Chunk.length)
-	def toChunk():ChunkCoordinates = ChunkCoordinates(Math.floor(x / 16).toInt, Math.floor(y / 16).toInt)
+	def toChunk():ChunkCoordinates = ChunkCoordinates(Math.floor(x / Chunk.length).toInt, Math.floor(y / Chunk.length).toInt)
 }
 
 object World {

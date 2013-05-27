@@ -111,6 +111,20 @@ class Game extends Actor {
 								world.chunk(0,1),
 								world.chunk(1,0),
 								world.chunk(1,1)
+							)),
+							"player" -> JsObject(Seq(
+								"name" -> JsString(playerName),
+								"inventory" -> Json.toJson(Seq(
+									JsObject(Seq(
+										"id" -> JsString("Club")
+									)),
+									JsObject(Seq(
+										"id" -> JsString("Banana"),
+										"count" -> JsNumber(10)
+									))
+								)),
+								"x" -> JsNumber(24),
+								"y" -> JsNumber(24)
 							))
 						)))
 					})
