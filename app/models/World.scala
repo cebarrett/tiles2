@@ -28,5 +28,5 @@ case class WorldCoordinates(val x:Int, val y:Int) {
 }
 
 object World {
-	def length:Int = 2;	// length in chunks
+	def length:Int = 3;	// length in chunks
 }
