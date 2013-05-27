@@ -22,7 +22,7 @@ object Application extends Controller {
 
 	def ws = WebSocket.async[JsValue] { request =>
 		val playerName = request.session.get("playerName")
-		Game.join(playerName getOrElse null)
+		Game.join(playerName head)
 	}
 
 }
