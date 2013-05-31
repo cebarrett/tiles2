@@ -23,8 +23,6 @@ directives.directive "world", ["$window", ($window) ->
 		# doesn't do much yet
 		elm.addClass "world"
 		renderPlayerMove = () ->
-			# elm.css {top: "900px", left: "200px"}
-			# FIXME: uncomment when scope.player is available again
 			if scope.player? then elm.css {
 				top:  ($window.innerHeight/2+scope.player.y*scope.tileSizePx)+"px"
 				left: ($window.innerWidth /2-scope.player.x*scope.tileSizePx)+"px"
