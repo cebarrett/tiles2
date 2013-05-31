@@ -28,25 +28,25 @@ class Game extends Actor {
 	private var playerChannels = Map.empty[String, Channel[JsValue]]
 	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
-/*
- * JSON formatters
- */
-implicit val terrainWrites = Json.writes[Terrain]
-implicit val entityWrites = Json.writes[Entity]
-implicit val tileWrites = new Writes[Tile] {
-	def writes(t:Tile):JsValue = {
-		var obj = JsObject(Seq(
-			"terrain" -> terrainWrites.writes(t.terrain),
-			"tx" -> JsNumber(t.tx),
-			"ty" -> JsNumber(t.ty)
-		))
-		if (t.entity != null) {
-			obj = obj + ("entity" -> entityWrites.writes(t.entity))
+	/*
+	 * JSON formatters
+	 */
+	implicit val terrainWrites = Json.writes[Terrain]
+	implicit val entityWrites = Json.writes[Entity]
+	implicit val tileWrites = new Writes[Tile] {
+		def writes(t:Tile):JsValue = {
+			var obj = JsObject(Seq(
+				"terrain" -> terrainWrites.writes(t.terrain),
+				"tx" -> JsNumber(t.tx),
+				"ty" -> JsNumber(t.ty)
+			))
+			if (t.entity != null) {
+				obj = obj + ("entity" -> entityWrites.writes(t.entity))
+			}
+			obj
 		}
-		obj
 	}
-}
-implicit val chunkWrites = Json.writes[Chunk]
+	implicit val chunkWrites = Json.writes[Chunk]
 
 	def receive = {
 		case Join(playerName:String) => {
