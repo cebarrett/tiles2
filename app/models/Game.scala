@@ -123,8 +123,8 @@ class Game extends Actor {
 										"count" -> JsNumber(10)
 									))
 								)),
-								"x" -> JsNumber(24),
-								"y" -> JsNumber(24)
+								"x" -> JsNumber(16),
+								"y" -> JsNumber(16)
 							))
 						)))
 					})
