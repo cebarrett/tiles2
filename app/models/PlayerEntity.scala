@@ -1,5 +1,3 @@
 package models
 
-class PlayerEntity(val name:String) extends Entity("player") {
-
-}
+case class PlayerEntity(val playerName:String) extends Entity("player")

@@ -7,7 +7,7 @@ object ChunkGenerator {
 		for (tx <- 0 until Chunk.length) {
 			for (ty <- 0 until Chunk.length) {
 				val terrain = new Terrain("dirt")
-				val entity = if (Math.random < 0.05) new Entity("tree") else null
+				val entity = if (Math.random < 0.05) Some(new Entity("tree")) else None
 				chunk.tiles(tx)(ty) = new Tile(tx, ty, terrain, entity)
 			}
 		}

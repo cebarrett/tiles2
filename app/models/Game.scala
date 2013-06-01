@@ -10,11 +10,14 @@ import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 import play.api.libs.iteratee.Enumerator
+import play.api.libs.json.JsNull
 import play.api.libs.json.JsNumber
 import play.api.libs.json.JsObject
 import play.api.libs.json.JsString
 import play.api.libs.json.JsValue
 import play.api.libs.json.Json
+import play.api.libs.json.JsPath.readNullable
+import play.api.libs.json.JsPath.writeNullable
 import play.api.libs.json.Writes
 import play.api.libs.json.Writes.arrayWrites
 import play.api.libs.json.Writes.traversableWrites
@@ -31,25 +34,20 @@ class Game extends Actor {
 	/*
 	 * JSON formatters
 	 */
-	implicit val terrainWrites = Json.writes[Terrain]
-	implicit val entityWrites = Json.writes[Entity]
-	implicit val tileWrites = new Writes[Tile] {
-		def writes(t:Tile):JsValue = {
-			var obj = JsObject(Seq(
-				"terrain" -> terrainWrites.writes(t.terrain),
-				"tx" -> JsNumber(t.tx),
-				"ty" -> JsNumber(t.ty)
-			))
-			if (t.entity != null) {
-				obj = obj + ("entity" -> entityWrites.writes(t.entity))
-			}
-			obj
-		}
+	implicit val writesTerrain = Json.writes[Terrain]
+	implicit val writesEntity = new Writes[Entity] {
+		def writes(t:Entity):JsValue = JsObject(Seq("id" -> JsString(t.id)))
 	}
-	implicit val chunkWrites = Json.writes[Chunk]
+	implicit val writesPlayerEntity = Json.writes[PlayerEntity]
+	implicit val writesOptionEntity = new Writes[Option[Entity]] {
+		def writes(t:Option[Entity]):JsValue = if (t.isDefined) Json.toJson(t) else JsNull
+	}
+	implicit val writesTile = Json.writes[Tile]
+	implicit val writesChunk = Json.writes[Chunk]
 
 	def receive = {
 		case Join(playerName:String) => {
+			val player = world.spawnPlayer(playerName)
 			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
 			playerChannels = playerChannels.+((playerName, playerChannel))
 			sender ! Connected(chatEnumerator >- playerEnumerator)
@@ -95,6 +93,7 @@ class Game extends Actor {
 
 		case Quit(playerName:String) => {
 			// TODO: implement
+			val player = world.despawnPlayer(playerName)
 			notifyAll("playerQuit", playerName)
 			playerChannels = playerChannels - playerName
 		}
