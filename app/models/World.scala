@@ -84,6 +84,7 @@ class World {
 			newTile.entity = oldTile.entity
 			oldTile.entity = None
 			this.eventChannel.push(WorldEvent("playerMoveOldTile", Some(oldX), Some(oldY), Some(oldTile)))
+			// FIXME: this broadcasts the entire player object including inventory
 			this.eventChannel.push(WorldEvent("playerMoveNewTile", Some(newX), Some(newY), Some(newTile), Some(player)))
 		}
 	}
