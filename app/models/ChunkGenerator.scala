@@ -2,8 +2,8 @@ package models
 
 object ChunkGenerator {
 
-	def generate(cx:Int, cy:Int):Chunk = {
-		val chunk = new Chunk(cx, cy)
+	def generate(coords:ChunkCoordinates):Chunk = {
+		val chunk = new Chunk(coords.cx, coords.cy)
 		for (tx <- 0 until Chunk.length) {
 			for (ty <- 0 until Chunk.length) {
 				val terrain = new Terrain("dirt")
