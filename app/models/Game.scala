@@ -29,6 +29,11 @@ class Game extends Actor {
 	/** The world */
 	val world = new World
 
+	/** Translates WorldEvents into JSON that can be broadcast to players. */
+	val jsonWorldEventEnumerator:Enumerator[JsValue] = world.eventEnumerator.map[JsValue] { worldEvent =>
+		Json.toJson(worldEvent)
+	}
+
 	/** Broadcast JSON messages to individual players. */
 	private var playerChannels = Map.empty[String, Channel[JsValue]]
 
@@ -40,8 +45,7 @@ class Game extends Actor {
 			val player = world.spawnPlayer(playerName)
 			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
 			playerChannels = playerChannels + (playerName -> playerChannel)
-			sender ! Connected(chatEnumerator >- playerEnumerator)
-			notifyAll("playerJoin", playerName)
+			sender ! Connected(jsonWorldEventEnumerator >- chatEnumerator >- playerEnumerator)
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
@@ -82,19 +86,8 @@ class Game extends Actor {
 
 		case Quit(playerName:String) => {
 			val player = world.despawnPlayer(playerName)
-			notifyAll("playerQuit", playerName)
 			playerChannels = playerChannels - playerName
 		}
-	}
-	
-	def notifyAll(id:String, player:String) {
-		val message = JsObject(
-			Seq(
-				"id" -> JsString(id),
-				"player" -> JsString(player)
-			)
-		)
-		chatChannel.push(message)
 	}
 
 	/*
@@ -111,6 +104,7 @@ class Game extends Actor {
 	}
 	implicit val writesTile = Json.writes[Tile]
 	implicit val writesChunk = Json.writes[Chunk]
+	implicit val writesWorldEvent = Json.writes[WorldEvent]
 }
 
 case class Join(playerName: String)
