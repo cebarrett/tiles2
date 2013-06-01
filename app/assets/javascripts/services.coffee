@@ -44,7 +44,11 @@ services.factory "sub", ["socket", (socket) ->
 			when "playerDespawn" then console.log("player despawned")
 			else console.log("unknown kind of message: " + message.kind)
 		if message.tile? then do ->
-			appScope.chunks[0].tiles[message.tile.tx][message.tile.ty] = message.tile
+			chunk = _(appScope.chunks).find({
+				cx: Math.floor(message.x/appScope.chunkLen)
+				cy: Math.floor(message.y/appScope.chunkLen)
+			})
+			chunk.tiles[message.tile.tx][message.tile.ty] = message.tile
 			appScope.$apply()
 
 	return (scope) -> appScope = scope
@@ -88,3 +92,4 @@ services.factory "socket", ["$window", ($window) ->
 			else
 				ws.send json
 ]
+
