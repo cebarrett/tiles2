@@ -12,11 +12,11 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 	service =
 		connect: (scope) ->
 			sub scope
-			pub {id: "init"}
-		north: -> pub {id: "north"}
-		south: -> pub {id: "south"}
-		east:  -> pub {id: "east"}
-		west:  -> pub {id: "west"}
+			pub {kind: "init"}
+		north: -> pub {kind: "north"}
+		south: -> pub {kind: "south"}
+		east:  -> pub {kind: "east"}
+		west:  -> pub {kind: "west"}
 ]
 
 #
@@ -34,14 +34,19 @@ services.factory "pub", ["socket", (socket) ->
 services.factory "sub", ["socket", (socket) ->
 	appScope = null
 	socket.setMessageCallback (message) ->
-		switch message.id
+		switch message.kind
 			when "spawn" then do ->
 				console.log("got a spawn message")
 				appScope.spawnTime = new Date().getTime()
 				appScope.chunks = message.chunks
 				appScope.player = message.player
 				appScope.$apply()
-			else console.log("unknown message id: " + message.id)
+			when "playerSpawn" then console.log("player spawned")
+			when "playerDespawn" then console.log("player despawned")
+			else console.log("unknown kind of message: " + message.kind)
+		if message.tile? then do ->
+			appScope.chunks[0].tiles[message.tile.tx][message.tile.ty] = message.tile
+			appScope.$apply()
 
 	return (scope) -> appScope = scope
 ]
@@ -54,25 +59,29 @@ services.factory "socket", ["$window", ($window) ->
 	ws = new $window.WebSocket wsUrl
 	messageCallback = null # a function that handles all messages
 	sendQueue = [] # messages to send after onopen
+	receiveQueue = [] # messages to receive after messageCallback is set
 
 	ws.onerror = (err) ->
 		# TODO
 		$window.console.error err
 	ws.onopen = ->
-		for json in sendQueue
-			do (json) ->
-				ws.send json
+		ws.send(json) for json in sendQueue
 		sendQueue = []
 	ws.onclose = (err) ->
 		# TODO
-		$window.console.error err
+		$window.alert("Error: Connection closed: " + err)
 	ws.onmessage = (event) ->
 		message = $window.JSON.parse event.data
-		messageCallback message if messageCallback?
+		if messageCallback?
+			messageCallback message 
+		else
+			receiveQueue.push message
 
 	service =
 		setMessageCallback: (fn) ->
 			messageCallback = fn
+			messageCallback(json) for json in receiveQueue
+			receiveQueue = []
 		send: (message) ->
 			json = $window.JSON.stringify(message)
 			if !ws.readyState

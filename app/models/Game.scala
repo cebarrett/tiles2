@@ -50,13 +50,13 @@ class Game extends Actor {
 
 		case Talk(playerName:String, message:JsValue) => {
 			Logger.debug(s"Received message from $playerName: $message")
-			val id:String = (message \ "id").asOpt[String].getOrElse(null)
-			id match {
+			val kind:String = (message \ "kind").asOpt[String].getOrElse(null)
+			kind match {
 				case "init" =>
 					Logger.info("Init new player: " + playerName)
 					playerChannels.get(playerName).map({
 						_.push(JsObject(Seq(
-							"id" -> JsString("spawn"),
+							"kind" -> JsString("spawn"),
 							"chunks" -> Json.toJson(Seq(
 								world.chunk(0,0),
 								world.chunk(0,1),
@@ -80,7 +80,7 @@ class Game extends Actor {
 						)))
 					})
 				case _ =>
-					Logger.warn("unknown message id: " + id)
+					Logger.warn("unknown kind of message: " + kind)
 			}
 		}
 
