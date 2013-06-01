@@ -29,9 +29,9 @@ object Application extends Controller {
 	
 	private implicit val akkaTimeout = akka.util.Timeout(1 second)
 	
-	private var hitCounter:Int = 0
-	
 	private val game = Akka.system.actorOf(Props[Game])
+	
+	private var hitCounter:Int = 0
 
 	def index = Action {
 		hitCounter = hitCounter + 1
