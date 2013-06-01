@@ -12,7 +12,6 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 	service =
 		connect: (scope) ->
 			sub scope
-			pub {kind: "init"}
 		north: -> pub {kind: "north"}
 		south: -> pub {kind: "south"}
 		east:  -> pub {kind: "east"}

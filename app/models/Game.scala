@@ -46,39 +46,22 @@ class Game extends Actor {
 			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
 			playerChannels = playerChannels + (playerName -> playerChannel)
 			sender ! Connected(jsonWorldEventEnumerator >- chatEnumerator >- playerEnumerator)
+			playerChannel.push(JsObject(Seq(
+				"kind" -> JsString("spawn"),
+				"chunks" -> Json.toJson(Seq(
+					world.chunk(0,0),
+					world.chunk(0,1),
+					world.chunk(1,0),
+					world.chunk(1,1)
+				)),
+				"player" -> Json.toJson(player)
+			)))
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
 			Logger.debug(s"Received message from $playerName: $message")
 			val kind:String = (message \ "kind").asOpt[String].getOrElse(null)
 			kind match {
-				case "init" =>
-					Logger.info("Init new player: " + playerName)
-					playerChannels.get(playerName).map({
-						_.push(JsObject(Seq(
-							"kind" -> JsString("spawn"),
-							"chunks" -> Json.toJson(Seq(
-								world.chunk(0,0),
-								world.chunk(0,1),
-								world.chunk(1,0),
-								world.chunk(1,1)
-							)),
-							"player" -> JsObject(Seq(
-								"name" -> JsString(playerName),
-								"inventory" -> Json.toJson(Seq(
-									JsObject(Seq(
-										"id" -> JsString("Club")
-									)),
-									JsObject(Seq(
-										"id" -> JsString("Banana"),
-										"count" -> JsNumber(10)
-									))
-								)),
-								"x" -> JsNumber(16),
-								"y" -> JsNumber(16)
-							))
-						)))
-					})
 				case _ =>
 					Logger.warn("unknown kind of message: " + kind)
 			}
@@ -93,6 +76,7 @@ class Game extends Actor {
 	/*
 	 * JSON formatters
 	 */
+	implicit val writesPlayer = Json.writes[Player]
 	implicit val writesTerrain = Json.writes[Terrain]
 	implicit val writesEntity = new Writes[Entity] {
 		def writes(t:Entity):JsValue = JsObject(Seq("id" -> JsString(t.id)))
