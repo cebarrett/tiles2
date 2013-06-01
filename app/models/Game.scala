@@ -26,36 +26,25 @@ import play.api.libs.json.Writes.traversableWrites
 
 class Game extends Actor {
 
+	/** The world */
 	val world = new World
-	// FIXME: game actor shouldn't communicate in JSON
-	private var playerChannels = Map.empty[String, Channel[JsValue]]
-	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
-	/*
-	 * JSON formatters
-	 */
-	implicit val writesTerrain = Json.writes[Terrain]
-	implicit val writesEntity = new Writes[Entity] {
-		def writes(t:Entity):JsValue = JsObject(Seq("id" -> JsString(t.id)))
-	}
-	implicit val writesPlayerEntity = Json.writes[PlayerEntity]
-	implicit val writesOptionEntity = new Writes[Option[Entity]] {
-		def writes(t:Option[Entity]):JsValue = if (t.isDefined) Json.toJson(t) else JsNull
-	}
-	implicit val writesTile = Json.writes[Tile]
-	implicit val writesChunk = Json.writes[Chunk]
+	/** Broadcast JSON messages to individual players. */
+	private var playerChannels = Map.empty[String, Channel[JsValue]]
+
+	/** Broadcast JSON messages to all players. */
+	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
 	def receive = {
 		case Join(playerName:String) => {
 			val player = world.spawnPlayer(playerName)
 			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
-			playerChannels = playerChannels.+((playerName, playerChannel))
+			playerChannels = playerChannels + (playerName -> playerChannel)
 			sender ! Connected(chatEnumerator >- playerEnumerator)
 			notifyAll("playerJoin", playerName)
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
-			// TODO: implement
 			Logger.debug(s"Received message from $playerName: $message")
 			val id:String = (message \ "id").asOpt[String].getOrElse(null)
 			id match {
@@ -92,7 +81,6 @@ class Game extends Actor {
 		}
 
 		case Quit(playerName:String) => {
-			// TODO: implement
 			val player = world.despawnPlayer(playerName)
 			notifyAll("playerQuit", playerName)
 			playerChannels = playerChannels - playerName
@@ -108,6 +96,21 @@ class Game extends Actor {
 		)
 		chatChannel.push(message)
 	}
+
+	/*
+	 * JSON formatters
+	 */
+	implicit val writesTerrain = Json.writes[Terrain]
+	implicit val writesEntity = new Writes[Entity] {
+		def writes(t:Entity):JsValue = JsObject(Seq("id" -> JsString(t.id)))
+	}
+	implicit val writesPlayerEntity = Json.writes[PlayerEntity]
+	implicit val writesOptionEntity = new Writes[Option[Entity]] {
+		// FIXME: this is not including PlayerEntity's name attribute
+		def writes(t:Option[Entity]):JsValue = if (t.isDefined) Json.toJson(t) else JsNull
+	}
+	implicit val writesTile = Json.writes[Tile]
+	implicit val writesChunk = Json.writes[Chunk]
 }
 
 case class Join(playerName: String)
