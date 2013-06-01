@@ -42,6 +42,8 @@ services.factory "sub", ["socket", (socket) ->
 				appScope.$apply()
 			when "playerSpawn" then console.log("player spawned")
 			when "playerDespawn" then console.log("player despawned")
+			when "playerMoveOldTile" then console.log("player despawned")
+			when "playerMoveNewTile" then console.log("player despawned")
 			else console.log("unknown kind of message: " + message.kind)
 		if message.tile? then do ->
 			chunk = _(appScope.chunks).find({
@@ -49,6 +51,9 @@ services.factory "sub", ["socket", (socket) ->
 				cy: Math.floor(message.y/appScope.chunkLen)
 			})
 			chunk.tiles[message.tile.tx][message.tile.ty] = message.tile
+			appScope.$apply()
+		if (message.player? and message.player.name == appScope.player.name) then do ->
+			appScope.player = message.player
 			appScope.$apply()
 
 	return (scope) -> appScope = scope
@@ -58,7 +63,7 @@ services.factory "sub", ["socket", (socket) ->
 # Handles WebSocket communication with the server.
 #
 services.factory "socket", ["$window", ($window) ->
-	wsUrl = $window.location.origin.replace(/^https/, "wss").replace(/^http/, "ws") + "/ws"
+	wsUrl = $window.location.origin.replace(/^http/, "ws") + "/ws"
 	ws = new $window.WebSocket wsUrl
 	messageCallback = null # a function that handles all messages
 	sendQueue = [] # messages to send after onopen

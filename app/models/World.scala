@@ -84,7 +84,7 @@ class World {
 			newTile.entity = oldTile.entity
 			oldTile.entity = None
 			this.eventChannel.push(WorldEvent("playerMoveOldTile", Some(oldX), Some(oldY), Some(oldTile)))
-			this.eventChannel.push(WorldEvent("playerMoveNewTile", Some(newX), Some(newY), Some(newTile)))
+			this.eventChannel.push(WorldEvent("playerMoveNewTile", Some(newX), Some(newY), Some(newTile), Some(player)))
 		}
 	}
 
@@ -98,7 +98,8 @@ case class WorldCoordinates(val x:Int, val y:Int) {
 
 case class WorldEvent(
 	val kind:String,
-	val x:Option[Int],
-	val y:Option[Int],
-	val tile:Option[Tile]
+	val x:Option[Int] = None,
+	val y:Option[Int] = None,
+	val tile:Option[Tile] = None,
+	val player:Option[Player] = None
 )
