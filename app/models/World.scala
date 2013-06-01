@@ -66,6 +66,8 @@ class World {
 				// null out reference to the player object
 				players = players - playerName
 			case None =>
+				// FIXME: there is a bug where this happens if i open around 50
+				// browser tabs w/ the game open then close them all at the same time.
 				Logger.warn(s"Tried to despawn player who is not logged in: $playerName")
 		}
 	}
