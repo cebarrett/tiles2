@@ -7,7 +7,9 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def length:Int = 2;	// length in chunks
+	def length:Int = 2;
+	def lengthChunks = length
+	def lengthTiles = lengthChunks * Chunk.length
 }
 
 class World {
@@ -65,6 +67,24 @@ class World {
 				players = players - playerName
 			case None =>
 				Logger.warn(s"Tried to despawn player who is not logged in: $playerName")
+		}
+	}
+
+	def movePlayer(playerName:String, dx:Int, dy:Int) {
+		players.get(playerName) map { player =>
+			val oldX:Int = player.x
+			val oldY:Int = player.y
+			val (newX, newY) = (oldX+dx, oldY+dy)
+			if (newX < 0 || newX >= World.lengthTiles || newY < 0 || newY >= World.lengthTiles) return
+			val oldTile = tile(oldX, oldY)
+			val newTile = tile(newX, newY)
+			if (newTile.entity.isDefined) return
+			player.x = player.x + dx
+			player.y = player.y + dy
+			newTile.entity = oldTile.entity
+			oldTile.entity = None
+			this.eventChannel.push(WorldEvent("playerMoveOldTile", Some(oldX), Some(oldY), Some(oldTile)))
+			this.eventChannel.push(WorldEvent("playerMoveNewTile", Some(newX), Some(newY), Some(newTile)))
 		}
 	}
 

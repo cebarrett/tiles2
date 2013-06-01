@@ -22,8 +22,6 @@ import play.api.libs.json.Writes
 import play.api.libs.json.Writes.arrayWrites
 import play.api.libs.json.Writes.traversableWrites
 
-// FIXME: this class is getting too big
-
 class Game extends Actor {
 
 	/** The world */
@@ -62,6 +60,14 @@ class Game extends Actor {
 			Logger.debug(s"Received message from $playerName: $message")
 			val kind:String = (message \ "kind").asOpt[String].getOrElse(null)
 			kind match {
+				case "north" =>
+					world.movePlayer(playerName,  0,  1)
+				case "south" =>
+					world.movePlayer(playerName,  0, -1)
+				case "east"  =>
+					world.movePlayer(playerName,  1,  0)
+				case "west"  =>
+					world.movePlayer(playerName, -1,  0)
 				case _ =>
 					Logger.warn("unknown kind of message: " + kind)
 			}
