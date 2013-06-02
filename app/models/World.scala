@@ -107,6 +107,16 @@ class World {
 			}
 		}
 	}
+	
+	def doPlayerCrafting(playerName:String, recipe:WorkbenchRecipe) {
+		// FIXME: Validate that the recipe is a valid recipe.
+		// FIXME: Validate that the player has enough items to make the recipe.
+		val player:Player = players.get(playerName).get
+		val playerTile:Tile = tile(player.x, player.y)
+		player.inventory.add(recipe.result);
+		recipe.ingredients.map {player.inventory.subtract(_)}
+		this.eventChannel.push(WorldEvent("playerCraft", Some(player.x), Some(player.y), Some(playerTile), Some(player)))
+	}
 
 	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates) {
 		require(entity(attackerCoords).isDefined && entity(targetCoords).isDefined)
@@ -128,9 +138,19 @@ class World {
 				}
 			}
 			case (attacker:EntityPlayer, target:EntityPlayer) => {
+				val player = players.get(attacker.playerName).get
 				if (Random.nextDouble() < 0.1) {
-					players.get(attacker.playerName).map {_.inventory.add(Item("human meat", Some(1)))}
+					player.inventory.add(Item("human meat", Some(1)))
 				}
+			}
+			case (attacker:EntityPlayer, target:EntityWorkbench) => {
+				val player = players.get(attacker.playerName).get
+				val options:Seq[String] = Seq(
+					"Close",
+					"Craft 4 wood from 1 log",
+					"Craft a wooden axe from 1 stick and 1 wood"
+				)
+				this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 			}
 			case (_, _) => Unit
 		}
@@ -151,5 +171,6 @@ case class WorldEvent(
 	val x:Option[Int] = None,
 	val y:Option[Int] = None,
 	val tile:Option[Tile] = None,
-	val player:Option[Player] = None
+	val player:Option[Player] = None,
+	val options:Option[Seq[String]] = None
 )

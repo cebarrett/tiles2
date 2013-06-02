@@ -1,5 +1,5 @@
 
-@tileSize: 32px;
+@tileSize: 40px;
 @chunkLength: 16;
 @sidebarWidth: 150px;
 
@@ -20,6 +20,7 @@ body {
 
 #content {
 	position: absolute;
+	overflow: hidden;
 	left: @sidebarWidth;
 	right: @sidebarWidth;
 	height: 100%;
@@ -84,4 +85,24 @@ body {
 	line-height: @tileSize;
 	text-align: center;
 	cursor: pointer;
+}
+
+.gui {
+	position: absolute;
+	background-color: rgba(255,255,255,0.4);
+	top: 50px;
+	bottom: 50px;
+	left: 50px;
+	right: 50px;
+	overflow-y: auto;
+}
+
+.gui-option {
+	text-align: center;
+	margin: 0.7em;
+	button {
+		display: inline;
+		padding: 0.3em;
+		width: 90%;
+	}
 }
