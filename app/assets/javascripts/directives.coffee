@@ -58,13 +58,13 @@ directives.directive "tile", [ () ->
 			text: "♠"
 			color: "#00BB00"
 		water:
-			text: "≈"
+			text: "≋"
 			color: "#6666FF"
 		dirt:
 			text: "."
 			color: "#A06030"
 		workbench:
-			text: "⩦"
+			text: "⊞"
 			color: "#BB7722"
 	}
 
