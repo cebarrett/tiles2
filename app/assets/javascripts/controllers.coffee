@@ -1,6 +1,6 @@
 controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
-controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
+controllers.controller "AppCtrl", ["$scope", "$log", "net", ($scope, $log, net) ->
 
 	# define some important constants
 	# (should this go here?)
@@ -18,12 +18,16 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 	$scope.west  = -> net.west()
 	
 	# FIXME: populate some stuff for testing
-	$scope.gui = [
+	$scope.guiOptions = [
 		"Close",
 		"Craft 4 wood from 1 log",
 		"Craft a wooden axe from 1 stick and 1 wood"
 	];
 	$scope.guiSelect = (index) ->
-		console.log("Selected: " + $scope.gui[index])
-		(delete $scope.gui) if (index == 0)
+		$log.info("GUI selection: " + $scope.guiOptions[index])
+		if (index == 0)
+			# assumes first choice is always the close button
+			# and other choices should keep the GUI open
+			delete $scope.guiOptions
+		net.guiSelect(index)
 ];

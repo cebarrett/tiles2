@@ -16,6 +16,8 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 		south: -> pub {kind: "south"}
 		east:  -> pub {kind: "east"}
 		west:  -> pub {kind: "west"}
+		guiSelect: (index) ->
+			pub {kind: "guiSelect", index: index}
 ]
 
 #
@@ -34,16 +36,22 @@ services.factory "sub", ["socket", (socket) ->
 	appScope = null
 	socket.setMessageCallback (message) ->
 		switch message.kind
+			when "error" then do ->
+				console.error("Error " + message.code + ": " + message.description)
 			when "spawn" then do ->
 				console.log("got a spawn message")
 				appScope.spawnTime = new Date().getTime()
 				appScope.chunks = message.chunks
 				appScope.player = message.player
 				appScope.$apply()
+			when "gui" then do ->
+				console.info("got a gui message")
+				appScope.guiOptions = message.options
 			when "playerSpawn" then console.log("player spawned")
 			when "playerDespawn" then console.log("player despawned")
 			when "playerMoveOldTile" then console.log("player despawned")
 			when "playerMoveNewTile" then console.log("player despawned")
+			when "entityDespawn" then console.log("entity despawned")
 			else console.log("unknown kind of message: " + message.kind)
 		if message.tile? then do ->
 			chunk = _(appScope.chunks).find({
