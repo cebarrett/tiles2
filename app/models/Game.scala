@@ -59,9 +59,12 @@ class Game extends Actor {
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
+			// FIXME: rate limit some kinds of messages
 			Logger.debug(s"Received message from $playerName: $message")
-			val kind:String = (message \ "kind").asOpt[String].getOrElse(null)
+			val kind:String = (message \ "kind").as[String]
 			kind match {
+				// FIXME: players can move while a gui is open.
+				// need to set a flag on the Player and unset when they select something.
 				case "north" =>
 					world.movePlayer(playerName,  0,  1)
 				case "south" =>
@@ -70,6 +73,17 @@ class Game extends Actor {
 					world.movePlayer(playerName,  1,  0)
 				case "west"  =>
 					world.movePlayer(playerName, -1,  0)
+				case "guiSelect" => {
+					val index:Int = (message \ "index").as[Int]
+					index match {
+						// FIXME: this is duplicated from doEntityInteraction, make the code DRYer
+						case 0 => Unit // does nothing for now
+						case 1 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wood", Some(4)), Seq(Item("log", Some(1)))))
+						case 2 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wooden axe"), Seq(Item("stick", Some(1)), Item("wood", Some(1)))))
+						case _ =>
+							Logger.warn(s"Unknown gui index: $index");
+					}
+				}
 				case _ =>
 					Logger.warn("unknown kind of message: " + kind)
 			}

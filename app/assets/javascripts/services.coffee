@@ -40,13 +40,13 @@ services.factory "sub", ["socket", (socket) ->
 				console.error("Error " + message.code + ": " + message.description)
 			when "spawn" then do ->
 				console.log("got a spawn message")
-				appScope.spawnTime = new Date().getTime()
 				appScope.chunks = message.chunks
 				appScope.player = message.player
 				appScope.$apply()
 			when "gui" then do ->
 				console.info("got a gui message")
 				appScope.guiOptions = message.options
+				appScope.$apply()
 			when "playerSpawn" then console.log("player spawned")
 			when "playerDespawn" then console.log("player despawned")
 			when "playerMoveOldTile" then console.log("player despawned")

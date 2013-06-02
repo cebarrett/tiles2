@@ -17,12 +17,7 @@ controllers.controller "AppCtrl", ["$scope", "$log", "net", ($scope, $log, net) 
 	$scope.south = -> net.south()
 	$scope.west  = -> net.west()
 	
-	# FIXME: populate some stuff for testing
-	$scope.guiOptions = [
-		"Close",
-		"Craft 4 wood from 1 log",
-		"Craft a wooden axe from 1 stick and 1 wood"
-	];
+	# gui select callback
 	$scope.guiSelect = (index) ->
 		$log.info("GUI selection: " + $scope.guiOptions[index])
 		if (index == 0)
