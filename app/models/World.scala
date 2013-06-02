@@ -120,15 +120,17 @@ class World {
 				if (Random.nextDouble() < 0.01) {
 					player.inventory.add(Item("apple", Some(1)))
 				} else if (Random.nextDouble() < 0.05) {
-					player.inventory.add(Item("stick", Some(1)))
+					player.inventory.add(Item("stick", Some(1+Random.nextInt(2))))
 				} else if (Random.nextDouble() < 0.005) {
-					player.inventory.add(Item("log", Some(Random.nextInt(5)+6)))
+					player.inventory.add(Item("log", Some(1)))
 					targetTile.entity = None
 					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
 				}
 			}
 			case (attacker:EntityPlayer, target:EntityPlayer) => {
-				players.get(attacker.playerName).map {_.inventory.add(Item("human meat", Some(1)))}
+				if (Random.nextDouble() < 0.1) {
+					players.get(attacker.playerName).map {_.inventory.add(Item("human meat", Some(1)))}
+				}
 			}
 			case (_, _) => Logger.warn("Unknown entities")
 		}
