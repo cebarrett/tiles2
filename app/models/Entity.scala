@@ -1,3 +1,5 @@
 package models
 
-class Entity (val id:String)
+abstract trait Entity {
+	def id:String
+}

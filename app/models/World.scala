@@ -2,6 +2,7 @@ package models
 
 import scala.collection._
 import scala.util.control.Breaks._
+import scala.util.Random
 import play.api.Logger
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
@@ -45,7 +46,7 @@ class World {
 			}
 		}}
 		// spawn a player entity
-		val playerEntity = (theTile.entity = Some(new PlayerEntity(playerName)))
+		val playerEntity = (theTile.entity = Some(new EntityPlayer(playerName)))
 		// broadcast entity spawn
 		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(theTile)))
 		// create a player object and hold a reference
@@ -80,14 +81,41 @@ class World {
 			if (newX < 0 || newX >= World.lengthTiles || newY < 0 || newY >= World.lengthTiles) return
 			val oldTile = tile(oldX, oldY)
 			val newTile = tile(newX, newY)
-			if (newTile.entity.isDefined) return
-			player.x = player.x + dx
-			player.y = player.y + dy
-			newTile.entity = oldTile.entity
-			oldTile.entity = None
-			this.eventChannel.push(WorldEvent("playerMoveOldTile", Some(oldX), Some(oldY), Some(oldTile)))
-			// FIXME: this broadcasts the entire player object including inventory
-			this.eventChannel.push(WorldEvent("playerMoveNewTile", Some(newX), Some(newY), Some(newTile), Some(player)))
+			(newTile.entity.isEmpty) match {
+				case true => {
+					// No entity occupying the tile so move there
+					player.x = player.x + dx
+					player.y = player.y + dy
+					newTile.entity = oldTile.entity
+					oldTile.entity = None
+					this.eventChannel.push(WorldEvent("playerMoveOldTile", Some(oldX), Some(oldY), Some(oldTile)))
+					// FIXME: This broadcasts the entire player object, including inventory.
+					// We might want to keep a player's inventory secret instead.
+					this.eventChannel.push(WorldEvent("playerMoveNewTile", Some(newX), Some(newY), Some(newTile), Some(player)))
+				} case false => {
+					// An entity is occupying this tile, so interact with it.
+					// FIXME: this logic is specific to trees but will happen for players too
+					newTile.entity.head match {
+						case _:EntityTree => {
+							player.inventory.add(Item("stick", Some(1)))
+							if (Math.random < 0.08) {
+								player.inventory.add(Item("apple", Some(1)))
+							}
+							if (Math.random < 0.05) {
+								// sometimes despawn the tree and give player a plank
+								player.inventory.add(Item("wood plank", Some(1)))
+								newTile.entity = None
+								this.eventChannel.push(WorldEvent("entityDespawn", Some(newX), Some(newY), Some(newTile)))
+							}
+						}
+						case _:EntityPlayer =>
+								player.inventory.add(Item("human meat", Some(1)))
+						case _ =>
+								Logger.warn("Unknown entity: " + newTile.entity.getClass)
+					}
+					this.eventChannel.push(WorldEvent("playerUpdate", Some(oldX), Some(oldY), Some(oldTile), Some(player)))
+				}
+			}
 		}
 	}
 
