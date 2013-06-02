@@ -18,7 +18,10 @@ class World {
 	/** Grid of all the chunks in the world */
 	val chunkGrid = new ChunkGrid
 
-	/** Emits WorldEvent to notify listeners when things happen in the world. */
+	/**
+	 * Emits WorldEvent to notify listeners when things happen in the world.
+	 * Note: World should not send messages to specific players.
+	 */
 	val (eventEnumerator, eventChannel) = Concurrent.broadcast[WorldEvent]
 
 	/** List of all players in the world, keyed by name */
@@ -28,9 +31,13 @@ class World {
 
 	def chunk(coords:ChunkCoordinates):Chunk = chunkGrid.getOrGenerate(coords)
 
+	def tile(coords:WorldCoordinates):Tile = tile(coords.x, coords.y)
+
 	def tile(x:Int, y:Int):Tile = {
 		return chunk(WorldCoordinates(x, y).toChunkCoordinates()).tile(x,y)
 	}
+
+	def entity(coords:WorldCoordinates):Option[Entity] = tile(coords).entity
 
 	def spawnPlayer(playerName:String):Player = {
 		// determine a suitable spawn location
@@ -95,30 +102,40 @@ class World {
 				} case false => {
 					// An entity is occupying this tile, so interact with it.
 					// FIXME: this logic is specific to trees but will happen for players too
-					newTile.entity.head match {
-						case _:EntityTree => {
-							player.inventory.add(Item("stick", Some(1)))
-							if (Math.random < 0.08) {
-								player.inventory.add(Item("apple", Some(1)))
-							}
-							if (Math.random < 0.05) {
-								// sometimes despawn the tree and give player a plank
-								player.inventory.add(Item("wood plank", Some(1)))
-								newTile.entity = None
-								this.eventChannel.push(WorldEvent("entityDespawn", Some(newX), Some(newY), Some(newTile)))
-							}
-						}
-						case _:EntityPlayer =>
-								player.inventory.add(Item("human meat", Some(1)))
-						case _ =>
-								Logger.warn("Unknown entity: " + newTile.entity.getClass)
-					}
-					this.eventChannel.push(WorldEvent("playerUpdate", Some(oldX), Some(oldY), Some(oldTile), Some(player)))
+					doEntityInteraction(WorldCoordinates(oldX,oldY), WorldCoordinates(newX,newY))
 				}
 			}
 		}
 	}
 
+	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates) {
+		require(entity(attackerCoords).isDefined && entity(targetCoords).isDefined)
+		val (attacker:Entity, target:Entity) = (entity(attackerCoords).head, entity(targetCoords).head)
+		val (attackerTile:Tile, targetTile:Tile) = (tile(attackerCoords), tile(targetCoords))
+		(attacker, target) match {
+			case (attacker:EntityPlayer, target:EntityTree) => {
+				// if being attacked by a player, drop items
+				// very rarely despawn the tree and give player logs
+				val player = players.get(attacker.playerName).get
+				if (Random.nextDouble() < 0.01) {
+					player.inventory.add(Item("apple", Some(1)))
+				} else if (Random.nextDouble() < 0.05) {
+					player.inventory.add(Item("stick", Some(1)))
+				} else if (Random.nextDouble() < 0.005) {
+					player.inventory.add(Item("log", Some(Random.nextInt(5)+6)))
+					targetTile.entity = None
+					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
+				}
+			}
+			case (attacker:EntityPlayer, target:EntityPlayer) => {
+				players.get(attacker.playerName).map {_.inventory.add(Item("human meat", Some(1)))}
+			}
+			case (_, _) => Logger.warn("Unknown entities")
+		}
+		// FIXME: assumes attacker is a player, in the future it can be another kind of mob
+		val player = players.get(attacker.asInstanceOf[EntityPlayer].playerName).get
+		this.eventChannel.push(WorldEvent("playerUpdate", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player)))
+	}
 }
 
 case class WorldCoordinates(val x:Int, val y:Int) {
