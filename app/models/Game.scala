@@ -87,11 +87,17 @@ class Game extends Actor {
 	implicit val writesTerrain = Json.writes[Terrain]
 	implicit val writesPlayerEntity:Writes[EntityPlayer] = Json.writes[EntityPlayer]
 	implicit val writesTreeEntity:Writes[EntityTree] = Json.writes[EntityTree]
+	implicit val writesWorkbenchEntity:Writes[EntityWorkbench] = Json.writes[EntityWorkbench]
 	implicit val writesEntity = new Writes[Entity] {
 		def writes(t:Entity):JsValue = t match {
 			case _:EntityPlayer => writesPlayerEntity.writes(t.asInstanceOf[EntityPlayer])
 			case _:EntityTree   => writesTreeEntity.writes(t.asInstanceOf[EntityTree])
-			case _ => JsUndefined("Unknown entity class: " + t.getClass)
+			case _:EntityWorkbench =>  writesWorkbenchEntity.writes(t.asInstanceOf[EntityWorkbench])
+			case _ => {
+				val msg = "writesEntity: Unknown entity class: " + t.getClass
+				Logger.warn(msg)
+				JsUndefined(msg)
+			}
 		}
 	}
 	implicit val writesOptionEntity = new Writes[Option[Entity]] {

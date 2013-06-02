@@ -132,7 +132,7 @@ class World {
 					players.get(attacker.playerName).map {_.inventory.add(Item("human meat", Some(1)))}
 				}
 			}
-			case (_, _) => Logger.warn("Unknown entities")
+			case (_, _) => Unit
 		}
 		// FIXME: assumes attacker is a player, in the future it can be another kind of mob
 		val player = players.get(attacker.asInstanceOf[EntityPlayer].playerName).get

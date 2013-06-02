@@ -61,6 +61,9 @@ directives.directive "tile", [ () ->
 		dirt:
 			text: "."
 			color: "#A06030"
+		workbench:
+			text: "⩦"
+			color: "#BB7722"
 	}
 
 	return (scope, elm, attr) ->

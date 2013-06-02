@@ -1,3 +1,3 @@
 package models
 
-case class EntityTree(val id:String = "tree", val species:String = "oak") extends Entity
+case class EntityTree(val species:String = "oak", val id:String = "tree") extends Entity
