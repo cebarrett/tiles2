@@ -77,9 +77,10 @@ class Game extends Actor {
 					val index:Int = (message \ "index").as[Int]
 					index match {
 						// FIXME: this is duplicated from doEntityInteraction, make the code DRYer
+						// FIXME: Select from a case object list of valid recipes instead of creating them here
 						case 0 => Unit // does nothing for now
 						case 1 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wood", Some(4)), Seq(Item("log", Some(1)))))
-						case 2 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wooden axe"), Seq(Item("stick", Some(1)), Item("wood", Some(1)))))
+						case 2 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wooden axe", Some(1)), Seq(Item("stick", Some(1)), Item("wood", Some(1)))))
 						case _ =>
 							Logger.warn(s"Unknown gui index: $index");
 					}

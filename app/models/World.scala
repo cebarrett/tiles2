@@ -109,13 +109,22 @@ class World {
 	}
 	
 	def doPlayerCrafting(playerName:String, recipe:WorkbenchRecipe) {
-		// FIXME: Validate that the recipe is a valid recipe.
-		// FIXME: Validate that the player has enough items to make the recipe.
 		val player:Player = players.get(playerName).get
-		val playerTile:Tile = tile(player.x, player.y)
-		player.inventory.add(recipe.result);
-		recipe.ingredients.map {player.inventory.subtract(_)}
-		this.eventChannel.push(WorldEvent("playerCraft", Some(player.x), Some(player.y), Some(playerTile), Some(player)))
+		// Validate that the player has enough items to make the recipe.
+		var hasIngredients:Boolean = true
+		for (i:Item <- recipe.ingredients) {
+			if (player.inventory.has(i) == false) {
+				hasIngredients = false
+			}
+		}
+		if (hasIngredients) {
+			val playerTile:Tile = tile(player.x, player.y)
+			player.inventory.add(recipe.result);
+			recipe.ingredients.map {player.inventory.subtract(_)}
+			this.eventChannel.push(WorldEvent("playerCraft", Some(player.x), Some(player.y), Some(playerTile), Some(player)))
+		} else {
+			Logger.warn(s"Player $playerName did not have the ingredients to craft $recipe")
+		}
 	}
 
 	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates) {
@@ -148,7 +157,7 @@ class World {
 				val options:Seq[String] = Seq(
 					"Close",
 					"Craft 4 wood from 1 log",
-					"Craft a wooden axe from 1 stick and 1 wood"
+					"Craft 1 wooden axe from 1 stick and 1 wood"
 				)
 				this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 			}

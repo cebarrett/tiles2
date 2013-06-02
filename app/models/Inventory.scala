@@ -5,7 +5,21 @@ import scala.collection.Set
 import scala.util.control.Breaks._
 
 case class Inventory(var items:Seq[Item] = Seq.empty[Item]) {
+
+	/** Returns true if user has the given item (at least as many for item stacks) */
+	def has(other:Item):Boolean = {
+		val item:Item = items.filter({_.kind == other.kind}).headOption.getOrElse(null)
+		if (item == null) {
+			return false
+		} else if (item.count.isDefined && other.count.isDefined) {
+			return item.count.get >= other.count.get
+		} else {
+			return true
+		}
+	}
+
 	def add(other:Item) = {
+		Logger.debug(s"add: $other")
 		if (other.count == None || items.filter({_.kind == other.kind}).isEmpty) {
 			items = items ++ Seq(other)
 		} else {
@@ -16,16 +30,31 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item]) {
 	}
 	
 	def subtract(other:Item):Boolean = {
-		if (other.count == None || items.filter({_.kind == other.kind}).isEmpty) {
+		Logger.debug(s"subtract: $other")
+		if (items.filter({_.kind == other.kind}).isEmpty) {
+Logger.debug("'''''empty")
+			return false
+		} else if (other.count == None) {
 			// TODO: Implement removing non-stackable items
+Logger.debug("''''' not stackable")
 			return false
 		} else {
-			val existing:Option[Item] = items.filter({ item:Item => (item.kind == other.kind) && (item.count.get <= other.count.get)}).headOption
+
+Logger.debug("''''' stackable, trying to subtract")
+			val existing:Option[Item] = items.filter({ item:Item => 
+				(item.kind == other.kind) && (item.count.get >= other.count.get)
+			}).headOption
 			if (existing.isDefined) {
 				val updated:Item = (existing.get - other).head
-				items = items.filter({_ != existing.get}).++(Seq(updated))
+				Logger.debug("***** updated count: " + updated.count.get)
+				items = items.filter({_.kind != other.kind})
+				if (updated.count.get > 0) {
+					items = items :+ updated
+				}
 				return true;
 			} else {
+
+Logger.debug("''''' ")
 				return false;
 			}
 		}
