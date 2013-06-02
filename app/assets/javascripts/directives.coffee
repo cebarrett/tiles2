@@ -2,7 +2,7 @@ directives = angular.module "app.directives", []
 
 directives.directive "appControls", ["$document", "$parse", ($document, $parse) ->
 	(scope, elm, attrs) ->
-		# XXX: there must be a better way to do this
+		# there must be a better way to do this
 		north = $parse("north()")
 		east = $parse("east()")
 		west = $parse("west()")
@@ -18,17 +18,19 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 			scope.$eval east if e.keyCode is 68		# d
 ];
 
-directives.directive "world", ["$window", ($window) ->
+directives.directive "world", [ "$window", ($window) ->
+	contentElm = $ "#content"
 	(scope, elm, attr) ->
 		# doesn't do much yet
 		elm.addClass "world"
 		renderPlayerMove = () ->
 			if scope.player? then elm.css {
-				top:  ($window.innerHeight/2+scope.player.y*scope.tileSizePx)+"px"
-				left: ($window.innerWidth /2-scope.player.x*scope.tileSizePx)+"px"
+				top:  (contentElm.height()/2+scope.player.y*scope.tileSizePx)+"px"
+				left: (contentElm.width()/2-scope.player.x*scope.tileSizePx)+"px"
 			}
 		scope.$watch "player.x", renderPlayerMove
 		scope.$watch "player.y", renderPlayerMove
+		
 		$window.addEventListener "resize", renderPlayerMove, false
 		renderPlayerMove()
 ];

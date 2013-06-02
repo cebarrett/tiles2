@@ -9,7 +9,7 @@
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/index.css")">
 	</head>
 	<body>
-		<div ng-app="app" ng-controller="AppCtrl">
+		<div id="app" ng-app="app" ng-controller="AppCtrl">
 			<span app-controls></span>
 			<div id="panel">
 				<div>{{player.name}}</div>
@@ -31,8 +31,10 @@
 					</div>
 				</div>
 			</div>
+			<div id="right"></div>
 		</div>
 		<script src="@routes.Assets.at("javascripts/lodash.js")" type="text/javascript"></script>
+		<script src="@routes.Assets.at("javascripts/jquery.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.at("javascripts/angular.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.at("javascripts/index.js")" type="text/javascript"></script>
 		<script src="@routes.Assets.at("javascripts/services.js")" type="text/javascript"></script>

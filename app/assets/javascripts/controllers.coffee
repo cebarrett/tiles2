@@ -4,7 +4,7 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 
 	# define some important constants
 	# (should this go here?)
-	$scope.tileSizePx = 20;	# also defined in LESS
+	$scope.tileSizePx = 32;	# also defined in LESS
 	$scope.chunkLen = 16;	# also defined in server side and in LESS
 	$scope.worldLen = 2;	# also defined in server side
 
