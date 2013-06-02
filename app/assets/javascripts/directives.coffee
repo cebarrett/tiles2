@@ -54,7 +54,7 @@ directives.directive "tile", [ () ->
 			color: "white"
 		tree:
 			text: "♠"
-			color: "#22DD22"
+			color: "#00BB00"
 		water:
 			text: "≈"
 			color: "#6666FF"
