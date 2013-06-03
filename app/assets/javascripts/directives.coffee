@@ -73,7 +73,7 @@ directives.directive "tile", [ () ->
 			text: "#"
 			color: "#BB7722"
 		sapling:
-			text: ","
+			text: "τ"
 			color: "#00BB00"
 	}
 
