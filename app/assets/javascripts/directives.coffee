@@ -7,6 +7,9 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 		east = $parse("east()")
 		west = $parse("west()")
 		south = $parse("south()")
+		$('body').on 'mousewheel', (e) ->
+			return	# TODO: scroll selected item
+		
 		$document[0].body.addEventListener 'keydown', (e) ->
 			# first check that user isn't typing in an input
 			# FIXME: tab still prevents input
@@ -66,11 +69,19 @@ directives.directive "tile", [ () ->
 		workbench:
 			text: "⊞"
 			color: "#BB7722"
+		wood:
+			text: "#"
+			color: "#BB7722"
 	}
 
 	return (scope, elm, attr) ->
+		x = scope.chunk.cx * scope.chunkLen + scope.tile.tx
+		y = scope.chunk.cy * scope.chunkLen + scope.tile.ty
+	
 		elm.addClass "tile"
 		elm.bind 'selectstart', () -> false
+		elm.bind 'click', (e) ->
+			scope.place(x, y) if scope.place?
 		elm.css "top", -((1-scope.chunkLen+scope.$index)*scope.tileSizePx)+"px"
 		updateTile = ->
 			id =
@@ -84,4 +95,9 @@ directives.directive "tile", [ () ->
 		scope.$watch("tile.entity", updateTile);
 		scope.$watch("tile.terrain", updateTile);
 		updateTile();
+];
+
+directives.directive "item", [ () ->
+	return (scope, elm, attr) ->
+		$('body').on('selectstart', () -> false)
 ];

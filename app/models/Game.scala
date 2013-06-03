@@ -85,6 +85,12 @@ class Game extends Actor {
 							Logger.warn(s"Unknown gui index: $index");
 					}
 				}
+				case "place" => {
+					val x:Int = (message \ "x").as[Int]
+					val y:Int = (message \ "y").as[Int]
+					val index:Int = (message \ "index").as[Int]
+					world.doPlaceItem(playerName, WorldCoordinates(x,y), index)
+				}
 				case _ =>
 					Logger.warn("unknown kind of message: " + kind)
 			}
@@ -103,11 +109,13 @@ class Game extends Actor {
 	implicit val writesPlayerEntity:Writes[EntityPlayer] = Json.writes[EntityPlayer]
 	implicit val writesTreeEntity:Writes[EntityTree] = Json.writes[EntityTree]
 	implicit val writesWorkbenchEntity:Writes[EntityWorkbench] = Json.writes[EntityWorkbench]
+	implicit val writesWoodEntity:Writes[EntityWood] = Json.writes[EntityWood]
 	implicit val writesEntity = new Writes[Entity] {
 		def writes(t:Entity):JsValue = t match {
 			case _:EntityPlayer => writesPlayerEntity.writes(t.asInstanceOf[EntityPlayer])
 			case _:EntityTree   => writesTreeEntity.writes(t.asInstanceOf[EntityTree])
 			case _:EntityWorkbench =>  writesWorkbenchEntity.writes(t.asInstanceOf[EntityWorkbench])
+			case _:EntityWood =>  writesWoodEntity.writes(t.asInstanceOf[EntityWood])
 			case _ => {
 				val msg = "writesEntity: Unknown entity class: " + t.getClass
 				Logger.warn(msg)

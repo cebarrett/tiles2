@@ -110,7 +110,7 @@ class World {
 	
 	def doPlayerCrafting(playerName:String, recipe:WorkbenchRecipe) {
 		val player:Player = players.get(playerName).get
-		// Validate that the player has enough items to make the recipe.
+		// validate that the player has enough items to make the recipe
 		var hasIngredients:Boolean = true
 		for (i:Item <- recipe.ingredients) {
 			if (player.inventory.has(i) == false) {
@@ -136,11 +136,9 @@ class World {
 				// if being attacked by a player, drop items
 				// very rarely despawn the tree and give player logs
 				val player = players.get(attacker.playerName).get
-				if (Random.nextDouble() < 0.01) {
-					player.inventory.add(Item("apple", Some(1)))
-				} else if (Random.nextDouble() < 0.05) {
+				if (Random.nextDouble() < 0.025) {
 					player.inventory.add(Item("stick", Some(1+Random.nextInt(2))))
-				} else if (Random.nextDouble() < 0.005) {
+				} else if (Random.nextDouble() < 0.01) {
 					player.inventory.add(Item("log", Some(1)))
 					targetTile.entity = None
 					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
@@ -166,6 +164,21 @@ class World {
 		// FIXME: assumes attacker is a player, in the future it can be another kind of mob
 		val player = players.get(attacker.asInstanceOf[EntityPlayer].playerName).get
 		this.eventChannel.push(WorldEvent("playerUpdate", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player)))
+	}
+	
+	def doPlaceItem(playerName:String, target:WorldCoordinates, inventoryIndex:Int) {
+		val player:Player = players.get(playerName).head
+		if (inventoryIndex < 0 || inventoryIndex >= player.inventory.items.size)
+			return
+		// FIXME: verify the target is within N blocks of player
+		val item:Item = player.inventory.items(inventoryIndex)
+		(item.kind) match {
+			case "wood" => 
+				player.inventory.subtract(Item("wood", Some(1)))
+				tile(target).entity = Some(EntityWood())
+			case _ => Unit
+		}
+		this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(tile(target)), Some(player)))
 	}
 }
 

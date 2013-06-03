@@ -18,6 +18,8 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 		west:  -> pub {kind: "west"}
 		guiSelect: (index) ->
 			pub {kind: "guiSelect", index: index}
+		place: (x, y, index) ->
+			pub {kind: "place", x: x, y: y, index: index}
 ]
 
 #
