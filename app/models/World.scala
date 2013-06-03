@@ -39,6 +39,10 @@ class World {
 
 	def entity(coords:WorldCoordinates):Option[Entity] = tile(coords).entity
 
+	def tick():Unit = {
+		Logger.info("tick");
+	}
+
 	def spawnPlayer(playerName:String):Player = {
 		// determine a suitable spawn location
 		// for now, spawn everyone within 30,30 of the origin
@@ -160,6 +164,8 @@ class World {
 				this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 			}
 			case (attacker:EntityPlayer, target:EntityWood) => {
+				// FIXME: should have to hold an axe to break a wall,
+				// but first need to track player's selected item on the server.
 				val player = players.get(attacker.playerName).get
 				if (Random.nextDouble() < 0.1) {
 					targetTile.entity = None
@@ -174,6 +180,7 @@ class World {
 	}
 	
 	def doPlaceItem(playerName:String, target:WorldCoordinates, inventoryIndex:Int) {
+		// FIXME: remove inventoryIndex param, should be tracking player's selected item on the server
 		val player:Player = players.get(playerName).head
 		val targetTile = tile(target)
 		if (targetTile.entity.isDefined || inventoryIndex < 0 || inventoryIndex >= player.inventory.items.size)

@@ -1,7 +1,7 @@
 package controllers
 
 import scala.Option.option2Iterable
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration._
 
 import akka.actor.Props
 import akka.actor.actorRef2Scala
@@ -12,6 +12,7 @@ import models.Game
 import models.Join
 import models.Quit
 import models.Talk
+import models.Loop
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import play.api.libs.concurrent.Execution.Implicits.defaultContext

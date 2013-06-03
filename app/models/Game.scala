@@ -1,8 +1,14 @@
 package models
 
 import scala.math.BigDecimal.int2bigDecimal
+import play.api.libs.concurrent.Execution.Implicits.defaultContext
+import java.util.concurrent.TimeUnit
 
 import akka.actor.Actor
+import akka.actor.Props
+import scala.concurrent.duration._
+import play.api.libs.concurrent.Akka
+import play.api.Play.current
 import akka.actor.actorRef2Scala
 import play.api.Logger
 import play.api.libs.functional.syntax.toContraFunctorOps
@@ -39,6 +45,17 @@ class Game extends Actor {
 
 	/** Broadcast JSON messages to all players. */
 	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
+
+
+	/** Schedule the game loop to run repeatedly. */
+	private val gameLoop = {
+		Akka.system.scheduler.schedule(
+			1 seconds,
+			1 seconds,
+			self,
+			Loop()
+		)
+	}
 
 	def receive = {
 		case Join(playerName:String) => {
@@ -85,6 +102,8 @@ class Game extends Actor {
 							Logger.warn(s"Unknown gui index: $index");
 					}
 				}
+				case "selectItem" =>
+					// TODO: track in Player or EntityPlayer object
 				case "place" => {
 					val x:Int = (message \ "x").as[Int]
 					val y:Int = (message \ "y").as[Int]
@@ -99,6 +118,10 @@ class Game extends Actor {
 		case Quit(playerName:String) => {
 			val player = world.despawnPlayer(playerName)
 			playerChannels = playerChannels - playerName
+		}
+
+		case Loop() => {
+			world.tick()
 		}
 	}
 
@@ -149,5 +172,6 @@ class Game extends Actor {
 case class Join(playerName: String)
 case class Talk(playerName: String, message:JsValue)
 case class Quit(playerName: String)
+case class Loop()
 case class Connected(enumerator:Enumerator[JsValue])
 case class CannotConnect(msg:String)
