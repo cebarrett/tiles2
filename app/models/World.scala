@@ -168,17 +168,18 @@ class World {
 	
 	def doPlaceItem(playerName:String, target:WorldCoordinates, inventoryIndex:Int) {
 		val player:Player = players.get(playerName).head
-		if (inventoryIndex < 0 || inventoryIndex >= player.inventory.items.size)
+		val targetTile = tile(target)
+		if (targetTile.entity.isDefined || inventoryIndex < 0 || inventoryIndex >= player.inventory.items.size)
 			return
 		// FIXME: verify the target is within N blocks of player
 		val item:Item = player.inventory.items(inventoryIndex)
 		(item.kind) match {
 			case "wood" => 
 				player.inventory.subtract(Item("wood", Some(1)))
-				tile(target).entity = Some(EntityWood())
+				targetTile.entity = Some(EntityWood())
 			case _ => Unit
 		}
-		this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(tile(target)), Some(player)))
+		this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 	}
 }
 
