@@ -4,7 +4,7 @@ import play.api.Logger
 import scala.collection.Set
 import scala.util.control.Breaks._
 
-case class Inventory(var items:Seq[Item] = Seq.empty[Item]) {
+case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[Int] = None) {
 
 	/** Returns true if user has the given item (at least as many for item stacks) */
 	def has(other:Item):Boolean = {

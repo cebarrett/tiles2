@@ -95,7 +95,7 @@ class Game extends Actor {
 					index match {
 						// FIXME: this is duplicated from doEntityInteraction, make the code DRYer
 						// FIXME: Select from a case object list of valid recipes instead of creating them here
-						case 0 => Unit // does nothing for now
+						case 0 => Unit // close button
 						case 1 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wood", Some(4)), Seq(Item("log", Some(1)))))
 						case 2 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wooden axe", Some(1)), Seq(Item("stick", Some(1)), Item("wood", Some(1)))))
 						case _ =>
@@ -103,12 +103,12 @@ class Game extends Actor {
 					}
 				}
 				case "selectItem" =>
-					// TODO: track in Player or EntityPlayer object
+					val index:Int = (message \ "index").as[Int]
+					world.doSelectItem(playerName, index)
 				case "place" => {
 					val x:Int = (message \ "x").as[Int]
 					val y:Int = (message \ "y").as[Int]
-					val index:Int = (message \ "index").as[Int]
-					world.doPlaceItem(playerName, WorldCoordinates(x,y), index)
+					world.doPlaceItem(playerName, WorldCoordinates(x,y))
 				}
 				case _ =>
 					Logger.warn("unknown kind of message: " + kind)
@@ -149,10 +149,8 @@ class Game extends Actor {
 		}
 	}
 	implicit val writesOptionEntity = new Writes[Option[Entity]] {
-		// FIXME: this is not including PlayerEntity's name attribute
 		def writes(t:Option[Entity]):JsValue = {
 			if (t.isDefined) {
-				// Json.toJson(t.head)
 				writesEntity.writes(t.head)
 			} else {
 				JsNull
@@ -161,9 +159,10 @@ class Game extends Actor {
 	}
 	implicit val writesItem = Json.writes[Item]
 	implicit val writesInventory = new Writes[Inventory] {
-		def writes(t:Inventory):JsValue = {
-			JsArray(t.items.map({Json.toJson(_)}))
-		}
+		def writes(t:Inventory):JsValue = JsObject(Seq(
+			"items" -> JsArray(t.items.map({Json.toJson(_)})),
+			"selected" -> Json.toJson(t.selected)
+		))
 	}
 	implicit val writesPlayer = Json.writes[Player]
 	implicit val writesTile = Json.writes[Tile]

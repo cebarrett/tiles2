@@ -35,5 +35,4 @@ controllers.controller "AppCtrl", ["$scope", "$log", "net", ($scope, $log, net) 
 	# select active item callback
 	$scope.selectItem = (index) ->
 		net.selectItem(index)
-		$scope.selectedItemIndex = index;
 ];

@@ -31,7 +31,7 @@
 			</div>
 			<div id="right" app-controls>
 				<ul class="itemList">
-					<li item class="item-stack item-selected-{{$index == selectedItemIndex}}" ng-repeat="item in player.inventory" ng-click="selectItem($index)">
+					<li item class="item-stack item-selected-{{$index == player.inventory.selected}}" ng-repeat="item in player.inventory.items" ng-click="selectItem($index)">
 						<span>{{item.count}}</span>
 						<span>{{item.kind}}</span>
 					</li>

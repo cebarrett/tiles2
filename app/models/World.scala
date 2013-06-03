@@ -13,6 +13,14 @@ object World {
 	def lengthTiles = lengthChunks * Chunk.length
 }
 
+/**
+ * Holds the game world and simulates everything that happens in it.
+ * To query or modify the state of the World, call one of its methods.
+ * To run one tick of the simulation, call tick().
+ * Worlds have an Enumerator[WorldEvent] that publishes interesting
+ * events that happen. The world does not speak JSON and does not
+ * communicate with individual players.
+ */
 class World {
 
 	/** Grid of all the chunks in the world */
@@ -194,24 +202,35 @@ class World {
 		this.eventChannel.push(WorldEvent("playerUpdate", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player)))
 	}
 	
-	def doPlaceItem(playerName:String, target:WorldCoordinates, inventoryIndex:Int) {
-		// FIXME: remove inventoryIndex param, should be tracking player's selected item on the server
+	def doPlaceItem(playerName:String, target:WorldCoordinates) {
 		val player:Player = players.get(playerName).head
 		val targetTile = tile(target)
-		if (targetTile.entity.isDefined || inventoryIndex < 0 || inventoryIndex >= player.inventory.items.size)
+		// validate an item is selected and validate that tile is empty
+		if (targetTile.entity.isDefined || player.isItemSelected == false)
 			return
 		// FIXME: verify the target is within N blocks of player
-		val item:Item = player.inventory.items(inventoryIndex)
+		val item:Item = player.inventory.items(player.inventory.selected.get)
 		(item.kind) match {
 			case "wood" => 
 				player.inventory.subtract(Item("wood", Some(1)))
 				targetTile.entity = Some(EntityWood())
+				this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 			case "sapling" => 
 				player.inventory.subtract(Item("sapling", Some(1)))
 				targetTile.entity = Some(EntitySapling())
+				this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 			case _ => Unit
 		}
-		this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+	}
+
+	def doSelectItem(playerName:String, inventoryIndex:Int) {
+		val player:Player = players.get(playerName).get
+		if (inventoryIndex < 0 || inventoryIndex >= player.inventory.items.size) {
+			// invalid index
+		} else {
+			player.inventory.selected = Some(inventoryIndex)
+			this.eventChannel.push(WorldEvent("playerSelect", Some(player.x), Some(player.y), None, Some(player)))
+		}
 	}
 }
 
