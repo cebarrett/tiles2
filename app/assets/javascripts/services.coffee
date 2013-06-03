@@ -45,8 +45,7 @@ services.factory "sub", ["socket", (socket) ->
 				appScope.chunks = message.chunks
 				appScope.player = message.player
 				appScope.$apply()
-			when "gui" then do ->
-				console.info("got a gui message")
+			when "gui" then if message.player.name == appScope.player.name
 				appScope.guiOptions = message.options
 				appScope.$apply()
 			when "playerSpawn" then console.log("player spawned")
