@@ -40,7 +40,20 @@ class World {
 	def entity(coords:WorldCoordinates):Option[Entity] = tile(coords).entity
 
 	def tick():Unit = {
-		Logger.info("tick");
+		val chanceOfTreeGrowing:Double = 0.0005;
+		chunkGrid.foreach { entry =>
+			val (chunkCoords, chunk) = entry
+			chunk.tiles foreach { tileCol =>
+				tileCol foreach { tile =>
+					// note: if iterating over each tile does not scale will instead need to schedule tile ticks
+					if (Math.random() < chanceOfTreeGrowing && tile.entity.isDefined && tile.entity.get.id == "sapling") {
+						val tileCoords = TileCoordinates(tile.tx, tile.ty).toWorldCoordinates(chunkCoords)
+						tile.entity = Some(EntityTree())
+						this.eventChannel.push(WorldEvent("EntitySpawn", Some(tileCoords.x), Some(tileCoords.y), Some(tile)))
+					}
+				}
+			}
+		}
 	}
 
 	def spawnPlayer(playerName:String):Player = {
@@ -140,9 +153,11 @@ class World {
 				// if being attacked by a player, drop items
 				// very rarely despawn the tree and give player logs
 				val player = players.get(attacker.playerName).get
-				if (Random.nextDouble() < 0.025) {
-					player.inventory.add(Item("stick", Some(1+Random.nextInt(2))))
-				} else if (Random.nextDouble() < 0.01) {
+				if (Random.nextDouble() < 0.05) {
+					player.inventory.add(Item("stick", Some(1)))
+				} else if (Random.nextDouble() < 0.05) {
+					player.inventory.add(Item("sapling", Some(1)))
+				} else if (Random.nextDouble() < 0.02) {
 					player.inventory.add(Item("log", Some(1)))
 					targetTile.entity = None
 					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
@@ -191,6 +206,9 @@ class World {
 			case "wood" => 
 				player.inventory.subtract(Item("wood", Some(1)))
 				targetTile.entity = Some(EntityWood())
+			case "sapling" => 
+				player.inventory.subtract(Item("sapling", Some(1)))
+				targetTile.entity = Some(EntitySapling())
 			case _ => Unit
 		}
 		this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
