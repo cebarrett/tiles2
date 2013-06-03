@@ -159,6 +159,13 @@ class World {
 				)
 				this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 			}
+			case (attacker:EntityPlayer, target:EntityWood) => {
+				val player = players.get(attacker.playerName).get
+				if (Random.nextDouble() < 0.1) {
+					targetTile.entity = None
+					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
+				}
+			}
 			case (_, _) => Unit
 		}
 		// FIXME: assumes attacker is a player, in the future it can be another kind of mob
