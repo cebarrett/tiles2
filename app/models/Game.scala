@@ -77,12 +77,12 @@ class Game extends Actor {
 				// need to set a flag on the Player and unset when they select something.
 				case "north" =>
 					world.movePlayer(playerName,  0,  1)
-					playerChannels.get(playerName) map { playerChannel =>
-						playerChannel.push(JsObject(Seq(
-							"kind" -> JsString("chunk"),
-							"chunk" -> Json.toJson(world.chunk(0,2))
-						)))
-					}
+					// playerChannels.get(playerName) map { playerChannel =>
+					// 	playerChannel.push(JsObject(Seq(
+					// 		"kind" -> JsString("chunk"),
+					// 		"chunk" -> Json.toJson(world.chunk(0,2))
+					// 	)))
+					// }
 				case "south" =>
 					world.movePlayer(playerName,  0, -1)
 				case "east"  =>

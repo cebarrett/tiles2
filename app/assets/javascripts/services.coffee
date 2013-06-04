@@ -66,8 +66,9 @@ services.factory "sub", ["socket", (socket) ->
 				cx: Math.floor(message.x/appScope.chunkLen)
 				cy: Math.floor(message.y/appScope.chunkLen)
 			})
-			chunk.tiles[message.tile.tx][message.tile.ty] = message.tile
-			appScope.$apply()
+			if (chunk?)
+				chunk.tiles[message.tile.tx][message.tile.ty] = message.tile
+				appScope.$apply()
 		if (message.player? and message.player.name == appScope.player.name) then do ->
 			appScope.player = message.player
 			appScope.$apply()
