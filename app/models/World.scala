@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def length:Int = 3;
+	def length:Int = 2;
 	def lengthChunks = length
 	def lengthTiles = lengthChunks * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(0, n), World.lengthTiles-1);
