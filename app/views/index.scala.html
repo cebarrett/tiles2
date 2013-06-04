@@ -19,7 +19,8 @@
 					<div>X: {{player.x}}</div>
 					<div>Y: {{player.y}}</div>
 				</div>
-				<fieldset class="movementButtons">
+				<!-- XXX: hide the buttons for now -->
+				<fieldset ng-hide="true" class="movementButtons">
 					<button type="button" ng-click="north()">north</button>
 					<button type="button" ng-click="west()">west</button>
 					<button type="button" ng-click="east()">east</button>

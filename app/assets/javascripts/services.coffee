@@ -55,6 +55,11 @@ services.factory "sub", ["socket", (socket) ->
 			when "playerMoveOldTile" then console.log("player despawned")
 			when "playerMoveNewTile" then console.log("player despawned")
 			when "entityDespawn" then console.log("entity despawned")
+			when "chunk" then do ->
+				appScope.chunks.push(message.chunk)
+			when "unloadChunk" then do ->
+				appScope.chunks = appScope.chunks.filter (chunk) ->
+					!((chunk.cx == message.cx) && (chunk.cy == message.cy))
 			else console.log("unknown kind of message: " + message.kind)
 		if message.tile? then do ->
 			chunk = _(appScope.chunks).find({
