@@ -34,9 +34,9 @@ body {
 	position: absolute;
 	width: @sidebarWidth;
 	height: 100%;
-	background-color: #333;
+	background-color: #222;
 	color: white;
-	font-size: 1.3em;
+	font-size: 1.1667em;
 }
 
 #panel {
@@ -54,18 +54,34 @@ body {
 	list-style-type: none;
 }
 
+.sidebar-button {
+	display: block;
+	width: @sidebarWidth - 2px;
+	height: 4em;
+	border: 1px solid #222;
+	padding: 1em 0.25em;
+	text-align: center;
+	margin-left: 0px;
+	background-color: #111;
+	opacity: 0.33;
+	color: white;
+	font-weight: bold;
+	appearance: none;
+	-webkit-appearance: none;
+	cursor: hand;
+}
+
 .player-info {
 	margin: 1em;
 }
 
 .itemList {
 	.reset-list-styles;
-	overflow-y: auto;
-	height: 100%;
 }
 
-.item {
-	cursor: pointer;
+.item-stack {
+	.sidebar-button;
+	height: 2em;
 }
 
 .item-selected-true {
@@ -124,21 +140,10 @@ body {
 fieldset.movementButtons {
 	position: absolute;
 	bottom: 0;
-	left: 0;
-	right: 0;
 	border: none;
 	padding: 0;
 	margin: 0;
 	button {
-		height: 3.5em;
-		width: 100%;
-		text-align: center;
-		display: block;
-		appearance: none;
-		-webkit-appearance: none;
-		border: none;
-		background-color: transparent;
-		color: #8F8;
-		font-weight: bold;
+		.sidebar-button;
 	}
 }
