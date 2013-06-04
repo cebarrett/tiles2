@@ -5,8 +5,8 @@ abstract trait Recipe {
 	def ingredients:Seq[Item]
 }
 
-case object Recipe {
-	// TODO: list of valid recipes
-}
+// case object WorkbenchRecipe = {
+// 	// TODO: list of valid recipes
+// }
 
 case class WorkbenchRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
