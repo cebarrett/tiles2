@@ -11,6 +11,7 @@ object World {
 	def length:Int = 2;
 	def lengthChunks = length
 	def lengthTiles = lengthChunks * Chunk.length
+	def clamp(n:Int):Int = Math.min(Math.max(0, n), World.lengthTiles-1);
 }
 
 /**
@@ -48,16 +49,40 @@ class World {
 	def entity(coords:WorldCoordinates):Option[Entity] = tile(coords).entity
 
 	def tick():Unit = {
+		val chanceofLlamaMoving:Double = 0.05;
 		val chanceOfTreeGrowing:Double = 0.0005;
 		chunkGrid.foreach { entry =>
 			val (chunkCoords, chunk) = entry
-			chunk.tiles foreach { tileCol =>
-				tileCol foreach { tile =>
+			chunk.tiles foreach { tcol =>
+				tcol foreach { t =>
 					// note: if iterating over each tile does not scale will instead need to schedule tile ticks
-					if (Math.random() < chanceOfTreeGrowing && tile.entity.isDefined && tile.entity.get.id == "sapling") {
-						val tileCoords = TileCoordinates(tile.tx, tile.ty).toWorldCoordinates(chunkCoords)
-						tile.entity = Some(EntityTree())
-						this.eventChannel.push(WorldEvent("EntitySpawn", Some(tileCoords.x), Some(tileCoords.y), Some(tile)))
+					// move llamas
+					val coords = TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords)
+					if (Math.random() < chanceofLlamaMoving && t.entity.isDefined && t.entity.get.id == "llama") {
+						breakable {
+							Random.shuffle(Seq(
+								WorldCoordinates(World.clamp(coords.x+1),coords.y),
+								WorldCoordinates(World.clamp(coords.x-1),coords.y),
+								WorldCoordinates(coords.x,World.clamp(coords.y+1)),
+								WorldCoordinates(coords.x,World.clamp(coords.y-1))
+							)) foreach { c2:WorldCoordinates =>
+								val t2:Tile = tile(c2)
+								if (t2.entity.isEmpty) {
+									// FIXME: factor out a method for moving entities
+									// FIXME: fix how entity move is published, do it as one event named entityMove instead of a despawn/spawn
+									t2.entity = t.entity
+									t.entity = None
+									this.eventChannel.push(WorldEvent("EntityDespawn", Some(coords.x), Some(coords.y), Some(t)))
+									this.eventChannel.push(WorldEvent("EntitySpawn", Some(c2.x), Some(c2.y), Some(t2)))
+									break
+								}
+							}
+						}
+					}
+					// grow saplings
+					if (Math.random() < chanceOfTreeGrowing && t.entity.isDefined && t.entity.get.id == "sapling") {
+						t.entity = Some(EntityTree())
+						this.eventChannel.push(WorldEvent("EntitySpawn", Some(coords.x), Some(coords.y), Some(t)))
 					}
 				}
 			}
@@ -195,6 +220,15 @@ class World {
 					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
 				}
 			}
+			case (attacker:EntityPlayer, target:EntityLlama) => {
+				val player = players.get(attacker.playerName).get
+				if (Random.nextDouble() < 0.1) {
+					player.inventory.add(Item("llama meat", Some(1)))
+				}
+				if (Random.nextDouble() < 0.1) {
+					player.inventory.add(Item("llama wool", Some(1)))
+				}
+			}
 			case (_, _) => Unit
 		}
 		// FIXME: assumes attacker is a player, in the future it can be another kind of mob
@@ -203,24 +237,31 @@ class World {
 	}
 	
 	def doPlaceItem(playerName:String, target:WorldCoordinates) {
-		val player:Player = players.get(playerName).head
-		val targetTile = tile(target)
-		// validate an item is selected and validate that tile is empty
-		if (targetTile.entity.isDefined || player.isItemSelected == false)
-			return
-		// FIXME: verify the target is within N blocks of player
-		val item:Item = player.inventory.items(player.inventory.selected.get)
-		(item.kind) match {
-			case "wood" => 
-				player.inventory.subtract(Item("wood", Some(1)))
-				targetTile.entity = Some(EntityWood())
-				this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-			case "sapling" => 
-				player.inventory.subtract(Item("sapling", Some(1)))
-				targetTile.entity = Some(EntitySapling())
-				this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-			case _ => Unit
+		players.get(playerName).map { player =>
+			// FIXME: verify the target is within N blocks of player
+			player.inventory.selected map { itemIndex =>
+				val targetTile = tile(target)
+				targetTile.entity.getOrElse {
+					val item:Item = player.inventory.items(player.inventory.selected.get)
+					(item.kind) match {
+						case "wood" => 
+							player.inventory.subtract(Item("wood", Some(1)))
+							targetTile.entity = Some(EntityWood())
+							this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+						case "sapling" => 
+							player.inventory.subtract(Item("sapling", Some(1)))
+							targetTile.entity = Some(EntitySapling())
+							this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+						case _ => Unit
+					}
+
+				}
+				// validate an item is selected and validate that tile is empty
+				if (targetTile.entity.isDefined || player.isItemSelected == false)
+					return
+			}
 		}
+
 	}
 
 	def doSelectItem(playerName:String, inventoryIndex:Int) {
@@ -229,7 +270,7 @@ class World {
 			// invalid index
 		} else {
 			player.inventory.selected = Some(inventoryIndex)
-			this.eventChannel.push(WorldEvent("playerSelect", Some(player.x), Some(player.y), None, Some(player)))
+			this.eventChannel.push(WorldEvent("playerSelect", Some(player.x), Some(player.y), Some(tile(player.x,player.y)), Some(player)))
 		}
 	}
 }

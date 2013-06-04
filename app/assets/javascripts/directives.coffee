@@ -75,6 +75,9 @@ directives.directive "tile", [ () ->
 		sapling:
 			text: "τ"
 			color: "#00BB00"
+		llama:
+			text: "L"
+			color: "#AAAAAA"
 	}
 
 	return (scope, elm, attr) ->
