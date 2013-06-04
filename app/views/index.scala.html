@@ -4,6 +4,7 @@
 	<head>
 		<title>@title</title>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<link href='http://fonts.googleapis.com/css?family=Droid+Sans+Mono' rel='stylesheet' type='text/css'>
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/normalize.css")">
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/index.css")">
@@ -11,9 +12,17 @@
 	<body>
 		<div id="app" ng-app="app" ng-controller="AppCtrl">
 			<div id="panel">
-				<div>{{player.name}}</div>
-				<div>X: {{player.x}}</div>
-				<div>Y: {{player.y}}</div>
+				<div class="player-info">
+					<div>{{player.name}}</div>
+					<div>X: {{player.x}}</div>
+					<div>Y: {{player.y}}</div>
+				</div>
+				<fieldset class="movementButtons">
+					<button type="button" ng-click="north()">north</button>
+					<button type="button" ng-click="west()">west</button>
+					<button type="button" ng-click="east()">east</button>
+					<button type="button" ng-click="south()">south</button>
+				</fieldset>
 			</div>
 			<div id="content">
 				<div world>

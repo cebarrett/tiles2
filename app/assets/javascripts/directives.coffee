@@ -67,7 +67,7 @@ directives.directive "tile", [ () ->
 			text: "."
 			color: "#A06030"
 		workbench:
-			text: "⊞"
+			text: "π"
 			color: "#BB7722"
 		wood:
 			text: "#"

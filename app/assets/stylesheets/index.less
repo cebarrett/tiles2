@@ -1,7 +1,7 @@
 
 @tileSize: 40px;
 @chunkLength: 16;
-@sidebarWidth: 150px;
+@sidebarWidth: 200px;
 
 html, body, div[ng-app], div[ng-view] {
 	height: 100%;
@@ -54,12 +54,16 @@ body {
 	list-style-type: none;
 }
 
+.player-info {
+	margin: 1em;
+}
+
 .itemList {
 	.reset-list-styles;
+	overflow-y: auto;
 }
 
 .item {
-	padding: 0.2em;
 	cursor: pointer;
 }
 
@@ -113,5 +117,27 @@ body {
 		display: inline;
 		padding: 0.3em;
 		width: 90%;
+	}
+}
+
+fieldset.movementButtons {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	border: none;
+	padding: 0;
+	margin: 0;
+	button {
+		height: 3.5em;
+		width: 100%;
+		text-align: center;
+		display: block;
+		appearance: none;
+		-webkit-appearance: none;
+		border: none;
+		background-color: transparent;
+		color: #8F8;
+		font-weight: bold;
 	}
 }

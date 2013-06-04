@@ -39,8 +39,8 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 		if (items.filter({_.kind == other.kind}).isEmpty) {
 			return false
 		} else if (other.count == None) {
-			// TODO: Implement removing non-stackable items
-			return false
+			items = items.patch(items.indexOf(other), Seq(), 1)
+			return true
 		} else {
 			val existing:Option[Item] = items.filter({ item:Item => 
 				(item.kind == other.kind) && (item.count.get >= other.count.get)
@@ -50,7 +50,6 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 				val updated:Item = (existing.get - other).head
 				if (updated.count.get > 0) {
 					// replace
-					// FIXME: rearranges list
 					items = items.patch(existingIndex, Seq(updated), 1)
 				} else {
 					// subtract
