@@ -68,7 +68,7 @@ class World {
 								WorldCoordinates(coords.x,World.clamp(coords.y-1))
 							)) foreach { c2:WorldCoordinates =>
 								val t2:Tile = tile(c2)
-								val isTerrainPassableByLlamas = t2.terrain.id != "water"
+								val isTerrainPassableByLlamas = (t2.terrain.id != "sand")
 								if (isTerrainPassableByLlamas && t2.entity.isEmpty) {
 									moveEntity(coords, c2)
 									break
