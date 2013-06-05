@@ -39,6 +39,11 @@ directives.directive "world", [ "$window", ($window) ->
 		renderPlayerMove()
 ];
 
+#
+# Renders a chunk and all of its tiles.
+# (No longer uses a directive for tiles because ngRepeatWatch
+# is slow with lots of tiles)
+#
 directives.directive "chunk", [ "tileRender", (tileRender) ->
 	updateTile = (tile, $tile) ->
 		id =
