@@ -100,16 +100,12 @@ class Game extends Actor {
 			val player = world.spawnPlayer(playerName)
 			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
 			playerChannels = playerChannels + (playerName -> playerChannel)
-			Unit
 			sender ! Connected(jsonWorldEventEnumerator >- chatEnumerator >- playerEnumerator)
-			Unit
+			sendChunks(player, None)
 			playerChannel.push(JsObject(Seq(
 				"kind" -> JsString("spawn"),
 				"player" -> Json.toJson(player)
 			)))
-			Unit
-			sendChunks(player, None)
-			Unit
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
