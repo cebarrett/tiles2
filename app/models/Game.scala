@@ -33,7 +33,7 @@ class Game extends Actor {
 		(worldEvent.kind, worldEvent.player.isDefined) match {
 			case ("entityMove", true) => {
 				// TODO: unload and load chunks for this player
-
+				Logger.info("######### a player moved");
 			}
 			case (_, _) => Unit
 		}

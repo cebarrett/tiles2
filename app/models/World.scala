@@ -185,7 +185,7 @@ class World {
 			recipe.ingredients.map {player.inventory.subtract(_)}
 			this.eventChannel.push(WorldEvent("playerCraft", Some(player.x), Some(player.y), Some(playerTile), Some(player)))
 		} else {
-			Logger.warn(s"Player $playerName did not have the ingredients to craft $recipe")
+			Logger.debug(s"Player $playerName did not have the ingredients to craft $recipe")
 		}
 	}
 
