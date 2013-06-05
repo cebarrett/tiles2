@@ -145,12 +145,12 @@ services.factory "tileRender", [ () ->
 		tree:
 			text: "♠"
 			color: "#00BB00"
-		water:
-			text: "≋"
-			color: "#6666FF"
+		sand:
+			text: "."
+			color: "#CCDDAE"
 		dirt:
 			text: "."
-			color: "#A06030"
+			color: "#995522"
 		workbench:
 			text: "π"
 			color: "#BB7722"

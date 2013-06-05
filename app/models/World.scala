@@ -50,7 +50,7 @@ class World {
 
 	def tick():Unit = {
 		// FIXME: things that happen on tick should live in the entity's class
-		val chanceofLlamaMoving:Double = 0.05;
+		val chanceofLlamaMoving:Double = 0.1;
 		val chanceOfTreeGrowing:Double = 0.0005;
 		chunkGrid.foreach { entry =>
 			val (chunkCoords, chunk) = entry

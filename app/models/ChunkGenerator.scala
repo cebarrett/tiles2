@@ -17,7 +17,7 @@ object ChunkGenerator {
 				var entity:Option[Entity] = None
 				val terrain = {
 					if (noise < 0) {
-						new Terrain("water")
+						new Terrain("sand")
 					} else {
 						entity = {
 							if (Math.random < 0.03)
