@@ -4,6 +4,8 @@ import play.api.Logger
 
 object ChunkGenerator {
 
+	// FIXME: seed the RNG per world
+
 	def generate(coords:ChunkCoordinates):Chunk = {
 		val chunk = new Chunk(coords.cx, coords.cy)
 		for (tx <- 0 until Chunk.length) {
