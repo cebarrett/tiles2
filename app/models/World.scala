@@ -78,7 +78,7 @@ class World {
 					// grow saplings
 					if (Math.random() < chanceOfTreeGrowing && t.entity.isDefined && t.entity.get.id == "sapling") {
 						t.entity = Some(EntityTree())
-						this.eventChannel.push(WorldEvent("EntitySpawn", Some(coords.x), Some(coords.y), Some(t)))
+						this.eventChannel.push(WorldEvent("entitySpawn", Some(coords.x), Some(coords.y), Some(t)))
 					}
 				}
 			}
