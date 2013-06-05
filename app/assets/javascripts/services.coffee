@@ -11,6 +11,7 @@ services = angular.module "app.services", []
 services.factory "net", ["pub", "sub", (pub, sub) ->
 	service =
 		connect: (scope) ->
+			scope.chunks = []
 			sub scope
 		north: -> pub {kind: "north"}
 		south: -> pub {kind: "south"}
@@ -42,6 +43,7 @@ services.factory "sub", ["socket", (socket) ->
 	socket.setMessageCallback (message) ->
 		chunk = null
 		tile = null
+		newChunk = null
 		if message.tile? then do ->
 			chunk = _(appScope.chunks).find({
 				cx: Math.floor(message.x/appScope.chunkLen)
@@ -59,7 +61,6 @@ services.factory "sub", ["socket", (socket) ->
 				console.error("Error " + message.code + ": " + message.description)
 			when "spawn" then do ->
 				console.log("got a spawn message")
-				appScope.chunks = message.chunks
 				appScope.player = message.player
 				appScope.$apply()
 			when "gui" then if message.player.name == appScope.player.name
@@ -76,14 +77,16 @@ services.factory "sub", ["socket", (socket) ->
 						cx: Math.floor(message.prevX/appScope.chunkLen)
 						cy: Math.floor(message.prevY/appScope.chunkLen)
 					})
-					(delete oldchunk.tiles[message.prevX-oldchunk.cx*appScope.chunkLen][message.prevY-oldchunk.cy*appScope.chunkLen].entity) 
+					if oldchunk?
+						(delete oldchunk.tiles[message.prevX-oldchunk.cx*appScope.chunkLen][message.prevY-oldchunk.cy*appScope.chunkLen].entity) 
 					# FIXME: appScope.$apply is called multple times for some events
 					appScope.$apply()
 			when "chunk" then do ->
 				appScope.chunks.push(message.chunk)
-			when "unloadChunk" then do ->
+			when "chunkUnload" then do ->
 				appScope.chunks = appScope.chunks.filter (chunk) ->
 					!((chunk.cx == message.cx) && (chunk.cy == message.cy))
+				console.log("chunks after unload: " + appScope.chunks.length)
 			else console.log("unknown kind of message: " + message.kind)
 
 	return (scope) -> appScope = scope

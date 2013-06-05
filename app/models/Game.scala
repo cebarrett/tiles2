@@ -64,12 +64,13 @@ class Game extends Actor {
 	}
 
 	def sendChunks(player:Player, prevPos:Option[WorldCoordinates]):Unit = {
+		val playerChunkRadius = 1
 		val nextPos = WorldCoordinates(player.x, player.y)
 		val nextCc  = nextPos.toChunkCoordinates
-		val nextRad:Set[ChunkCoordinates] = Chunk.radius(nextCc, 1)
+		val nextRad:Set[ChunkCoordinates] = Chunk.radius(nextCc, playerChunkRadius)
 		val prevRad:Set[ChunkCoordinates] = {
 			prevPos map { pp:WorldCoordinates =>
-				Chunk.radius(pp.toChunkCoordinates, 1)
+				Chunk.radius(pp.toChunkCoordinates, playerChunkRadius)
 			} getOrElse {
 				Set.empty[ChunkCoordinates]
 			}
@@ -88,7 +89,7 @@ class Game extends Actor {
 			load map { cc =>
 				channel.push(JsObject(Seq(
 					"kind" -> JsString("chunk"),
-					"cx" -> Json.toJson(world.chunk(cc.cx, cc.cy))
+					"chunk" -> Json.toJson(world.chunk(cc.cx, cc.cy))
 				)))
 			}
 		}
@@ -99,17 +100,16 @@ class Game extends Actor {
 			val player = world.spawnPlayer(playerName)
 			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
 			playerChannels = playerChannels + (playerName -> playerChannel)
+			Unit
 			sender ! Connected(jsonWorldEventEnumerator >- chatEnumerator >- playerEnumerator)
+			Unit
 			playerChannel.push(JsObject(Seq(
 				"kind" -> JsString("spawn"),
-				"chunks" -> Json.toJson(Seq(
-					world.chunk(0,0),
-					world.chunk(0,1),
-					world.chunk(1,0),
-					world.chunk(1,1)
-				)),
 				"player" -> Json.toJson(player)
 			)))
+			Unit
+			sendChunks(player, None)
+			Unit
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
