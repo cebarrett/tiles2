@@ -57,9 +57,7 @@ body {
 .sidebar-button {
 	display: block;
 	width: @sidebarWidth - 2px;
-	padding: 0.5em 0.25em;
-	text-align: left;
-	margin-left: 0px;
+	padding: 0.33em;
 	background-color: rgba(20,20,20,20);
 	appearance: none;
 	-webkit-appearance: none;
@@ -67,7 +65,11 @@ body {
 }
 
 .player-info {
-	margin: 1em;
+	.sidebar-button;
+	position: absolute;
+	width: auto;
+	left: 0;
+	right: 0;
 }
 
 .itemList {
