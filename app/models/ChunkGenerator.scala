@@ -9,11 +9,11 @@ object ChunkGenerator {
 				val terrain = new Terrain("dirt")
 				// FIXME: use/write a weighted list helper class with a method to pick random, it will be needed a lot.
 				val entity = {
-					if (Math.random < 0.05)
+					if (Math.random < 0.03)
 						Some(new EntityTree("tree"))
-					else if (Math.random < 0.01)
+					else if (Math.random < 0.005)
 						Some(new EntityWorkbench("workbench"))
-					else if (Math.random() < 0.025)
+					else if (Math.random() < 0.01)
 						Some(new EntityLlama())
 					else
 						None

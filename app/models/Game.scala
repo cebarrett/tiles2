@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit
 import akka.actor.Actor
 import akka.actor.Props
 import scala.concurrent.duration._
+import scala.collection._
 import play.api.libs.concurrent.Akka
 import play.api.Play.current
 import akka.actor.actorRef2Scala
@@ -28,12 +29,17 @@ class Game extends Actor {
 	/** The world */
 	val world = new World
 
-	/** Translates WorldEvents into JSON that can be broadcast to players. */
+	/** Translates WorldEvents into JSON that can be broadcast to players,
+	    and also listens for and handles certain WorldEvents. */
 	val jsonWorldEventEnumerator:Enumerator[JsValue] = world.eventEnumerator.map[JsValue] { worldEvent =>
 		(worldEvent.kind, worldEvent.player.isDefined) match {
 			case ("entityMove", true) => {
-				// TODO: unload and load chunks for this player
-				Logger.info("######### a player moved");
+				// a player moved so do chunk un/loading
+				var oldPos = WorldCoordinates(worldEvent.prevX.get, worldEvent.prevY.get)
+				var newPos = WorldCoordinates(worldEvent.x.get, worldEvent.y.get)
+				if (oldPos.inSameChunk(newPos) == false) {
+					sendChunks(worldEvent.player.get, Some(oldPos))
+				}
 			}
 			case (_, _) => Unit
 		}
@@ -57,6 +63,37 @@ class Game extends Actor {
 		)
 	}
 
+	def sendChunks(player:Player, prevPos:Option[WorldCoordinates]):Unit = {
+		val nextPos = WorldCoordinates(player.x, player.y)
+		val nextCc  = nextPos.toChunkCoordinates
+		val nextRad:Set[ChunkCoordinates] = Chunk.radius(nextCc, 1)
+		val prevRad:Set[ChunkCoordinates] = {
+			prevPos map { pp:WorldCoordinates =>
+				Chunk.radius(pp.toChunkCoordinates, 1)
+			} getOrElse {
+				Set.empty[ChunkCoordinates]
+			}
+		}
+		val load:Set[ChunkCoordinates] = nextRad -- prevRad
+		val unload:Set[ChunkCoordinates] = prevRad -- nextRad
+
+		playerChannels get player.name map { channel =>
+			unload map { cc =>
+				channel.push(JsObject(Seq(
+					"kind" -> JsString("chunkUnload"),
+					"cx" -> JsNumber(cc.cx),
+					"cy" -> JsNumber(cc.cy)
+				)))
+			}
+			load map { cc =>
+				channel.push(JsObject(Seq(
+					"kind" -> JsString("chunk"),
+					"cx" -> Json.toJson(world.chunk(cc.cx, cc.cy))
+				)))
+			}
+		}
+	}
+
 	def receive = {
 		case Join(playerName:String) => {
 			val player = world.spawnPlayer(playerName)
@@ -76,7 +113,6 @@ class Game extends Actor {
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
-			// FIXME: rate limit some kinds of messages
 			Logger.debug(s"Received message from $playerName: $message")
 			val kind:String = (message \ "kind").as[String]
 			kind match {
