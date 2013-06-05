@@ -41,6 +41,11 @@ services.factory "sub", ["socket", (socket) ->
 	# FIXME: spaghetti code
 	appScope = null
 	socket.setMessageCallback (message) ->
+		if (message == null)
+			appScope.connected = false
+			appScope.$apply()
+			return
+		appScope.connected = true
 		chunk = null
 		tile = null
 		newChunk = null
@@ -98,19 +103,18 @@ services.factory "sub", ["socket", (socket) ->
 services.factory "socket", ["$window", ($window) ->
 	wsUrl = $window.location.origin.replace(/^http/, "ws") + "/ws"
 	ws = new $window.WebSocket wsUrl
-	messageCallback = null # a function that handles all messages
+	messageCallback = null # a function that handles all messages, null means disconnected
 	sendQueue = [] # messages to send after onopen
 	receiveQueue = [] # messages to receive after messageCallback is set
 
 	ws.onerror = (err) ->
-		# TODO
 		$window.console.error err
 	ws.onopen = ->
 		ws.send(json) for json in sendQueue
 		sendQueue = []
 	ws.onclose = (err) ->
-		# TODO
-		$window.alert("Error: Connection closed: " + err)
+		$window.console.error err
+		messageCallback(null) if messageCallback?
 	ws.onmessage = (event) ->
 		message = $window.JSON.parse event.data
 		if messageCallback?
@@ -131,3 +135,30 @@ services.factory "socket", ["$window", ($window) ->
 				ws.send json
 ]
 
+services.factory "tileRender", [ () ->
+	tileRender =
+		player:
+			text: "@"
+			color: "white"
+		tree:
+			text: "♠"
+			color: "#00BB00"
+		water:
+			text: "≋"
+			color: "#6666FF"
+		dirt:
+			text: "."
+			color: "#A06030"
+		workbench:
+			text: "π"
+			color: "#BB7722"
+		wood:
+			text: "#"
+			color: "#BB7722"
+		sapling:
+			text: "τ"
+			color: "#00BB00"
+		llama:
+			text: "L"
+			color: "#BBBB99"
+]

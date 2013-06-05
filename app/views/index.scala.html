@@ -27,7 +27,7 @@
 					<button type="button" ng-click="south()">south</button>
 				</fieldset>
 			</div>
-			<div id="content">
+			<div id="content" ng-show="connected">
 				<div world>
 					<div chunk ng-repeat="chunk in chunks">
 						<div tile-column ng-repeat="column in chunk.tiles">

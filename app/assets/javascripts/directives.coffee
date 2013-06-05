@@ -51,36 +51,8 @@ directives.directive "tileColumn", [->
 		elm.css "left", (scope.$index*scope.tileSizePx)+"px"
 ];
 
-directives.directive "tile", [ () ->
-	# FIXME: put this in its own service
-	tileRender = {
-		player:
-			text: "@"
-			color: "white"
-		tree:
-			text: "♠"
-			color: "#00BB00"
-		water:
-			text: "≋"
-			color: "#6666FF"
-		dirt:
-			text: "."
-			color: "#A06030"
-		workbench:
-			text: "π"
-			color: "#BB7722"
-		wood:
-			text: "#"
-			color: "#BB7722"
-		sapling:
-			text: "τ"
-			color: "#00BB00"
-		llama:
-			text: "L"
-			color: "#AAAAAA"
-	}
-
-	return (scope, elm, attr) ->
+directives.directive "tile", [ "tileRender", (tileRender) ->
+	(scope, elm, attr) ->
 		x = scope.chunk.cx * scope.chunkLen + scope.tile.tx
 		y = scope.chunk.cy * scope.chunkLen + scope.tile.ty
 	
