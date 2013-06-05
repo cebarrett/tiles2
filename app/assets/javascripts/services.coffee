@@ -58,6 +58,8 @@ services.factory "sub", ["socket", (socket) ->
 				chunk.tiles[message.tile.tx][message.tile.ty] = message.tile
 				tile = chunk.tiles[message.tile.tx][message.tile.ty]
 				appScope.$apply()
+				# broadcast the event so the chunk directive can re-render the tile
+				appScope.$broadcast('tileChange', message.x, message.y, tile)
 		if (message.player? and appScope.player? and message.player.name == appScope.player.name) then do ->
 			appScope.player = message.player
 			appScope.$apply()
@@ -65,34 +67,34 @@ services.factory "sub", ["socket", (socket) ->
 			when "error" then do ->
 				console.error("Error " + message.code + ": " + message.description)
 			when "spawn" then do ->
-				console.log("got a spawn message")
 				appScope.player = message.player
 				appScope.$apply()
 			when "gui" then if message.player.name == appScope.player.name
 				appScope.guiOptions = message.options
 				appScope.$apply()
-			when "playerSpawn" then console.log("player spawned")
-			when "playerDespawn" then console.log("player despawned")
-			when "entityDespawn" then console.log("entity despawned")
-			when "playerUpdate" then console.log("player update")
+			# when "playerSpawn" then console.log("player spawned")
+			# when "playerDespawn" then console.log("player despawned")
+			# when "entityDespawn" then console.log("entity despawned")
+			# when "playerUpdate" then console.log("player update")######
 			when "entityMove" then do ->
-				# FIXME: this deletes the newly moved entity
 				if (message.prevX? && message.prevY?)
 					oldchunk = _(appScope.chunks).find({
 						cx: Math.floor(message.prevX/appScope.chunkLen)
 						cy: Math.floor(message.prevY/appScope.chunkLen)
 					})
 					if oldchunk?
-						(delete oldchunk.tiles[message.prevX-oldchunk.cx*appScope.chunkLen][message.prevY-oldchunk.cy*appScope.chunkLen].entity) 
-					# FIXME: appScope.$apply is called multple times for some events
-					appScope.$apply()
+						prevTx = message.prevX-oldchunk.cx*appScope.chunkLen
+						prevTy = message.prevY-oldchunk.cy*appScope.chunkLen
+						prevTile = oldchunk.tiles[prevTx][prevTy]
+						delete prevTile.entity
+						# broadcast the event so the chunk directive can re-render the tile
+						appScope.$broadcast('tileChange', message.prevX, message.prevY, prevTile)
 			when "chunk" then do ->
 				appScope.chunks.push(message.chunk)
 			when "chunkUnload" then do ->
 				appScope.chunks = appScope.chunks.filter (chunk) ->
 					!((chunk.cx == message.cx) && (chunk.cy == message.cy))
-				console.log("chunks after unload: " + appScope.chunks.length)
-			else console.log("unknown kind of message: " + message.kind)
+			# else console.log("unknown kind of message: " + message.kind)
 
 	return (scope) -> appScope = scope
 ]

@@ -8,6 +8,7 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 		west = $parse("west()")
 		south = $parse("south()")
 		$('body').on 'mousewheel', (e) ->
+			delta = e.originalEvent.wheelDeltaY
 			return	# TODO: scroll selected item
 		
 		$document[0].body.addEventListener 'keydown', (e) ->
@@ -57,10 +58,11 @@ directives.directive "chunk", [ "tileRender", (tileRender) ->
 			$tileCol = $('<div class="tile-column">')
 			$tileCol.css "left", (tx*scope.tileSizePx)+"px"
 			_(tileCol).each (tile, ty) ->
-				$tile = $('<div class="tile" >')
 				x = scope.chunk.cx * scope.chunkLen + tx
 				y = scope.chunk.cy * scope.chunkLen + ty
+				$tile = $('<div class="tile '+x+'_'+y+'">')
 				$tile.css "top", -((1-scope.chunkLen+ty)*scope.tileSizePx)+"px"
+				# FIXME: don't bind event listeners to each tile
 				$tile.on 'selectstart', () -> false
 				$tile.on 'click', (e) -> 
 					scope.place(x, y) if scope.place?
@@ -68,7 +70,12 @@ directives.directive "chunk", [ "tileRender", (tileRender) ->
 				$tileCol.append($tile)
 			elm.append($tileCol[0])
 		# TODO: watch/listen to something for events and update the tile
-
+		scope.$on 'tileChange', (something, x, y, tile) ->
+			if (tile.entity? == false)
+				console.log "tileChange, removing entity"
+			# FIXME: slow selector, use a class instead of data attrs
+			$tile = $('.'+x+'_'+y)
+			updateTile(tile, $tile)
 ];
 
 directives.directive "item", [ () ->
