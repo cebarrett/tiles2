@@ -30,6 +30,13 @@ class Game extends Actor {
 
 	/** Translates WorldEvents into JSON that can be broadcast to players. */
 	val jsonWorldEventEnumerator:Enumerator[JsValue] = world.eventEnumerator.map[JsValue] { worldEvent =>
+		(worldEvent.kind, worldEvent.player.isDefined) match {
+			case ("entityMove", true) => {
+				// TODO: unload and load chunks for this player
+
+			}
+			case (_, _) => Unit
+		}
 		Json.toJson(worldEvent)
 	}
 

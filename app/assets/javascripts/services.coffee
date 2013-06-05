@@ -37,8 +37,23 @@ services.factory "pub", ["socket", (socket) ->
 # controller's scope.
 #
 services.factory "sub", ["socket", (socket) ->
+	# FIXME: spaghetti code
 	appScope = null
 	socket.setMessageCallback (message) ->
+		chunk = null
+		tile = null
+		if message.tile? then do ->
+			chunk = _(appScope.chunks).find({
+				cx: Math.floor(message.x/appScope.chunkLen)
+				cy: Math.floor(message.y/appScope.chunkLen)
+			})
+			if (chunk?)
+				chunk.tiles[message.tile.tx][message.tile.ty] = message.tile
+				tile = chunk.tiles[message.tile.tx][message.tile.ty]
+				appScope.$apply()
+		if (message.player? and appScope.player? and message.player.name == appScope.player.name) then do ->
+			appScope.player = message.player
+			appScope.$apply()
 		switch message.kind
 			when "error" then do ->
 				console.error("Error " + message.code + ": " + message.description)
@@ -52,26 +67,24 @@ services.factory "sub", ["socket", (socket) ->
 				appScope.$apply()
 			when "playerSpawn" then console.log("player spawned")
 			when "playerDespawn" then console.log("player despawned")
-			when "playerMoveOldTile" then console.log("player despawned")
-			when "playerMoveNewTile" then console.log("player despawned")
 			when "entityDespawn" then console.log("entity despawned")
+			when "playerUpdate" then console.log("player update")
+			when "entityMove" then do ->
+				# FIXME: this deletes the newly moved entity
+				if (message.prevX? && message.prevY?)
+					oldchunk = _(appScope.chunks).find({
+						cx: Math.floor(message.prevX/appScope.chunkLen)
+						cy: Math.floor(message.prevY/appScope.chunkLen)
+					})
+					(delete oldchunk.tiles[message.prevX-oldchunk.cx*appScope.chunkLen][message.prevY-oldchunk.cy*appScope.chunkLen].entity) 
+					# FIXME: appScope.$apply is called multple times for some events
+					appScope.$apply()
 			when "chunk" then do ->
 				appScope.chunks.push(message.chunk)
 			when "unloadChunk" then do ->
 				appScope.chunks = appScope.chunks.filter (chunk) ->
 					!((chunk.cx == message.cx) && (chunk.cy == message.cy))
 			else console.log("unknown kind of message: " + message.kind)
-		if message.tile? then do ->
-			chunk = _(appScope.chunks).find({
-				cx: Math.floor(message.x/appScope.chunkLen)
-				cy: Math.floor(message.y/appScope.chunkLen)
-			})
-			if (chunk?)
-				chunk.tiles[message.tile.tx][message.tile.ty] = message.tile
-				appScope.$apply()
-		if (message.player? and message.player.name == appScope.player.name) then do ->
-			appScope.player = message.player
-			appScope.$apply()
 
 	return (scope) -> appScope = scope
 ]

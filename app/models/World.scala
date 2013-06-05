@@ -68,12 +68,7 @@ class World {
 							)) foreach { c2:WorldCoordinates =>
 								val t2:Tile = tile(c2)
 								if (t2.entity.isEmpty) {
-									// FIXME: factor out a method for moving entities
-									// FIXME: fix how entity move is published, do it as one event named entityMove instead of a despawn/spawn
-									t2.entity = t.entity
-									t.entity = None
-									this.eventChannel.push(WorldEvent("EntityDespawn", Some(coords.x), Some(coords.y), Some(t)))
-									this.eventChannel.push(WorldEvent("EntitySpawn", Some(c2.x), Some(c2.y), Some(t2)))
+									moveEntity(coords, c2)
 									break
 								}
 							}
@@ -112,7 +107,7 @@ class World {
 		return player
 	}
 
-	def despawnPlayer(playerName:String) {
+	def despawnPlayer(playerName:String):Unit = {
 		players.get(playerName) match {
 			case Some(player) =>
 				val (x, y) = (player.x, player.y)
@@ -130,7 +125,7 @@ class World {
 		}
 	}
 
-	def movePlayer(playerName:String, dx:Int, dy:Int) {
+	def movePlayer(playerName:String, dx:Int, dy:Int):Unit = {
 		players.get(playerName) map { player =>
 			val oldX:Int = player.x
 			val oldY:Int = player.y
@@ -140,25 +135,42 @@ class World {
 			val newTile = tile(newX, newY)
 			(newTile.entity.isEmpty) match {
 				case true => {
-					// No entity occupying the tile so move there
-					player.x = player.x + dx
-					player.y = player.y + dy
-					newTile.entity = oldTile.entity
-					oldTile.entity = None
-					this.eventChannel.push(WorldEvent("playerMoveOldTile", Some(oldX), Some(oldY), Some(oldTile)))
-					// FIXME: This broadcasts the entire player object, including inventory.
-					// We might want to keep a player's inventory secret instead.
-					this.eventChannel.push(WorldEvent("playerMoveNewTile", Some(newX), Some(newY), Some(newTile), Some(player)))
+					// No entity occupying the tile so move there.
+					moveEntity(WorldCoordinates(oldX, oldY), WorldCoordinates(newX, newY))
 				} case false => {
-					// An entity is occupying this tile, so interact with it.
-					// FIXME: this logic is specific to trees but will happen for players too
+					// An entity is occupying this tile so interact with it.
 					doEntityInteraction(WorldCoordinates(oldX,oldY), WorldCoordinates(newX,newY))
 				}
 			}
 		}
 	}
+
+	def moveEntity(oldCoords:WorldCoordinates, newCoords:WorldCoordinates):Unit = {
+		val (oldTile, newTile) = (tile(oldCoords), tile(newCoords))
+		val (oldEntity, newEntity) = (oldTile.entity, newTile.entity)
+		require(oldEntity.isDefined)
+
+		newEntity.getOrElse {
+			newTile.entity = oldEntity
+			oldTile.entity = None
+
+			newTile.entity.map {
+				case playerEntity:EntityPlayer => {
+					val player = players.get(playerEntity.playerName).get
+					player.x = newCoords.x
+					player.y = newCoords.y
+					val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), None, Some(oldCoords.x), Some(oldCoords.y))
+					eventChannel.push(event)
+				}
+				case _:Any => {
+					val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, None, Some(oldCoords.x), Some(oldCoords.y))
+					eventChannel.push(event)
+				}
+			}
+		}
+	}
 	
-	def doPlayerCrafting(playerName:String, recipe:WorkbenchRecipe) {
+	def doPlayerCrafting(playerName:String, recipe:WorkbenchRecipe):Unit = {
 		val player:Player = players.get(playerName).get
 		// validate that the player has enough items to make the recipe
 		var hasIngredients:Boolean = true
@@ -177,7 +189,7 @@ class World {
 		}
 	}
 
-	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates) {
+	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates):Unit = {
 		require(entity(attackerCoords).isDefined && entity(targetCoords).isDefined)
 		val (attacker:Entity, target:Entity) = (entity(attackerCoords).head, entity(targetCoords).head)
 		val (attackerTile:Tile, targetTile:Tile) = (tile(attackerCoords), tile(targetCoords))
@@ -236,35 +248,32 @@ class World {
 		this.eventChannel.push(WorldEvent("playerUpdate", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player)))
 	}
 	
-	def doPlaceItem(playerName:String, target:WorldCoordinates) {
+	def doPlaceItem(playerName:String, target:WorldCoordinates) = {
 		players.get(playerName).map { player =>
 			// FIXME: verify the target is within N blocks of player
 			player.inventory.selected map { itemIndex =>
-				val targetTile = tile(target)
-				targetTile.entity.getOrElse {
-					val item:Item = player.inventory.items(player.inventory.selected.get)
-					(item.kind) match {
-						case "wood" => 
-							player.inventory.subtract(Item("wood", Some(1)))
-							targetTile.entity = Some(EntityWood())
-							this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-						case "sapling" => 
-							player.inventory.subtract(Item("sapling", Some(1)))
-							targetTile.entity = Some(EntitySapling())
-							this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-						case _ => Unit
+				if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
+					val targetTile = tile(target)
+					targetTile.entity.getOrElse {
+						val item:Item = player.inventory.items(player.inventory.selected.get)
+						(item.kind) match {
+							case "wood" => 
+								player.inventory.subtract(Item("wood", Some(1)))
+								targetTile.entity = Some(EntityWood())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "sapling" => 
+								player.inventory.subtract(Item("sapling", Some(1)))
+								targetTile.entity = Some(EntitySapling())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case _ => Unit
+						}
 					}
-
 				}
-				// validate an item is selected and validate that tile is empty
-				if (targetTile.entity.isDefined || player.isItemSelected == false)
-					return
 			}
 		}
-
 	}
 
-	def doSelectItem(playerName:String, inventoryIndex:Int) {
+	def doSelectItem(playerName:String, inventoryIndex:Int) = {
 		val player:Player = players.get(playerName).get
 		if (inventoryIndex < 0 || inventoryIndex >= player.inventory.items.size) {
 			// invalid index
@@ -287,5 +296,7 @@ case class WorldEvent(
 	val y:Option[Int] = None,
 	val tile:Option[Tile] = None,
 	val player:Option[Player] = None,
-	val options:Option[Seq[String]] = None
+	val options:Option[Seq[String]] = None,
+	val prevX:Option[Int] = None,
+	val prevY:Option[Int] = None
 )
