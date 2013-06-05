@@ -29,11 +29,7 @@
 			</div>
 			<div id="content" ng-show="connected">
 				<div world>
-					<div chunk ng-repeat="chunk in chunks">
-						<div tile-column ng-repeat="column in chunk.tiles">
-							<div tile ng-repeat="tile in column"></div>
-						</div>
-					</div>
+					<div chunk ng-repeat="chunk in chunks"></div>
 				</div>
 				<div class="gui" ng-show="guiOptions">
 					<div class="gui-option" ng-repeat="option in guiOptions">

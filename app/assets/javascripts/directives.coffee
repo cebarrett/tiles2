@@ -38,44 +38,41 @@ directives.directive "world", [ "$window", ($window) ->
 		renderPlayerMove()
 ];
 
-directives.directive "chunk", [->
+directives.directive "chunk", [ "tileRender", (tileRender) ->
+	updateTile = (tile, $tile) ->
+		id =
+			if tile.entity?
+				tile.entity.id
+			else
+				tile.terrain.id
+		render = tileRender[id];
+		$tile.html "&#"+render.text.charCodeAt(0)+";"
+		$tile.css {color: render.color}
+
 	(scope, elm, attr) ->
 		elm.addClass "chunk"
 		elm.css "top", -((1+scope.chunk.cy)*scope.tileSizePx*scope.chunkLen)+"px"
 		elm.css "left", ((scope.chunk.cx)*scope.tileSizePx*scope.chunkLen)+"px"
-];
+		_(scope.chunk.tiles).each (tileCol, tx) ->
+			$tileCol = $('<div class="tile-column">')
+			$tileCol.css "left", (tx*scope.tileSizePx)+"px"
+			_(tileCol).each (tile, ty) ->
+				$tile = $('<div class="tile" >')
+				x = scope.chunk.cx * scope.chunkLen + tx
+				y = scope.chunk.cy * scope.chunkLen + ty
+				$tile.css "top", -((1-scope.chunkLen+ty)*scope.tileSizePx)+"px"
+				$tile.on 'selectstart', () -> false
+				$tile.on 'click', (e) -> 
+					scope.place(x, y) if scope.place?
+				updateTile(tile, $tile)
+				$tileCol.append($tile)
+			elm.append($tileCol[0])
+		# TODO: watch/listen to something for events and update the tile
 
-directives.directive "tileColumn", [->
-	(scope, elm, attr) ->
-		elm.addClass "tile-column"
-		elm.css "left", (scope.$index*scope.tileSizePx)+"px"
-];
-
-directives.directive "tile", [ "tileRender", (tileRender) ->
-	(scope, elm, attr) ->
-		x = scope.chunk.cx * scope.chunkLen + scope.tile.tx
-		y = scope.chunk.cy * scope.chunkLen + scope.tile.ty
-	
-		elm.addClass "tile"
-		elm.bind 'selectstart', () -> false
-		elm.bind 'click', (e) ->
-			scope.place(x, y) if scope.place?
-		elm.css "top", -((1-scope.chunkLen+scope.$index)*scope.tileSizePx)+"px"
-		updateTile = ->
-			id =
-				if scope.tile.entity?
-					scope.tile.entity.id
-				else
-					scope.tile.terrain.id
-			render = tileRender[id];
-			elm[0].innerHTML = "&#"+render.text.charCodeAt(0)+";"
-			elm.css {color: render.color}
-		scope.$watch("tile.entity", updateTile);
-		scope.$watch("tile.terrain", updateTile);
-		updateTile();
 ];
 
 directives.directive "item", [ () ->
 	return (scope, elm, attr) ->
 		$('body').on('selectstart', () -> false)
+		$('body').on('select', () -> false)
 ];
