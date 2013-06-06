@@ -126,10 +126,7 @@ class Game extends Actor {
 					val index:Int = (message \ "index").as[Int]
 					index match {
 						case 0 => Unit // close button
-						case 1 => world.doPlayerCrafting(playerName, WorkbenchRecipe.ALL_RECIPES(index-1))
-						case 2 => world.doPlayerCrafting(playerName, WorkbenchRecipe.ALL_RECIPES(index-1))
-						case _ =>
-							Logger.warn(s"Unknown gui index: $index");
+						case _ => world.doPlayerCrafting(playerName, WorkbenchRecipe.ALL_RECIPES(index-1))
 					}
 				}
 				case "selectItem" =>

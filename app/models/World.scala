@@ -267,6 +267,10 @@ class World {
 								player.inventory.subtract(Item("sapling", Some(1)))
 								targetTile.entity = Some(EntitySapling())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "workbench" => 
+								player.inventory.subtract(Item("workbench", Some(1)))
+								targetTile.entity = Some(EntityWorkbench())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case _ => Unit
 						}
 					}
