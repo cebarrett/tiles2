@@ -218,11 +218,11 @@ class World {
 			}
 			case (attacker:EntityPlayer, target:EntityWorkbench) => {
 				val player = players.get(attacker.playerName).get
+				// FIXME: should be able to get this list from some constant or case object
 				val options:Seq[String] = Seq(
-					"Close",
-					"Craft 4 wood from 1 log",
-					"Craft 1 wooden axe from 1 stick and 1 wood"
-				)
+					"Close"		// FIXME: yuck
+				) ++ (WorkbenchRecipe.ALL_RECIPES.map {_.toString})
+				// FIXME: don't call the event "gui", should be "useEntity" or something
 				this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 			}
 			case (attacker:EntityPlayer, target:EntityWood) => {

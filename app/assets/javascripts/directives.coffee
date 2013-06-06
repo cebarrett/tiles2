@@ -74,11 +74,8 @@ directives.directive "chunk", [ "tileRender", (tileRender) ->
 				updateTile(tile, $tile)
 				$tileCol.append($tile)
 			elm.append($tileCol[0])
-		# TODO: watch/listen to something for events and update the tile
+		# these events are broadcast by the sub service when a tile changes
 		scope.$on 'tileChange', (something, x, y, tile) ->
-			if (tile.entity? == false)
-				console.log "tileChange, removing entity"
-			# FIXME: slow selector, use a class instead of data attrs
 			$tile = $('.'+x+'_'+y)
 			updateTile(tile, $tile)
 ];

@@ -116,12 +116,6 @@ class Game extends Actor {
 				// need to set a flag on the Player and unset when they select something.
 				case "north" =>
 					world.movePlayer(playerName,  0,  1)
-					// playerChannels.get(playerName) map { playerChannel =>
-					// 	playerChannel.push(JsObject(Seq(
-					// 		"kind" -> JsString("chunk"),
-					// 		"chunk" -> Json.toJson(world.chunk(0,2))
-					// 	)))
-					// }
 				case "south" =>
 					world.movePlayer(playerName,  0, -1)
 				case "east"  =>
@@ -131,11 +125,9 @@ class Game extends Actor {
 				case "guiSelect" => {
 					val index:Int = (message \ "index").as[Int]
 					index match {
-						// FIXME: this is duplicated from doEntityInteraction, make the code DRYer
-						// FIXME: Select from a case object list of valid recipes instead of creating them here
 						case 0 => Unit // close button
-						case 1 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wood", Some(4)), Seq(Item("log", Some(1)))))
-						case 2 => world.doPlayerCrafting(playerName, WorkbenchRecipe(Item("wooden axe", Some(1)), Seq(Item("stick", Some(1)), Item("wood", Some(1)))))
+						case 1 => world.doPlayerCrafting(playerName, WorkbenchRecipe.ALL_RECIPES(index-1))
+						case 2 => world.doPlayerCrafting(playerName, WorkbenchRecipe.ALL_RECIPES(index-1))
 						case _ =>
 							Logger.warn(s"Unknown gui index: $index");
 					}
