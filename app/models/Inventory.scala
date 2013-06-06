@@ -4,6 +4,7 @@ import play.api.Logger
 import scala.collection.Set
 import scala.util.control.Breaks._
 
+// FIXME: selected should be a property of the player
 case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[Int] = None) {
 
 	/** Returns true if user has the given item (at least as many for item stacks) */
@@ -93,3 +94,6 @@ case class Item(val kind:String, val count:Option[Int] = None) {
 		}
 	}
 }
+
+/** TODO */
+abstract trait Material

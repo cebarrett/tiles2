@@ -11,15 +11,25 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 			delta = e.originalEvent.wheelDeltaY
 			return	# TODO: scroll selected item
 		
+		down = {}
 		$document[0].body.addEventListener 'keydown', (e) ->
 			# first check that user isn't typing in an input
 			# FIXME: tab still prevents input
 			return if $document[0].querySelectorAll("input:focus, textarea:focus").length > 0
+
+			# don't move if they're holding the key down
+			# if down[e.keyCode] == true
+			# 	# down[e.keyCode] = false
+			# 	return
+			# down[e.keyCode] = true
+
 			# now move
 			scope.$eval north if e.keyCode is 87	# w
 			scope.$eval south if e.keyCode is 83	# s
 			scope.$eval west if e.keyCode is 65		# a
 			scope.$eval east if e.keyCode is 68		# d
+		$document[0].body.addEventListener 'keyup', (e) ->
+			down[e.keyCode] = false
 ];
 
 directives.directive "world", [ "$window", ($window) ->

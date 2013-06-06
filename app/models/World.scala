@@ -192,61 +192,61 @@ class World {
 	}
 
 	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates):Unit = {
-		require(entity(attackerCoords).isDefined && entity(targetCoords).isDefined)
-		val (attacker:Entity, target:Entity) = (entity(attackerCoords).head, entity(targetCoords).head)
+		val playerEntity:EntityPlayer = entity(attackerCoords).head.asInstanceOf[EntityPlayer]
+		val player:Player = players.get(playerEntity.playerName).get
 		val (attackerTile:Tile, targetTile:Tile) = (tile(attackerCoords), tile(targetCoords))
-		(attacker, target) match {
-			case (attacker:EntityPlayer, target:EntityTree) => {
-				// if being attacked by a player, drop items
-				// very rarely despawn the tree and give player logs
-				val player = players.get(attacker.playerName).get
-				if (Random.nextDouble() < 0.05) {
-					player.inventory.add(Item("stick", Some(1)))
-				} else if (Random.nextDouble() < 0.05) {
-					player.inventory.add(Item("sapling", Some(1)))
-				} else if (Random.nextDouble() < 0.02) {
-					player.inventory.add(Item("log", Some(1)))
+		val roll:Double = Random.nextDouble
+		entity(targetCoords).head match {
+			case (target:EntityTree) => {
+				if (player isHoldingItem "axe") {
+					player.inventory add Item("log", Some(1))
+					player.inventory.add(Item("sapling", Some(Random.nextInt(2) + 1)))
 					targetTile.entity = None
 					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
+				} else {
+					if (roll < 0.01) {
+						player.inventory.add(Item("stick", Some(1)))
+					} else if (roll < 0.02) {
+						player.inventory.add(Item("sapling", Some(1)))
+					} else if (roll < 0.03) {
+						player.inventory.add(Item("wood", Some(1)))
+					}
 				}
 			}
-			case (attacker:EntityPlayer, target:EntityPlayer) => {
-				val player = players.get(attacker.playerName).get
-				if (Random.nextDouble() < 0.1) {
-					player.inventory.add(Item("human meat", Some(1)))
+			case (target:EntityPlayer) => {
+				if (roll < 0.1) {
+					player.inventory.add(Item("meat", Some(1)))
 				}
 			}
-			case (attacker:EntityPlayer, target:EntityWorkbench) => {
-				val player = players.get(attacker.playerName).get
-				// FIXME: should be able to get this list from some constant or case object
-				val options:Seq[String] = Seq(
+			case (target:EntityWorkbench) => {
+				if (player isHoldingItem "hammer") {
+					player.inventory add Item("workbench", Some(1))
+					targetTile.entity = None
+					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
+				} else {
+					val options:Seq[String] = Seq(
 					"Close"		// FIXME: yuck
-				) ++ (WorkbenchRecipe.ALL_RECIPES.map {_.toString})
-				// FIXME: don't call the event "gui", should be "useEntity" or something
-				this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
+					) ++ (WorkbenchRecipe.ALL_RECIPES.map {_.toString})
+					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
+				}
 			}
-			case (attacker:EntityPlayer, target:EntityWood) => {
-				// FIXME: should have to hold an axe to break a wall,
-				// but first need to track player's selected item on the server.
-				val player = players.get(attacker.playerName).get
-				if (Random.nextDouble() < 0.1) {
+			case (target:EntityWood) => {
+				if (player isHoldingItem "hammer") {
+					player.inventory add Item("wood", Some(1))
 					targetTile.entity = None
 					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
 				}
 			}
-			case (attacker:EntityPlayer, target:EntityLlama) => {
-				val player = players.get(attacker.playerName).get
+			case (target:EntityLlama) => {
 				if (Random.nextDouble() < 0.1) {
-					player.inventory.add(Item("llama meat", Some(1)))
+					player.inventory.add(Item("meat", Some(1)))
 				}
 				if (Random.nextDouble() < 0.1) {
-					player.inventory.add(Item("llama wool", Some(1)))
+					player.inventory.add(Item("wool", Some(1)))
 				}
 			}
-			case (_, _) => Unit
+			case (_) => Unit
 		}
-		// FIXME: assumes attacker is a player, in the future it can be another kind of mob
-		val player = players.get(attacker.asInstanceOf[EntityPlayer].playerName).get
 		this.eventChannel.push(WorldEvent("playerUpdate", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player)))
 	}
 	

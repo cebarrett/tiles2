@@ -27,11 +27,12 @@ case class WorkbenchRecipe(val result:Item, val ingredients:Seq[Item]) extends R
 
 case object WorkbenchRecipe {
 	// XXX: list has to be updated when a recipe is added. better way?
-	def ALL_RECIPES = Seq[WorkbenchRecipe](WOOD, KNIFE, WORKBENCH, AXE, FURNACE)
+	def ALL_RECIPES = Seq[WorkbenchRecipe](WOOD, AXE, PICK, HAMMER, WORKBENCH, FURNACE)
 
 	def WOOD = WorkbenchRecipe(Item("wood", Some(2)), Seq(Item("log", Some(1))))
-	def KNIFE = WorkbenchRecipe(Item("knife", Some(1)), Seq(Item("stick", Some(2))))
+	def AXE = WorkbenchRecipe(Item("axe"), Seq(Item("wood", Some(1)), Item("stick", Some(1))))
+	def PICK = WorkbenchRecipe(Item("pick"), Seq(Item("wood", Some(1)), Item("stick", Some(1))))
+	def HAMMER = WorkbenchRecipe(Item("hammer"), Seq(Item("wood", Some(1)), Item("stick", Some(1))))
 	def WORKBENCH = WorkbenchRecipe(Item("workbench", Some(1)), Seq(Item("wood", Some(5))))
-	def AXE = WorkbenchRecipe(Item("axe", Some(1)), Seq(Item("wood", Some(1)), Item("stick", Some(1))))
 	def FURNACE = WorkbenchRecipe(Item("furnace", Some(1)), Seq(Item("stone", Some(5))))
 }
