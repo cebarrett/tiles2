@@ -25,7 +25,7 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 	def add(other:Item) = {
 		if (other.count == None || items.filter({_.kind == other.kind}).isEmpty) {
 			items = items ++ Seq(other)
-		} else {
+		} else if (other.count.get > 0) {
 			val existing:Item = items.filter({_.kind == other.kind}).head
 			val existingIndex:Int = items.indexOf(existing)
 			val updated:Item = (existing + other).get
@@ -66,34 +66,3 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 		}
 	}
 }
-
-case class Item(val kind:String, val count:Option[Int] = None) {
-	def +(other:Item):Option[Item] = {
-		if (count == None || other.count == None) {
-			// count of None means an item is not stackable
-			return None
-		} else {
-			kind match {
-				// only stack the same kind of item
-				case other.kind => Some(Item(kind, Some(count.head + other.count.head)))
-				case _    => None
-			}
-		}
-	}
-	def -(other:Item):Option[Item] = {
-		if (count == None || other.count == None) {
-			// count of None means an item is not stackable
-			return None
-		} else {
-			kind match {
-				// only stack the same kind of item
-				// FIXME: return None if it would result in a negative item count
-				case other.kind => Some(Item(kind, Some(count.head - other.count.head)))
-				case _    => None
-			}
-		}
-	}
-}
-
-/** TODO */
-abstract trait Material
