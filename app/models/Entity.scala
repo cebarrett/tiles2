@@ -6,6 +6,7 @@ abstract trait Entity {
 
 case class EntityTree(val species:String = "oak", val id:String = "tree") extends Entity
 case class EntityWorkbench(val id:String = "workbench") extends Entity
+case class EntityFurnace(val id:String = "furnace") extends Entity
 case class EntityWood(val id:String = "wood") extends Entity
 case class EntityStone(val id:String = "stone") extends Entity
 case class EntityOre(val material:Material, val id:String = "ore") extends Entity

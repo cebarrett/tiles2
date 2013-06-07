@@ -127,6 +127,15 @@ class World {
 		}
 	}
 
+	def despawnEntity(coords:WorldCoordinates):Option[Entity] = {
+		val targetTile = tile(coords)
+		val entity = targetTile.entity;
+		targetTile.entity = None;
+		this.eventChannel.push(WorldEvent("entityDespawn", Some(coords.x), Some(coords.y), Some(targetTile)))
+		return entity
+	}
+
+
 	def movePlayer(playerName:String, dx:Int, dy:Int):Unit = {
 		players.get(playerName) map { player =>
 			val oldX:Int = player.x
@@ -201,15 +210,14 @@ class World {
 				if (player isHoldingItem "axe") {
 					player.inventory add Item("log", Some(1))
 					player.inventory.add(Item("sapling", Some(Random.nextInt(2) + 1)))
-					targetTile.entity = None
-					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
+					despawnEntity(targetCoords)
 				} else {
 					if (roll < 0.01) {
-						player.inventory.add(Item("stick", Some(1)))
-					} else if (roll < 0.02) {
-						player.inventory.add(Item("sapling", Some(1)))
-					} else if (roll < 0.03) {
 						player.inventory.add(Item("wood", Some(1)))
+						despawnEntity(targetCoords)
+					} else if (roll < 0.05) {
+						player.inventory.add(Item("sapling", Some(1)))
+						despawnEntity(targetCoords)
 					}
 				}
 			}
@@ -221,8 +229,7 @@ class World {
 			case (target:EntityWorkbench) => {
 				if (player isHoldingItem "hammer") {
 					player.inventory add Item("workbench", Some(1))
-					targetTile.entity = None
-					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
+					despawnEntity(targetCoords)
 				} else {
 					val options:Seq[String] = Seq(
 					"Close"		// FIXME: yuck
@@ -230,11 +237,27 @@ class World {
 					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
+			case (target:EntityFurnace) => {
+				if (player isHoldingItem "hammer") {
+					player.inventory add Item("furnace", Some(1))
+					despawnEntity(targetCoords)
+				} else {
+					val options:Seq[String] = Seq(
+					"Close"		// FIXME: yuck
+					) ++ (FurnaceRecipe.ALL_RECIPES.map {_.toString})
+					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
+				}
+			}
 			case (target:EntityWood) => {
 				if (player isHoldingItem "hammer") {
 					player.inventory add Item("wood", Some(1))
-					targetTile.entity = None
-					this.eventChannel.push(WorldEvent("entityDespawn", Some(targetCoords.x), Some(targetCoords.y), Some(targetTile)))
+					despawnEntity(targetCoords)
+				}
+			}
+			case (target:EntityStone) => {
+				if (player isHoldingItem "pick") {
+					player.inventory add Item("stone", Some(1))
+					despawnEntity(targetCoords)
 				}
 			}
 			case (target:EntityLlama) => {
@@ -270,6 +293,14 @@ class World {
 							case "workbench" => 
 								player.inventory.subtract(Item("workbench", Some(1)))
 								targetTile.entity = Some(EntityWorkbench())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "furnace" => 
+								player.inventory.subtract(Item("furnace", Some(1)))
+								targetTile.entity = Some(EntityFurnace())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "stone" => 
+								player.inventory.subtract(Item("stone", Some(1)))
+								targetTile.entity = Some(EntityStone())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case _ => Unit
 						}

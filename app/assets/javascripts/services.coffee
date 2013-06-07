@@ -166,4 +166,10 @@ services.factory "tileRender", [ () ->
 		stone:
 			text: "#"
 			color: "#777777"
+		furnace:
+			text: "ʭ"
+			color: "#777777"
+		stonecutter:
+			text: "π"
+			color: "#777777"
 ]

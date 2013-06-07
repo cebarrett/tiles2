@@ -1,14 +1,20 @@
 directives = angular.module "app.directives", []
 
 directives.directive "appControls", [ () ->
+	# TODO: hold shift to place blocks
+	# TODO: Q and E to cycle items
+	# TODO: shift-Q and shift-E to rearrange items
+	# TODO: mouse wheel to cycle items
+	# TODO: space de-selects item
+	# TODO: use the time delta of requestAnimFrame to smooth and slow down keyboard movement
+	# FIXME: tab still prevents input
+	# FIXME: use requestAnimFrame shim
 	(scope, elm, attrs) ->
 		step = () ->
-			# TODO: use the time delta to smooth and slow down keyboard movement
 			window.requestAnimationFrame(step)
 		step()
 
 		$('body').on 'mousewheel', (e) ->
-			# TODO: scroll item selection
 			delta = e.originalEvent.wheelDeltaY
 			console.log(delta)
 			return
@@ -16,7 +22,6 @@ directives.directive "appControls", [ () ->
 		down = {}
 		$(document).on "keydown", (e) ->
 			# first check that user isn't typing in an input
-			# FIXME: tab still prevents input
 			return if $("input:focus, textarea:focus, button:focus").size() > 0
 			# now move
 			scope.north() if e.keyCode is 87 or e.keyCode is 38

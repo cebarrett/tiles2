@@ -13,7 +13,7 @@ object ChunkGenerator {
 
 				val worldPos = WorldCoordinates(coords.cx*Chunk.length+tx, coords.cy*Chunk.length+ty)
 				val scale:Float = (0.01).toFloat // smaller = zoom out
-				val noise:Float = PerlinNoise.perlinNoise((worldPos.x*scale).toFloat, (worldPos.y*scale).toFloat)
+				val noise:Float = PerlinNoise.perlinNoise((worldPos.x*scale).toFloat, (worldPos.y*scale).toFloat, 10)
 
 				// FIXME: use/write a weighted list helper class with a method to pick random, it will be needed a lot.
 				var entity:Option[Entity] = None
@@ -25,11 +25,11 @@ object ChunkGenerator {
 							if (noise > 0.25) {
 								Some(EntityStone())
 							} else {
-								if (Math.random < 0.03)
+								if (Math.random < 0.05)
 									Some(new EntityTree("tree"))
-								else if (Math.random < 0.005)
+								else if (Math.random < 0.001)
 									Some(new EntityWorkbench("workbench"))
-								else if (Math.random() < 0.01)
+								else if (Math.random() < 0.005)
 									Some(new EntityLlama())
 								else
 									None
