@@ -7,10 +7,12 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 		east = $parse("east()")
 		west = $parse("west()")
 		south = $parse("south()")
+		close = $parse("guiSelect(0)")
 		$('body').on 'mousewheel', (e) ->
 			delta = e.originalEvent.wheelDeltaY
+			console.log(delta)
 			return	# TODO: scroll selected item
-		
+
 		down = {}
 		$document[0].body.addEventListener 'keydown', (e) ->
 			# first check that user isn't typing in an input
@@ -24,10 +26,11 @@ directives.directive "appControls", ["$document", "$parse", ($document, $parse) 
 			# down[e.keyCode] = true
 
 			# now move
-			scope.$eval north if e.keyCode is 87	# w
-			scope.$eval south if e.keyCode is 83	# s
-			scope.$eval west if e.keyCode is 65		# a
-			scope.$eval east if e.keyCode is 68		# d
+			scope.$eval north if e.keyCode is 87 or e.keyCode is 38
+			scope.$eval south if e.keyCode is 83 or e.keyCode is 40
+			scope.$eval west if e.keyCode is 65 or e.keyCode is 37
+			scope.$eval east if e.keyCode is 68 or e.keyCode is 39
+			(scope.$eval close; scope.$apply()) if scope.guiOptions? and e.keyCode is 27 #esc
 		$document[0].body.addEventListener 'keyup', (e) ->
 			down[e.keyCode] = false
 ];
