@@ -7,7 +7,19 @@ import play.api.Logger
  * Implicits to help with JSON formatting.
  */
 object JsonFormatters {
-	implicit val writesMaterial = Json.writes[Material]
+	implicit val writesMaterial = new Writes[Material] {
+		implicit val writesStone = Json.writes[Stone]
+		implicit val writesMetal = Json.writes[Metal]
+		def writes(arg:Material):JsValue = arg match {
+			case s:Stone => Json.toJson(s)
+			case s:Metal => Json.toJson(s)
+			case _ => {
+				val msg = "writesMaterial: Unknown class: " + arg.getClass
+				Logger.warn(msg)
+				JsUndefined(msg)
+			}
+		}
+	}
 	implicit val writesTerrain = Json.writes[Terrain]
 	implicit val writesPlayerEntity:Writes[EntityPlayer] = Json.writes[EntityPlayer]
 	implicit val writesTreeEntity:Writes[EntityTree] = Json.writes[EntityTree]
@@ -16,6 +28,7 @@ object JsonFormatters {
 	implicit val writesSaplingEntity:Writes[EntitySapling] = Json.writes[EntitySapling]
 	implicit val writesLlamaEntity:Writes[EntityLlama] = Json.writes[EntityLlama]
 	implicit val writesStoneEntity:Writes[EntityStone] = Json.writes[EntityStone]
+	implicit val writesOreEntity:Writes[EntityOre] = Json.writes[EntityOre]
 	implicit val writesFurnaceEntity:Writes[EntityFurnace] = Json.writes[EntityFurnace]
 	implicit val writesSawmillEntity:Writes[EntitySawmill] = Json.writes[EntitySawmill]
 	implicit val writesStonecutterEntity:Writes[EntityStonecutter] = Json.writes[EntityStonecutter]
@@ -31,6 +44,7 @@ object JsonFormatters {
 			case _:EntityFurnace => writesFurnaceEntity.writes(t.asInstanceOf[EntityFurnace])
 			case _:EntitySawmill => writesSawmillEntity.writes(t.asInstanceOf[EntitySawmill])
 			case _:EntityStonecutter => writesStonecutterEntity.writes(t.asInstanceOf[EntityStonecutter])
+			case _:EntityOre => writesOreEntity.writes(t.asInstanceOf[EntityOre])
 			case _ => {
 				val msg = "writesEntity: Unknown entity class: " + t.getClass
 				Logger.warn(msg)

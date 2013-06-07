@@ -28,9 +28,9 @@ case object WorkbenchRecipe {
 	def ALL = Seq[WorkbenchRecipe](WOOD, AXE, HAMMER, PICK, WORKBENCH, FURNACE, SAWMILL, STONECUTTER)
 
 	def WOOD = WorkbenchRecipe(Item("wood", Some(5)), Seq(Item("log", Some(1))))
-	def AXE = WorkbenchRecipe(Item("axe", None, Some(Material.WOOD)), Seq(Item("wood", Some(5))))
-	def HAMMER = WorkbenchRecipe(Item("hammer", None, Some(Material.WOOD)), Seq(Item("wood", Some(10))))
-	def PICK = WorkbenchRecipe(Item("pick", None, Some(Material.WOOD)), Seq(Item("wood", Some(20))))
+	def AXE = WorkbenchRecipe(Item("axe", None, Some(Wood())), Seq(Item("wood", Some(5))))
+	def HAMMER = WorkbenchRecipe(Item("hammer", None, Some(Wood())), Seq(Item("wood", Some(10))))
+	def PICK = WorkbenchRecipe(Item("pick", None, Some(Wood())), Seq(Item("wood", Some(20))))
 	def WORKBENCH = WorkbenchRecipe(Item("workbench", Some(1)), Seq(Item("wood", Some(25))))
 	def FURNACE = WorkbenchRecipe(Item("furnace", Some(1)), Seq(Item("stone", Some(25))))
 	def SAWMILL = WorkbenchRecipe(Item("sawmill", Some(1)), Seq(Item("wood", Some(50))))

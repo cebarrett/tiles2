@@ -1,13 +1,18 @@
 package models
 
-sealed case class Material(kind:String)
-object Material {
-	def WOOD = Material("wood")
-	def STONE = Material("stone")
-	def METAL = Material("metal")
+sealed trait Material {
+	val kind:String
+	val color:String
+	val category:String
 }
 
-sealed case class Stone (kind:String, color:String)
+sealed abstract class BaseMaterial(val kind:String = "none", val color:String = "white", val category:String = "none") extends Material {
+
+}
+
+sealed case class Wood() extends BaseMaterial(kind = "wood", color = "brown", category = "wood")
+
+sealed case class Stone (override val kind:String, override val color:String) extends BaseMaterial(category = "stone")
 object Stone {
 	def ALL = {
 		// TODO: use reflection to get all the fields
@@ -15,11 +20,11 @@ object Stone {
 	}
 	def TALC       = Stone("talc",       "#ffffff")
 	def GRANITE    = Stone("granite",    "gray")
-	def ORTHOCLASE = Stone("orthoclase", "rgb(180,140,120)")
+	def ORTHOCLASE = Stone("orthoclase", "rgb(180,110,90)")
 	def BASALT     = Stone("basalt",     "#333")
 }
 
-sealed case class Metal (kind:String, color:String)
+sealed case class Metal (override val kind:String, override val color:String) extends BaseMaterial(category = "metal")
 object Metal {
 	def ALL = {
 		// TODO: use reflection to get all the fields

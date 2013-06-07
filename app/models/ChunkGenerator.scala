@@ -12,7 +12,7 @@ object ChunkGenerator {
 			for (ty <- 0 until Chunk.length) {
 
 				val worldPos = WorldCoordinates(coords.cx*Chunk.length+tx, coords.cy*Chunk.length+ty)
-				val scale:Float = (0.02).toFloat // larger = zoom out
+				val scale:Float = (0.1).toFloat // larger = zoom out
 				val noise:Float = PerlinNoise.perlinNoise((worldPos.x*scale).toFloat, (worldPos.y*scale).toFloat, 10)
 
 				// FIXME: use/write a weighted list helper class with a method to pick random, it will be needed a lot.
@@ -20,6 +20,9 @@ object ChunkGenerator {
 				val terrain = {
 					if (noise < -0.25) {
 						new Terrain("sand")
+					} else if (noise > 0.33) {
+						entity = Some(EntityOre())
+						new Terrain("rock")
 					} else if (noise > 0.25) {
 						entity = Some(EntityStone())
 						new Terrain("rock")
