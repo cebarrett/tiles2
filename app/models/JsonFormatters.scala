@@ -12,6 +12,7 @@ object JsonFormatters {
 	implicit val writesWoodEntity:Writes[EntityWood] = Json.writes[EntityWood]
 	implicit val writesSaplingEntity:Writes[EntitySapling] = Json.writes[EntitySapling]
 	implicit val writesLlamaEntity:Writes[EntityLlama] = Json.writes[EntityLlama]
+	implicit val writesStoneEntity:Writes[EntityStone] = Json.writes[EntityStone]
 	implicit val writesEntity = new Writes[Entity] {
 		def writes(t:Entity):JsValue = t match {
 			case _:EntityPlayer => writesPlayerEntity.writes(t.asInstanceOf[EntityPlayer])
@@ -20,6 +21,7 @@ object JsonFormatters {
 			case _:EntityWood =>  writesWoodEntity.writes(t.asInstanceOf[EntityWood])
 			case _:EntitySapling => writesSaplingEntity.writes(t.asInstanceOf[EntitySapling])
 			case _:EntityLlama => writesLlamaEntity.writes(t.asInstanceOf[EntityLlama])
+			case _:EntityStone => writesStoneEntity.writes(t.asInstanceOf[EntityStone])
 			case _ => {
 				val msg = "writesEntity: Unknown entity class: " + t.getClass
 				Logger.warn(msg)

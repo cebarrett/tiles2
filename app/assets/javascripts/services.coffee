@@ -163,4 +163,7 @@ services.factory "tileRender", [ () ->
 		llama:
 			text: "L"
 			color: "#BBBB99"
+		stone:
+			text: "#"
+			color: "#777777"
 ]

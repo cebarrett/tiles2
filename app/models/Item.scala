@@ -20,7 +20,6 @@ case class Item(val kind:String, val count:Option[Int] = None, val material:Opti
 		} else {
 			(kind, material) match {
 				// only stack the same kind of item
-				// FIXME: return None if it would result in a negative item count
 				case (other.kind, other.material) => {
 					val newCount:Int = count.head - other.count.head
 					if (newCount < 0) {
