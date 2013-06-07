@@ -168,8 +168,10 @@ services.factory "tileRender", [ () ->
 			color: "#BBBB99"
 		stone:
 			text: "#"
+			color: "#777777"
 		ore:
 			text: "$"
+			color: "#777777"
 		furnace:
 			text: "ʭ"
 			color: "#777777"
