@@ -156,7 +156,7 @@ services.factory "tileRender", [ () ->
 			color: "#777777"
 		workbench:
 			text: "π"
-			color: "#BB7722"
+			color: "#AA6600"
 		wood:
 			text: "#"
 			color: "#BB7722"
@@ -174,11 +174,11 @@ services.factory "tileRender", [ () ->
 			color: "#777777"
 		furnace:
 			text: "ʭ"
-			color: "#777777"
+			color: "#585858"
 		stonecutter:
-			text: "Ø"
+			text: "ø"
 			color: "#585858"
 		sawmill:
-			text: "Ø"
+			text: "ø"
 			color: "#AA6600"
 ]
