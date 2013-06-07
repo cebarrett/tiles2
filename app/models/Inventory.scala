@@ -7,6 +7,9 @@ import scala.util.control.Breaks._
 // FIXME: selected should be a property of the player
 case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[Int] = None) {
 
+	// FIXME: for testing!
+	items = Item("pick", Some(1), Some(Wood)) +: items
+
 	/** Returns true if user has the given item (at least as many for item stacks) */
 	def has(other:Item):Boolean = {
 		val item:Item = items.filter({_.kind == other.kind}).headOption.getOrElse(null)

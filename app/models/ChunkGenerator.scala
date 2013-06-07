@@ -24,7 +24,7 @@ object ChunkGenerator {
 						entity = Some(EntityOre())
 						new Terrain("rock")
 					} else if (noise > 0.25) {
-						entity = Some(EntityStone())
+						entity = Some(EntityStone(Stone.ORTHOCLASE))
 						new Terrain("rock")
 					} else {
 						entity = {
