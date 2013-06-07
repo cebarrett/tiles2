@@ -23,6 +23,7 @@ directives.directive "appControls", [ () ->
 		$(document).on "keydown", (e) ->
 			# first check that user isn't typing in an input
 			return if $("input:focus, textarea:focus, button:focus").size() > 0
+			timestamp = new Date().getTime()
 			# now move
 			scope.north() if e.keyCode is 87 or e.keyCode is 38
 			scope.south() if e.keyCode is 83 or e.keyCode is 40
