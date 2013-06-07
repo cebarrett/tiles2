@@ -24,6 +24,9 @@ object World {
  */
 class World {
 
+	/** incremented once per tick */
+	var ticks:Long = 0;
+
 	/** Grid of all the chunks in the world */
 	val chunkGrid = new ChunkGrid
 
@@ -84,6 +87,8 @@ class World {
 				}
 			}
 		}
+
+		ticks = ticks + 1;
 	}
 
 	def spawnPlayer(playerName:String):Player = {

@@ -8,7 +8,6 @@ directives.directive "appControls", [ () ->
 	# TODO: space de-selects item
 	# TODO: use the time delta of requestAnimFrame to smooth and slow down keyboard movement
 	# FIXME: tab still prevents input
-	# FIXME: use requestAnimFrame shim
 	(scope, elm, attrs) ->
 		step = () ->
 			window.requestAnimationFrame(step)
