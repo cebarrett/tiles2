@@ -1,37 +1,30 @@
 directives = angular.module "app.directives", []
 
-directives.directive "appControls", ["$document", "$parse", ($document, $parse) ->
+directives.directive "appControls", [ () ->
 	(scope, elm, attrs) ->
-		# there must be a better way to do this
-		north = $parse("north()")
-		east = $parse("east()")
-		west = $parse("west()")
-		south = $parse("south()")
-		close = $parse("guiSelect(0)")
+		step = () ->
+			# TODO: use the time delta to smooth and slow down keyboard movement
+			window.requestAnimationFrame(step)
+		step()
+
 		$('body').on 'mousewheel', (e) ->
+			# TODO: scroll item selection
 			delta = e.originalEvent.wheelDeltaY
 			console.log(delta)
-			return	# TODO: scroll selected item
+			return
 
 		down = {}
-		$document[0].body.addEventListener 'keydown', (e) ->
+		$(document).on "keydown", (e) ->
 			# first check that user isn't typing in an input
 			# FIXME: tab still prevents input
-			return if $document[0].querySelectorAll("input:focus, textarea:focus").length > 0
-
-			# don't move if they're holding the key down
-			# if down[e.keyCode] == true
-			# 	# down[e.keyCode] = false
-			# 	return
-			# down[e.keyCode] = true
-
+			return if $("input:focus, textarea:focus, button:focus").size() > 0
 			# now move
-			scope.$eval north if e.keyCode is 87 or e.keyCode is 38
-			scope.$eval south if e.keyCode is 83 or e.keyCode is 40
-			scope.$eval west if e.keyCode is 65 or e.keyCode is 37
-			scope.$eval east if e.keyCode is 68 or e.keyCode is 39
-			(scope.$eval close; scope.$apply()) if scope.guiOptions? and e.keyCode is 27 #esc
-		$document[0].body.addEventListener 'keyup', (e) ->
+			scope.north() if e.keyCode is 87 or e.keyCode is 38
+			scope.south() if e.keyCode is 83 or e.keyCode is 40
+			scope.west()  if e.keyCode is 65 or e.keyCode is 37
+			scope.east()  if e.keyCode is 68 or e.keyCode is 39
+			(scope.guiSelect(0); scope.$apply()) if scope.guiOptions? and e.keyCode is 27 #esc
+		$(document).on "keyup", (e) ->
 			down[e.keyCode] = false
 ];
 

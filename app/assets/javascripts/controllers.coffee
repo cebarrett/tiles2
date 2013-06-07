@@ -1,6 +1,6 @@
 controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
-controllers.controller "AppCtrl", ["$scope", "$log", "net", ($scope, $log, net) ->
+controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 
 	# define some important constants
 	# (should this go here?)
@@ -21,7 +21,6 @@ controllers.controller "AppCtrl", ["$scope", "$log", "net", ($scope, $log, net) 
 	
 	# gui select callback
 	$scope.guiSelect = (index) ->
-		$log.info("GUI selection: " + $scope.guiOptions[index])
 		if (index == 0)
 			# assumes first choice is always the close button
 			# and other choices should keep the GUI open
