@@ -8,16 +8,12 @@ import play.api.Logger
  */
 object JsonFormatters {
 	implicit val writesMaterial = new Writes[Material] {
-		implicit val writesStone = Json.writes[Stone]
-		implicit val writesMetal = Json.writes[Metal]
-		def writes(arg:Material):JsValue = arg match {
-			case s:Stone => Json.toJson(s)
-			case s:Metal => Json.toJson(s)
-			case _ => {
-				val msg = "writesMaterial: Unknown class: " + arg.getClass
-				Logger.warn(msg)
-				JsUndefined(msg)
-			}
+		def writes(arg:Material):JsValue = {
+			JsObject(Seq(
+				"kind" -> JsString(arg.kind),
+				"category" -> JsString(arg.category),
+				"color" -> JsString(arg.color)
+			))
 		}
 	}
 	implicit val writesTerrain = Json.writes[Terrain]

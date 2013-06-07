@@ -10,7 +10,7 @@ sealed abstract class BaseMaterial(val kind:String = "none", val color:String = 
 
 }
 
-sealed case class Wood() extends BaseMaterial(kind = "wood", color = "brown", category = "wood")
+case object Wood extends BaseMaterial(kind = "wood", color = "brown", category = "wood")
 
 sealed case class Stone (override val kind:String, override val color:String) extends BaseMaterial(category = "stone")
 object Stone {
