@@ -80,6 +80,7 @@ class Game extends Actor {
 		val unload:Set[ChunkCoordinates] = prevRad -- nextRad
 
 		playerChannels get player.name map { channel =>
+			// note: client expects the unload messages to come first
 			unload map { cc =>
 				channel.push(JsObject(Seq(
 					"kind" -> JsString("chunkUnload"),

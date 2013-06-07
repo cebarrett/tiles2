@@ -3,6 +3,9 @@ package models;
 import play.api.libs.json._
 import play.api.Logger
 
+/**
+ * Implicits to help with JSON formatting.
+ */
 object JsonFormatters {
 	implicit val writesMaterial = Json.writes[Material]
 	implicit val writesTerrain = Json.writes[Terrain]

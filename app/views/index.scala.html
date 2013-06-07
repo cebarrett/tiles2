@@ -29,6 +29,7 @@
 			</div>
 			<div id="content" ng-show="connected">
 				<div world>
+					<!-- FIXME: too slow, instead reuse dom elements from a pool. -->
 					<div chunk ng-repeat="chunk in chunks"></div>
 				</div>
 				<div class="gui" ng-show="guiOptions">
