@@ -26,16 +26,16 @@ object ChunkGenerator {
 						new Terrain("rock")
 					} else if (noise > 0.25) {
 						val stone:Stone = {
-							if (stoneNoise < -0.5) Stone.BASALT
+							if (stoneNoise < -0.4) Stone.BASALT
 							else if (stoneNoise < -0.2) Stone.ORTHOCLASE
-							else if (stoneNoise < 0.5) Stone.GRANITE
+							else if (stoneNoise < 0.4) Stone.GRANITE
 							else Stone.TALC
 						}
 						entity = Some(EntityStone(stone))
 						new Terrain("rock")
 					} else {
 						entity = {
-							if (Math.random < 0.02)
+							if (treeNoise > 0.25 && Math.random < 0.33)
 								Some(new EntityTree("tree"))
 							else if (Math.random < 0.0005)
 								Some(new EntityWorkbench("workbench"))
@@ -54,12 +54,12 @@ object ChunkGenerator {
 		chunk;
 	}
 
-	private def calcWorldGenNoise(pos:WorldCoordinates):Float = perlinNoise(pos, 0)
-	private def calcStoneNoise(pos:WorldCoordinates):Float    = perlinNoise(pos, 25)
-	private def calcTreeNoise(pos:WorldCoordinates):Float     = perlinNoise(pos, 50)
+	private def defaultScale:Float = 0.03.toFloat;
+	private def calcWorldGenNoise(pos:WorldCoordinates):Float = perlinNoise(pos, 0,  defaultScale)
+	private def calcStoneNoise(pos:WorldCoordinates):Float    = perlinNoise(pos, 25, defaultScale / 3)
+	private def calcTreeNoise(pos:WorldCoordinates):Float     = perlinNoise(pos, 50, defaultScale * 3)
 
-
-	private def perlinNoise(pos:WorldCoordinates, z:Int = 0, scale:Float = 0.1.toFloat):Float = {
+	private def perlinNoise(pos:WorldCoordinates, z:Int = 0, scale:Float):Float = {
 		perlinNoise(pos.x, pos.y, z, scale)
 	}
 

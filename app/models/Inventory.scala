@@ -16,7 +16,7 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 
 	/** Returns true if user has the given item (at least as many for item stacks) */
 	def has(other:Item):Boolean = {
-		val item:Item = items.filter({_.kind == other.kind}).headOption.getOrElse(null)
+		val item:Item = items.filter({_.subtractableFrom(other)}).headOption.getOrElse(null)
 		if (item == null) {
 			return false
 		} else if (item.count.isDefined && other.count.isDefined) {
