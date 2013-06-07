@@ -20,7 +20,7 @@ object ChunkGenerator {
 				val terrain = {
 					if (noise < -0.25) {
 						new Terrain("sand")
-					} else if (noise > 0.33) {
+					} else if (noise > 0.5 && Math.random < 0.1) {
 						entity = Some(EntityOre())
 						new Terrain("rock")
 					} else if (noise > 0.25) {
