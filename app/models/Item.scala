@@ -23,7 +23,7 @@ case class Item(val kind:String, val count:Option[Int] = None, val material:Opti
 				// FIXME: return None if it would result in a negative item count
 				case (other.kind, other.material) => {
 					val newCount:Int = count.head - other.count.head
-					if (newCount <= 0) {
+					if (newCount < 0) {
 						None
 					} else {
 						Some(Item(kind, Some(newCount), material))
