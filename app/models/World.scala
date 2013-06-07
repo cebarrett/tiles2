@@ -209,14 +209,11 @@ class World {
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
 					player.inventory add Item("log", Some(1))
-					player.inventory.add(Item("sapling", Some(Random.nextInt(2) + 1)))
+					player.inventory.add(Item("sapling", Some(Random.nextInt(4))))
 					despawnEntity(targetCoords)
 				} else {
-					if (roll < 0.01) {
+					if (roll < 0.05) {
 						player.inventory.add(Item("wood", Some(1)))
-						despawnEntity(targetCoords)
-					} else if (roll < 0.05) {
-						player.inventory.add(Item("sapling", Some(1)))
 						despawnEntity(targetCoords)
 					}
 				}

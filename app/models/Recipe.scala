@@ -29,14 +29,14 @@ case class FurnaceRecipe(val result:Item, val ingredients:Seq[Item]) extends Rec
 
 case object WorkbenchRecipe {
 	// XXX: list has to be updated when a recipe is added. better way?
-	def ALL_RECIPES = Seq[WorkbenchRecipe](WOOD, AXE, PICK, HAMMER, WORKBENCH, FURNACE)
+	def ALL_RECIPES = Seq[WorkbenchRecipe](WOOD, AXE, HAMMER, PICK, WORKBENCH, FURNACE)
 
 	def WOOD = WorkbenchRecipe(Item("wood", Some(5)), Seq(Item("log", Some(1))))
-	def AXE = WorkbenchRecipe(Item("axe", None, Some(Material.WOOD)), Seq(Item("wood", Some(1))))
-	def PICK = WorkbenchRecipe(Item("pick", None, Some(Material.WOOD)), Seq(Item("wood", Some(1))))
-	def HAMMER = WorkbenchRecipe(Item("hammer", None, Some(Material.WOOD)), Seq(Item("wood", Some(1))))
-	def WORKBENCH = WorkbenchRecipe(Item("workbench", Some(1)), Seq(Item("wood", Some(5))))
-	def FURNACE = WorkbenchRecipe(Item("furnace", Some(1)), Seq(Item("stone", Some(5))))
+	def AXE = WorkbenchRecipe(Item("axe", None, Some(Material.WOOD)), Seq(Item("wood", Some(10))))
+	def HAMMER = WorkbenchRecipe(Item("hammer", None, Some(Material.WOOD)), Seq(Item("wood", Some(10))))
+	def PICK = WorkbenchRecipe(Item("pick", None, Some(Material.WOOD)), Seq(Item("wood", Some(20))))
+	def WORKBENCH = WorkbenchRecipe(Item("workbench", Some(1)), Seq(Item("wood", Some(25))))
+	def FURNACE = WorkbenchRecipe(Item("furnace", Some(1)), Seq(Item("stone", Some(25))))
 }
 
 case object FurnaceRecipe {

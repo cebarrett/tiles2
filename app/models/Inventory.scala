@@ -22,7 +22,10 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 	/**
 	 * Add an item. Handles merging with other item stacks.
 	 */
-	def add(other:Item) = {
+	def add(other:Item):Unit = {
+		other.count map { c:Int =>
+			if (c <= 0) return
+		}
 		if (other.count == None || items.filter({_.kind == other.kind}).isEmpty) {
 			items = items ++ Seq(other)
 		} else if (other.count.get > 0) {

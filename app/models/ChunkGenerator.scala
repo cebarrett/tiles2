@@ -20,20 +20,19 @@ object ChunkGenerator {
 				val terrain = {
 					if (noise < -0.25) {
 						new Terrain("sand")
+					} else if (noise > 0.25) {
+						entity = Some(EntityStone())
+						new Terrain("rock")
 					} else {
 						entity = {
-							if (noise > 0.25) {
-								Some(EntityStone())
-							} else {
-								if (Math.random < 0.05)
-									Some(new EntityTree("tree"))
-								else if (Math.random < 0.001)
-									Some(new EntityWorkbench("workbench"))
-								else if (Math.random() < 0.005)
-									Some(new EntityLlama())
-								else
-									None
-							}
+							if (Math.random < 0.02)
+								Some(new EntityTree("tree"))
+							else if (Math.random < 0.0005)
+								Some(new EntityWorkbench("workbench"))
+							else if (Math.random() < 0.005)
+								Some(new EntityLlama())
+							else
+								None
 						}
 						new Terrain("dirt")
 					}
