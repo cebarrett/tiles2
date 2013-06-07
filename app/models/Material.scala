@@ -18,7 +18,7 @@ object Stone {
 		// TODO: use reflection to get all the fields
 		Seq(TALC, GRANITE, ORTHOCLASE, BASALT)
 	}
-	def TALC       = Stone("talc",       "#ffffff")
+	def TALC       = Stone("talc",       "#eee")
 	def GRANITE    = Stone("granite",    "gray")
 	def ORTHOCLASE = Stone("orthoclase", "rgb(180,110,90)")
 	def BASALT     = Stone("basalt",     "#333")

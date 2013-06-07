@@ -11,9 +11,10 @@ object ChunkGenerator {
 		for (tx <- 0 until Chunk.length) {
 			for (ty <- 0 until Chunk.length) {
 
-				val worldPos = WorldCoordinates(coords.cx*Chunk.length+tx, coords.cy*Chunk.length+ty)
-				val scale:Float = (0.1).toFloat // larger = zoom out
-				val noise:Float = PerlinNoise.perlinNoise((worldPos.x*scale).toFloat, (worldPos.y*scale).toFloat, 10)
+				val worldPos:WorldCoordinates = WorldCoordinates(coords.cx*Chunk.length+tx, coords.cy*Chunk.length+ty)
+				val noise:Float = calcWorldGenNoise(worldPos)
+				val stoneNoise:Float = calcStoneNoise(worldPos)
+				val treeNoise:Float = calcTreeNoise(worldPos)
 
 				// FIXME: use/write a weighted list helper class with a method to pick random, it will be needed a lot.
 				var entity:Option[Entity] = None
@@ -24,7 +25,13 @@ object ChunkGenerator {
 						entity = Some(EntityOre())
 						new Terrain("rock")
 					} else if (noise > 0.25) {
-						entity = Some(EntityStone(Stone.ORTHOCLASE))
+						val stone:Stone = {
+							if (stoneNoise < -0.5) Stone.BASALT
+							else if (stoneNoise < -0.2) Stone.ORTHOCLASE
+							else if (stoneNoise < 0.5) Stone.GRANITE
+							else Stone.TALC
+						}
+						entity = Some(EntityStone(stone))
 						new Terrain("rock")
 					} else {
 						entity = {
@@ -45,6 +52,19 @@ object ChunkGenerator {
 			}
 		}
 		chunk;
+	}
+
+	private def calcWorldGenNoise(pos:WorldCoordinates):Float = perlinNoise(pos, 0)
+	private def calcStoneNoise(pos:WorldCoordinates):Float    = perlinNoise(pos, 25)
+	private def calcTreeNoise(pos:WorldCoordinates):Float     = perlinNoise(pos, 50)
+
+
+	private def perlinNoise(pos:WorldCoordinates, z:Int = 0, scale:Float = 0.1.toFloat):Float = {
+		perlinNoise(pos.x, pos.y, z, scale)
+	}
+
+	private def perlinNoise(x:Int, y:Int, z:Int, scale:Float):Float = {
+		PerlinNoise.perlinNoise((x*scale).toFloat, (y*scale).toFloat, z)
 	}
 
 }

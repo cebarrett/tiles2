@@ -10,7 +10,7 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 	// FIXME: for testing!
 	items = Seq(
 		Item("pick", Some(1), Some(Wood)),
-		Item("stone", Some(100), Some(Stone.ORTHOCLASE)),
+		Item("stone", Some(74), Some(Stone.BASALT)),
 		Item("workbench", Some(1))
 	)
 
