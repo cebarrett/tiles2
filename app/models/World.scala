@@ -211,6 +211,7 @@ class World {
 		val (attackerTile:Tile, targetTile:Tile) = (tile(attackerCoords), tile(targetCoords))
 		val roll:Double = Random.nextDouble
 		entity(targetCoords).head match {
+			// FIXME: this is getting very repetitive!
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
 					player.inventory add Item("log", Some(1))
@@ -233,9 +234,14 @@ class World {
 					player.inventory add Item("workbench", Some(1))
 					despawnEntity(targetCoords)
 				} else {
+					/*
+					 *	FIXME: the world should not be sending the list of recipes,
+					 * just the fact that the player is using the workbench
+					 * (or other crafting type entity).
+					 */
 					val options:Seq[String] = Seq(
-					"Close"		// FIXME: yuck
-					) ++ (WorkbenchRecipe.ALL_RECIPES.map {_.toString})
+						"Close"		// FIXME: yuck
+					) ++ (WorkbenchRecipe.ALL.map {_.toString})
 					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
@@ -245,8 +251,26 @@ class World {
 					despawnEntity(targetCoords)
 				} else {
 					val options:Seq[String] = Seq(
-					"Close"		// FIXME: yuck
-					) ++ (FurnaceRecipe.ALL_RECIPES.map {_.toString})
+						"Close"		// FIXME: yuck
+					) ++ (FurnaceRecipe.ALL.map {_.toString})
+					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
+				}
+			}
+			case (target:EntitySawmill) => {
+				if (player isHoldingItem "hammer") {
+					player.inventory add Item("sawmill", Some(1))
+					despawnEntity(targetCoords)
+				} else {
+					val options:Seq[String] = "Close" +: SawmillRecipe.ALL.map({_.toString})
+					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
+				}
+			}
+			case (target:EntityStonecutter) => {
+				if (player isHoldingItem "hammer") {
+					player.inventory add Item("stonecutter", Some(1))
+					despawnEntity(targetCoords)
+				} else {
+					val options:Seq[String] = "Close" +: StonecutterRecipe.ALL.map({_.toString})
 					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
@@ -284,6 +308,7 @@ class World {
 					targetTile.entity.getOrElse {
 						val item:Item = player.inventory.items(player.inventory.selected.get)
 						(item.kind) match {
+							// FIXME: this is getting repetitive
 							case "wood" => 
 								player.inventory.subtract(Item("wood", Some(1)))
 								targetTile.entity = Some(EntityWood())
@@ -303,6 +328,14 @@ class World {
 							case "stone" => 
 								player.inventory.subtract(Item("stone", Some(1)))
 								targetTile.entity = Some(EntityStone())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "sawmill" => 
+								player.inventory.subtract(Item("sawmill", Some(1)))
+								targetTile.entity = Some(EntitySawmill())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "stonecutter" => 
+								player.inventory.subtract(Item("stonecutter", Some(1)))
+								targetTile.entity = Some(EntityStonecutter())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case _ => Unit
 						}

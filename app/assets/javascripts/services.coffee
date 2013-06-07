@@ -147,10 +147,10 @@ services.factory "tileRender", [ () ->
 			color: "#00BB00"
 		sand:
 			text: "."
-			color: "#CCDDAE"
+			color: "#CCEEAA"
 		dirt:
 			text: "."
-			color: "#995522"
+			color: "#885030"
 		rock:
 			text: "."
 			color: "#777777"
@@ -168,11 +168,15 @@ services.factory "tileRender", [ () ->
 			color: "#BBBB99"
 		stone:
 			text: "#"
-			color: "#777777"
+		ore:
+			text: "$"
 		furnace:
 			text: "ʭ"
 			color: "#777777"
 		stonecutter:
-			text: "π"
-			color: "#777777"
+			text: "Ø"
+			color: "#585858"
+		sawmill:
+			text: "Ø"
+			color: "#AA6600"
 ]

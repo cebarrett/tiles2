@@ -3,9 +3,6 @@ package models
 abstract trait Recipe {
 	def result:Item
 	def ingredients:Seq[Item]
-}
-
-case class WorkbenchRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe {
 	override def toString():String = {
 		var str:String = "Craft " + 
 		result.count.map({_.toString}).getOrElse("a") +
@@ -25,20 +22,32 @@ case class WorkbenchRecipe(val result:Item, val ingredients:Seq[Item]) extends R
 	}
 }
 
-case class FurnaceRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
-
+sealed case class WorkbenchRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
 case object WorkbenchRecipe {
-	// XXX: list has to be updated when a recipe is added. better way?
-	def ALL_RECIPES = Seq[WorkbenchRecipe](WOOD, AXE, HAMMER, PICK, WORKBENCH, FURNACE)
+	// TODO: use reflection to get all the fields
+	def ALL = Seq[WorkbenchRecipe](WOOD, AXE, HAMMER, PICK, WORKBENCH, FURNACE, SAWMILL, STONECUTTER)
 
 	def WOOD = WorkbenchRecipe(Item("wood", Some(5)), Seq(Item("log", Some(1))))
-	def AXE = WorkbenchRecipe(Item("axe", None, Some(Material.WOOD)), Seq(Item("wood", Some(10))))
+	def AXE = WorkbenchRecipe(Item("axe", None, Some(Material.WOOD)), Seq(Item("wood", Some(5))))
 	def HAMMER = WorkbenchRecipe(Item("hammer", None, Some(Material.WOOD)), Seq(Item("wood", Some(10))))
 	def PICK = WorkbenchRecipe(Item("pick", None, Some(Material.WOOD)), Seq(Item("wood", Some(20))))
 	def WORKBENCH = WorkbenchRecipe(Item("workbench", Some(1)), Seq(Item("wood", Some(25))))
 	def FURNACE = WorkbenchRecipe(Item("furnace", Some(1)), Seq(Item("stone", Some(25))))
+	def SAWMILL = WorkbenchRecipe(Item("sawmill", Some(1)), Seq(Item("wood", Some(50))))
+	def STONECUTTER = WorkbenchRecipe(Item("stonecutter", Some(1)), Seq(Item("stone", Some(50))))
 }
 
+sealed case class FurnaceRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
 case object FurnaceRecipe {
-	def ALL_RECIPES = Seq[FurnaceRecipe]()
+	def ALL = Seq[FurnaceRecipe]()
+}
+
+sealed case class SawmillRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
+case object SawmillRecipe {
+	def ALL = Seq[SawmillRecipe]()
+}
+
+sealed case class StonecutterRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
+case object StonecutterRecipe {
+	def ALL = Seq[StonecutterRecipe]()
 }

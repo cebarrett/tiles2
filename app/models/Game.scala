@@ -128,7 +128,8 @@ class Game extends Actor {
 					val index:Int = (message \ "index").as[Int]
 					index match {
 						case 0 => Unit // close button
-						case _ => world.doPlayerCrafting(playerName, WorkbenchRecipe.ALL_RECIPES(index-1))
+						// FIXME: assumes player is using a workbench
+						case _ => world.doPlayerCrafting(playerName, WorkbenchRecipe.ALL(index-1))
 					}
 				}
 				case "selectItem" =>

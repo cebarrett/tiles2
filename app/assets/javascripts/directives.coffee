@@ -64,7 +64,12 @@ directives.directive "chunk", [ "tileRender", (tileRender) ->
 				tile.terrain.id
 		render = tileRender[id];
 		$tile.html "&#"+render.text.charCodeAt(0)+";"
-		$tile.css {color: render.color}
+		renderColor = do ->
+			if (tile.entity? and tile.entity.material? and tile.entity.material.color?)
+				tile.entity.material.color
+			else
+				render.color
+		$tile.css {color: renderColor}
 
 	(scope, elm, attr) ->
 		elm.addClass "chunk"
