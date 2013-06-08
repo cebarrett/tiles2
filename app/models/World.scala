@@ -51,34 +51,35 @@ class World {
 
 	def entity(coords:WorldCoordinates):Option[Entity] = tile(coords).entity
 
+
+/*
+ * Run 1 tick of the game loop.
+ * note: iterates over every tile in the game.
+ * if regions need to be more than 512x512, or
+ * if tick needs to run more often than 1 second,
+ * will need to schedule tile ticks instead.
+ */
 	def tick():Unit = {
 		chunkGrid.foreach { entry =>
 			val (chunkCoords, chunk) = entry
 			chunk.tiles foreach { tcol =>
 				tcol foreach { t =>
-					/*
-					 * note: iterates over every tile in the game.
-					 * if regions need to be more than 512x512, or
-					 * if tick needs to run more often than 1 second,
-					 * will need to schedule tile ticks instead.
-					 */
 					val coords = TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords)
-					t.entity.map {_.tick(this, coords)}
+					t.entity.map {_.tick(this, coords, t)}
 				}
 			}
 		}
-
 		ticks = ticks + 1;
 	}
 
 	def spawnPlayer(playerName:String):Player = {
 		// determine a suitable spawn location
-		// for now, spawn everyone within 30,30 of the origin
+		// for now, spawn everyone within 50,50 of the origin
 		var theTile:Tile = null
 		var (x, y) = (0, 0)
-		breakable { for (i <- 0 until 30) {
+		breakable { for (i <- 0 until 50) {
 			x = i
-			for (j <- 0 until 30) {
+			for (j <- 0 until 50) {
 				y = j
 				theTile = tile(x, y)
 				if (theTile.entity.isEmpty) break
@@ -334,16 +335,6 @@ class World {
 			player.inventory.selected = Some(inventoryIndex)
 			this.eventChannel.push(WorldEvent("playerSelect", Some(player.x), Some(player.y), Some(tile(player.x,player.y)), Some(player)))
 		}
-	}
-}
-
-case class WorldCoordinates(val x:Int, val y:Int) {
-	require(0 <= x && x < World.length*Chunk.length && 0 <= y && y < World.length*Chunk.length)
-	def toChunkCoordinates():ChunkCoordinates = ChunkCoordinates(Chunk.coord(x), Chunk.coord(y))
-	def toTileCoordinates():TileCoordinates   = TileCoordinates(Tile.coord(x), Tile.coord(y))
-	def inSameChunk(other:WorldCoordinates):Boolean = {
-		val (cc1, cc2) = (toChunkCoordinates, other.toChunkCoordinates)
-		(cc1.cx == cc2.cx && cc1.cy == cc2.cy)
 	}
 }
 
