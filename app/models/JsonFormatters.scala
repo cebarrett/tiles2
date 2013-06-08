@@ -7,7 +7,10 @@ import play.api.Logger
  * Implicits to help with JSON formatting.
  */
 object JsonFormatters {
-	implicit val writesAI = Json.writes[AI]
+	// FIXME: don't write an AI at all
+	implicit val writesAI = new Writes[AI] {
+		def writes(arg:AI):JsValue = JsNull
+	}
 	implicit val writesMaterial = new Writes[Material] {
 		def writes(arg:Material):JsValue = {
 			JsObject(Seq(
