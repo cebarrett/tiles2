@@ -16,12 +16,12 @@ sealed case class Stone (override val kind:String, override val color:String) ex
 object Stone {
 	def ALL = {
 		// TODO: use reflection to get all the fields
-		Seq(TALC, GRANITE, ORTHOCLASE, BASALT)
+		Seq(CHALK, LIMESTONE, GRANITE, BASALT)
 	}
-	def TALC       = Stone("talc",       "#d8d8d8")
-	def GRANITE    = Stone("granite",    "gray")
-	def ORTHOCLASE = Stone("orthoclase", "rgb(125,66,66)")
-	def BASALT     = Stone("basalt",     "#484848")
+	def CHALK     = Stone("chalk",     "#bbb")
+	def LIMESTONE = Stone("limestone", "#999")
+	def GRANITE   = Stone("granite",   "#666")
+	def BASALT    = Stone("basalt",    "#444")
 }
 
 sealed case class Metal (override val kind:String, override val color:String) extends BaseMaterial(category = "metal")

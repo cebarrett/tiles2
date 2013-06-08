@@ -26,10 +26,11 @@ object ChunkGenerator {
 						new Terrain("rock")
 					} else if (noise > 0.25) {
 						val stone:Stone = {
-							if (stoneNoise < -0.4) Stone.BASALT
-							else if (stoneNoise < -0.2) Stone.ORTHOCLASE
-							else if (stoneNoise < 0.4) Stone.GRANITE
-							else Stone.TALC
+							val th1 = 0.4
+							if (stoneNoise < -th1) Stone.CHALK
+							else if (stoneNoise < 0) Stone.LIMESTONE
+							else if (stoneNoise < th1) Stone.GRANITE
+							else Stone.BASALT
 						}
 						entity = Some(EntityStone(stone))
 						new Terrain("rock")
@@ -54,7 +55,7 @@ object ChunkGenerator {
 		chunk;
 	}
 
-	private def defaultScale:Float = 0.03.toFloat;
+	private def defaultScale:Float = 0.3.toFloat;
 	private def calcWorldGenNoise(pos:WorldCoordinates):Float = perlinNoise(pos, 0,  defaultScale)
 	private def calcStoneNoise(pos:WorldCoordinates):Float    = perlinNoise(pos, 25, defaultScale / 3)
 	private def calcTreeNoise(pos:WorldCoordinates):Float     = perlinNoise(pos, 50, defaultScale * 3)
