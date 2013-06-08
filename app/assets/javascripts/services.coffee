@@ -157,9 +157,6 @@ services.factory "tileRender", [ () ->
 		workbench:
 			text: "π"
 			color: "#AA6600"
-		wood:
-			text: "#"
-			color: "#BB7722"
 		sapling:
 			text: "τ"
 			color: "#00BB00"
