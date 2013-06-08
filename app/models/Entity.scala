@@ -1,7 +1,40 @@
 package models
 
+import scala.util.control.Breaks._
+import scala.util.Random
+
 sealed abstract class Entity {
 	def id:String
+	def tick(world:World, coords:WorldCoordinates):Unit = {
+
+		val t:Tile = world.tile(coords)
+		// FIXME: things that happen on tick should live in the entity's class
+		val chanceofLlamaMoving:Double = 0.1;
+		val chanceOfTreeGrowing:Double = 0.0005;
+		if (Math.random() < chanceofLlamaMoving && this.id == "llama") {
+			breakable {
+				Random.shuffle(Seq(
+					WorldCoordinates(World.clamp(coords.x+1),coords.y),
+					WorldCoordinates(World.clamp(coords.x-1),coords.y),
+					WorldCoordinates(coords.x,World.clamp(coords.y+1)),
+					WorldCoordinates(coords.x,World.clamp(coords.y-1))
+				)) foreach { c2:WorldCoordinates =>
+					val t2:Tile = world.tile(c2)
+					val isTerrainPassableByLlamas = (t2.terrain.id != "sand")
+					if (isTerrainPassableByLlamas && t2.entity.isEmpty) {
+						world.moveEntity(coords, c2)
+						break
+					}
+				}
+			}
+		}
+		// grow saplings
+		if (Math.random() < chanceOfTreeGrowing && this.id == "sapling") {
+			t.entity = Some(EntityTree())
+			// FIXME: next line seems out of place
+			world.eventChannel.push(WorldEvent("entitySpawn", Some(coords.x), Some(coords.y), Some(t)))
+		}
+	}
 }
 
 sealed abstract class EntityLiving extends Entity

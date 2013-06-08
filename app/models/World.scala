@@ -52,38 +52,18 @@ class World {
 	def entity(coords:WorldCoordinates):Option[Entity] = tile(coords).entity
 
 	def tick():Unit = {
-		// FIXME: things that happen on tick should live in the entity's class
-		val chanceofLlamaMoving:Double = 0.02;
-		val chanceOfTreeGrowing:Double = 0.0005;
 		chunkGrid.foreach { entry =>
 			val (chunkCoords, chunk) = entry
 			chunk.tiles foreach { tcol =>
 				tcol foreach { t =>
-					// note: if iterating over each tile does not scale will instead need to schedule tile ticks
-					// move llamas
+					/*
+					 * note: iterates over every tile in the game.
+					 * if regions need to be more than 512x512, or
+					 * if tick needs to run more often than 1 second,
+					 * will need to schedule tile ticks instead.
+					 */
 					val coords = TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords)
-					if (Math.random() < chanceofLlamaMoving && t.entity.isDefined && t.entity.get.id == "llama") {
-						breakable {
-							Random.shuffle(Seq(
-								WorldCoordinates(World.clamp(coords.x+1),coords.y),
-								WorldCoordinates(World.clamp(coords.x-1),coords.y),
-								WorldCoordinates(coords.x,World.clamp(coords.y+1)),
-								WorldCoordinates(coords.x,World.clamp(coords.y-1))
-							)) foreach { c2:WorldCoordinates =>
-								val t2:Tile = tile(c2)
-								val isTerrainPassableByLlamas = (t2.terrain.id != "sand")
-								if (isTerrainPassableByLlamas && t2.entity.isEmpty) {
-									moveEntity(coords, c2)
-									break
-								}
-							}
-						}
-					}
-					// grow saplings
-					if (Math.random() < chanceOfTreeGrowing && t.entity.isDefined && t.entity.get.id == "sapling") {
-						t.entity = Some(EntityTree())
-						this.eventChannel.push(WorldEvent("entitySpawn", Some(coords.x), Some(coords.y), Some(t)))
-					}
+					t.entity.map {_.tick(this, coords)}
 				}
 			}
 		}
