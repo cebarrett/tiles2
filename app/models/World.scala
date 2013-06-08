@@ -255,12 +255,6 @@ class World {
 					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
-			case (target:EntityWood) => {
-				if (player isHoldingItem "hammer") {
-					player.inventory add Item("wood", Some(1))
-					despawnEntity(targetCoords)
-				}
-			}
 			case (target:EntityStone) => {
 				if (player isHoldingItem "pick") {
 					player.inventory add Item("rock", Some(1), Some(target.material))

@@ -24,7 +24,6 @@ object JsonFormatters {
 	implicit val writesPlayerEntity:Writes[EntityPlayer] = Json.writes[EntityPlayer]
 	implicit val writesTreeEntity:Writes[EntityTree] = Json.writes[EntityTree]
 	implicit val writesWorkbenchEntity:Writes[EntityWorkbench] = Json.writes[EntityWorkbench]
-	implicit val writesWoodEntity:Writes[EntityWood] = Json.writes[EntityWood]
 	implicit val writesSaplingEntity:Writes[EntitySapling] = Json.writes[EntitySapling]
 	implicit val writesLlamaEntity:Writes[EntityLlama] = Json.writes[EntityLlama]
 	implicit val writesStoneEntity:Writes[EntityStone] = Json.writes[EntityStone]
@@ -37,7 +36,6 @@ object JsonFormatters {
 			case _:EntityPlayer => writesPlayerEntity.writes(t.asInstanceOf[EntityPlayer])
 			case _:EntityTree   => writesTreeEntity.writes(t.asInstanceOf[EntityTree])
 			case _:EntityWorkbench =>  writesWorkbenchEntity.writes(t.asInstanceOf[EntityWorkbench])
-			case _:EntityWood =>  writesWoodEntity.writes(t.asInstanceOf[EntityWood])
 			case _:EntitySapling => writesSaplingEntity.writes(t.asInstanceOf[EntitySapling])
 			case _:EntityLlama => writesLlamaEntity.writes(t.asInstanceOf[EntityLlama])
 			case _:EntityStone => writesStoneEntity.writes(t.asInstanceOf[EntityStone])
