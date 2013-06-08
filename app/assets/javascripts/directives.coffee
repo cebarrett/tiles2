@@ -9,7 +9,7 @@ directives.directive "appControls", [ () ->
 	# TODO: use the time delta of requestAnimFrame to smooth and slow down keyboard movement
 	# FIXME: tab still prevents input
 	(scope, elm, attrs) ->
-		speed = 7;	# moves per second
+		speed = 5;	# moves per second
 
 		$('body').on 'mousewheel', (e) ->
 			delta = e.originalEvent.wheelDeltaY

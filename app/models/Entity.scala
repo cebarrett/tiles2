@@ -1,8 +1,10 @@
 package models
 
-abstract trait Entity {
+sealed abstract trait Entity {
 	def id:String
 }
+
+sealed abstract trait LivingEntity
 
 /*
  * FIXME: too many entities that just correspond 1-1 with an item
