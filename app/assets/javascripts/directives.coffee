@@ -9,28 +9,69 @@ directives.directive "appControls", [ () ->
 	# TODO: use the time delta of requestAnimFrame to smooth and slow down keyboard movement
 	# FIXME: tab still prevents input
 	(scope, elm, attrs) ->
-		step = () ->
-			window.requestAnimationFrame(step)
-		step()
+		speed = 7;	# moves per second
 
 		$('body').on 'mousewheel', (e) ->
 			delta = e.originalEvent.wheelDeltaY
 			console.log(delta)
 			return
 
-		down = {}
+		move = {north: false, south: false, east: false, west: false}
+		moveCount = {north: 0, south: 0, east: 0, west: 0}
+
+		doMovement = (dir) ->
+			if ((false == move[dir]?) or (false == move[dir]))
+				return
+			if ((false == moveCount[dir]?) or (moveCount[dir] == 0))
+				scope[dir]()
+				moveCount[dir] = 1
+				return
+			timestamp = new Date().getTime()
+			delta = timestamp - move[dir]
+			newMoveCount = Math.floor(delta * speed / 1000)
+			if (newMoveCount > moveCount[dir])
+				scope[dir]()
+				moveCount[dir]++
+				return
+
+		step = () ->
+			doMovement("north")
+			doMovement("east")
+			doMovement("south")
+			doMovement("west")
+			window.requestAnimationFrame(step)
+		step()
+
 		$(document).on "keydown", (e) ->
 			# first check that user isn't typing in an input
 			return if $("input:focus, textarea:focus, button:focus").size() > 0
-			timestamp = new Date().getTime()
+			
 			# now move
-			scope.north() if e.keyCode is 87 or e.keyCode is 38
-			scope.south() if e.keyCode is 83 or e.keyCode is 40
-			scope.west()  if e.keyCode is 65 or e.keyCode is 37
-			scope.east()  if e.keyCode is 68 or e.keyCode is 39
-			(scope.guiSelect(0); scope.$apply()) if scope.guiOptions? and e.keyCode is 27 #esc
+			if (e.keyCode is 87 or e.keyCode is 38) and !move.north
+				move.north = new Date().getTime()
+			if (e.keyCode is 83 or e.keyCode is 40) and !move.south
+				move.south = new Date().getTime()
+			if (e.keyCode is 65 or e.keyCode is 37) and !move.west
+				move.west = new Date().getTime()
+			if (e.keyCode is 68 or e.keyCode is 39) and !move.east
+				move.east = new Date().getTime()
+			if e.keyCode is 27 and scope.guiOptions? #esc
+				scope.guiSelect(0)
+				scope.$apply()
+
 		$(document).on "keyup", (e) ->
-			down[e.keyCode] = false
+			if e.keyCode is 87 or e.keyCode is 38
+				move.north = false
+				moveCount.north = 0
+			if e.keyCode is 83 or e.keyCode is 40
+				move.south = false
+				moveCount.south = 0
+			if e.keyCode is 65 or e.keyCode is 37
+				move.west = false
+				moveCount.west = 0
+			if e.keyCode is 68 or e.keyCode is 39
+				move.east = false
+				moveCount.east = 0
 ];
 
 directives.directive "world", [ "$window", ($window) ->

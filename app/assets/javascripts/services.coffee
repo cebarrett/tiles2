@@ -147,7 +147,7 @@ services.factory "tileRender", [ () ->
 			color: "#00BB00"
 		sand:
 			text: "."
-			color: "#CCEEAA"
+			color: "#CCBBAA"
 		dirt:
 			text: "."
 			color: "#885030"
