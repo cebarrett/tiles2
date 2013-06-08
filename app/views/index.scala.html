@@ -13,19 +13,11 @@
 	</head>
 	<body>
 		<div id="app" ng-app="app" ng-controller="AppCtrl" app-controls>
-			<div id="panel">
-				<div class="player-info">
-					<div>{{player.name}}</div>
-					<div>X: {{player.x}}</div>
-					<div>Y: {{player.y}}</div>
-				</div>
-				<!-- XXX: hide the buttons for now -->
-				<fieldset ng-hide="true" class="movementButtons">
-					<button type="button" ng-click="north()">north</button>
-					<button type="button" ng-click="west()">west</button>
-					<button type="button" ng-click="east()">east</button>
-					<button type="button" ng-click="south()">south</button>
-				</fieldset>
+			<div id="panel" ng-show="connected &amp;&amp; showLeftPanel">
+				<button type="button" ng-click="north()">north</button>
+				<button type="button" ng-click="west()">west</button>
+				<button type="button" ng-click="east()">east</button>
+				<button type="button" ng-click="south()">south</button>
 			</div>
 			<div id="content" ng-show="connected">
 				<div world>
@@ -38,7 +30,12 @@
 					</div>
 				</div>
 			</div>
-			<div id="right">
+			<div id="right" ng-show="connected">
+				<div class="player-info" ng-click="showLeftPanel = !showLeftPanel">
+					<div>{{player.name}}</div>
+					<div>X: {{player.x}}</div>
+					<div>Y: {{player.y}}</div>
+				</div>
 				<ul class="itemList">
 					<li item class="item-stack item-selected-{{$index == player.inventory.selected}}" ng-repeat="item in player.inventory.items" ng-click="selectItem($index)">
 						<span>{{item.count}}</span>

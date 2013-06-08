@@ -6,9 +6,10 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 	# (should this go here?)
 	# FIXME: send the server side ones in init
 	# FIXME: use jquery to get the css width of any tile
-	$scope.tileSizePx = 40;	# also defined in LESS
+	$scope.tileSizePx = 30;	# also defined in LESS
 	$scope.chunkLen = 16;	# also defined in server side and in LESS
 	$scope.worldLen = 32;	# also defined in server side
+	$scope.showLeftPanel = false
 
 	# connect to the server
 	net.connect $scope
