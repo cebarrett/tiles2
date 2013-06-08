@@ -263,7 +263,7 @@ class World {
 			}
 			case (target:EntityStone) => {
 				if (player isHoldingItem "pick") {
-					player.inventory add Item("stone", Some(1), Some(target.material))
+					player.inventory add Item("rock", Some(1), Some(target.material))
 					despawnEntity(targetCoords)
 				}
 			}
@@ -290,10 +290,6 @@ class World {
 						val item:Item = player.inventory.items(player.inventory.selected.get)
 						(item.kind) match {
 							// FIXME: this is getting repetitive
-							case "wood" => 
-								player.inventory.subtract(Item("wood", Some(1)))
-								targetTile.entity = Some(EntityWood())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "sapling" => 
 								player.inventory.subtract(Item("sapling", Some(1)))
 								targetTile.entity = Some(EntitySapling())
@@ -305,11 +301,6 @@ class World {
 							case "furnace" => 
 								player.inventory.subtract(Item("furnace", Some(1)))
 								targetTile.entity = Some(EntityFurnace())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "stone" =>
-								val stone:Stone = item.material.asInstanceOf[Option[Stone]].get
-								player.inventory.subtract(Item("stone", Some(1), Some(stone)))
-								targetTile.entity = Some(EntityStone(stone))
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "sawmill" => 
 								player.inventory.subtract(Item("sawmill", Some(1)))

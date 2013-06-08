@@ -7,12 +7,13 @@ import scala.util.control.Breaks._
 // FIXME: selected should be a property of the player
 case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[Int] = None) {
 
-	// a starting inventory, uncomment for dev testing
-	items = Seq(
+	// starting inventory for dev testing
+	items = if (Game.DEV) Seq(
 		Item("pick", Some(1), Some(Wood)),
-		Item("stone", Some(74), Some(Stone.BASALT)),
+		Item("rock", Some(500), Some(Stone.GRANITE)),
+		Item("wood", Some(100)),
 		Item("workbench", Some(1))
-	)
+	) else Seq.empty
 
 	/** Returns true if user has the given item (at least as many for item stacks) */
 	def has(other:Item):Boolean = {

@@ -147,13 +147,13 @@ services.factory "tileRender", [ () ->
 			color: "#00BB00"
 		sand:
 			text: "."
-			color: "#CCBBAA"
+			color: "#DDBB77"
 		dirt:
 			text: "."
-			color: "#885030"
-		rock:
+			color: "#804828"
+		bedrock:
 			text: "."
-			color: "#777777"
+			color: "#666666"
 		workbench:
 			text: "π"
 			color: "#AA6600"

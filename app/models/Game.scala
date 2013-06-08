@@ -25,6 +25,12 @@ import play.api.libs.json.Writes.arrayWrites
 import play.api.libs.json.Writes.traversableWrites
 import models.JsonFormatters._
 
+object Game {
+	/** set some stuff to help debug/test the game.
+	    changes gameplay, so must be false for production. */
+	def DEV:Boolean = false
+}
+
 class Game extends Actor {
 
 	/** The world */

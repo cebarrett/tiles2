@@ -32,9 +32,9 @@ case object WorkbenchRecipe {
 	def HAMMER = WorkbenchRecipe(Item("hammer", None, Some(Wood)), Seq(Item("wood", Some(10))))
 	def PICK = WorkbenchRecipe(Item("pick", None, Some(Wood)), Seq(Item("wood", Some(20))))
 	def WORKBENCH = WorkbenchRecipe(Item("workbench", Some(1)), Seq(Item("wood", Some(25))))
-	def FURNACE = WorkbenchRecipe(Item("furnace", Some(1)), Seq(Item("stone", Some(25))))
+	def FURNACE = WorkbenchRecipe(Item("furnace", Some(1)), Seq(Item("rock", Some(25))))
 	def SAWMILL = WorkbenchRecipe(Item("sawmill", Some(1)), Seq(Item("wood", Some(50))))
-	def STONECUTTER = WorkbenchRecipe(Item("stonecutter", Some(1)), Seq(Item("stone", Some(50))))
+	def STONECUTTER = WorkbenchRecipe(Item("stonecutter", Some(1)), Seq(Item("rock", Some(50))))
 }
 
 sealed case class FurnaceRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
