@@ -39,17 +39,17 @@ class World {
 	/** List of all players in the world, keyed by name */
 	var players = Map.empty[String,Player]
 
-	def chunk(cx:Int, cy:Int):Chunk = chunk(ChunkCoordinates(cx,cy))
+	def chunkAt(cx:Int, cy:Int):Chunk = chunkAt(ChunkCoordinates(cx,cy))
 
-	def chunk(coords:ChunkCoordinates):Chunk = chunkGrid.getOrGenerate(coords)
+	def chunkAt(coords:ChunkCoordinates):Chunk = chunkGrid.getOrGenerate(coords)
 
-	def tile(coords:WorldCoordinates):Tile = tile(coords.x, coords.y)
+	def tileAt(coords:WorldCoordinates):Tile = tileAt(coords.x, coords.y)
 
-	def tile(x:Int, y:Int):Tile = {
-		return chunk(WorldCoordinates(x, y).toChunkCoordinates()).tile(x,y)
+	def tileAt(x:Int, y:Int):Tile = {
+		return chunkAt(WorldCoordinates(x, y).toChunkCoordinates()).tileAt(x,y)
 	}
 
-	def entity(coords:WorldCoordinates):Option[Entity] = tile(coords).entity
+	def entity(coords:WorldCoordinates):Option[Entity] = tileAt(coords).entity
 
 
 	/*
@@ -80,23 +80,23 @@ class World {
 	def spawnPlayer(playerName:String):Player = {
 		// determine a suitable spawn location
 		// for now, spawn everyone within 50,50 of the origin
-		var theTile:Tile = null
+		var tile:Tile = null
 		var (x, y) = (0, 0)
 		breakable { for (i <- 0 until 50) {
 			x = i
 			for (j <- 0 until 50) {
 				y = j
-				theTile = tile(x, y)
-				if (theTile.entity.isEmpty) break
+				tile = tileAt(x, y)
+				if (tile.entity.isEmpty) break
 			}
 		}}
 		// create a player object and hold a reference
 		val player = new Player(playerName, x, y)
 		players = players + (playerName -> player)
 		// spawn a player entity
-		val playerEntity = (theTile.entity = Some(new EntityPlayer(player)))
+		val playerEntity = (tile.entity = Some(new EntityPlayer(player)))
 		// broadcast entity spawn
-		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(theTile), Some(player)))
+		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(tile), Some(player)))
 		return player
 	}
 
@@ -104,13 +104,13 @@ class World {
 		players.get(playerName) match {
 			case Some(player) =>
 				val (x, y) = (player.x, player.y)
-				val theTile = tile(x, y)
+				val tile = tileAt(x, y)
 				// remove the player entity
-				theTile.entity = None
+				tile.entity = None
 				// null out reference to the player object
 				players = players - playerName
 				// broadcast entity despawn
-				this.eventChannel.push(WorldEvent("playerDespawn", Some(x), Some(y), Some(theTile), Some(player)))
+				this.eventChannel.push(WorldEvent("playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
 			case None =>
 				// FIXME: there is a bug where this happens if i open around 50
 				// browser tabs w/ the game open then close them all at the same time.
@@ -119,10 +119,10 @@ class World {
 	}
 
 	def despawnEntity(coords:WorldCoordinates):Option[Entity] = {
-		val targetTile = tile(coords)
-		val entity = targetTile.entity;
-		targetTile.entity = None;
-		this.eventChannel.push(WorldEvent("entityDespawn", Some(coords.x), Some(coords.y), Some(targetTile)))
+		val tile = tileAt(coords)
+		val entity = tile.entity;
+		tile.entity = None;
+		this.eventChannel.push(WorldEvent("entityDespawn", Some(coords.x), Some(coords.y), Some(tile)))
 		return entity
 	}
 
@@ -133,8 +133,8 @@ class World {
 			val oldY:Int = player.y
 			val (newX, newY) = (oldX+dx, oldY+dy)
 			if (newX < 0 || newX >= World.lengthTiles || newY < 0 || newY >= World.lengthTiles) return
-			val oldTile = tile(oldX, oldY)
-			val newTile = tile(newX, newY)
+			val oldTile = tileAt(oldX, oldY)
+			val newTile = tileAt(newX, newY)
 			(newTile.entity.isEmpty) match {
 				case true => {
 					// No entity occupying the tile so move there.
@@ -152,7 +152,7 @@ class World {
 	}
 
 	def moveEntity(oldCoords:WorldCoordinates, newCoords:WorldCoordinates):Unit = {
-		val (oldTile, newTile) = (tile(oldCoords), tile(newCoords))
+		val (oldTile, newTile) = (tileAt(oldCoords), tileAt(newCoords))
 		val (oldEntity, newEntity) = (oldTile.entity, newTile.entity)
 		require(oldEntity.isDefined)
 
@@ -186,7 +186,7 @@ class World {
 			}
 		}
 		if (hasIngredients) {
-			val playerTile:Tile = tile(player.x, player.y)
+			val playerTile:Tile = tileAt(player.x, player.y)
 			player.inventory.add(recipe.result);
 			recipe.ingredients.map {player.inventory.subtract(_)}
 			this.eventChannel.push(WorldEvent("playerCraft", Some(player.x), Some(player.y), Some(playerTile), Some(player)))
@@ -198,7 +198,7 @@ class World {
 	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates):Unit = {
 		val playerEntity:EntityPlayer = entity(attackerCoords).head.asInstanceOf[EntityPlayer]
 		val player:Player = players.get(playerEntity.player.name).get
-		val (attackerTile:Tile, targetTile:Tile) = (tile(attackerCoords), tile(targetCoords))
+		val (attackerTile:Tile, targetTile:Tile) = (tileAt(attackerCoords), tileAt(targetCoords))
 		val roll:Double = Random.nextDouble
 		entity(targetCoords).head match {
 			/*
@@ -273,13 +273,18 @@ class World {
 				}
 			}
 			case (target:EntityLiving) => {
-				playerEntity.attack(target)
-				if (target.dead) {
-					if (target.isInstanceOf[EntityMob]) {
-						despawnEntity(targetCoords)
-					}
-					if (target.isInstanceOf[EntityPlayer]) {
-						killPlayer(target.asInstanceOf[EntityPlayer].player)
+				val hit:Boolean = playerEntity.attack(target)
+				if (hit) {
+					// broadcast an update for both tiles
+					broadcastTileEvent(attackerCoords)
+					broadcastTileEvent(targetCoords)
+					if (target.dead) {
+						if (target.isInstanceOf[EntityMob]) {
+							despawnEntity(targetCoords)
+						}
+						if (target.isInstanceOf[EntityPlayer]) {
+							killPlayer(target.asInstanceOf[EntityPlayer].player)
+						}
 					}
 				}
 			}
@@ -293,7 +298,7 @@ class World {
 			// FIXME: verify the target is within N blocks of player
 			player.inventory.selected map { itemIndex =>
 				if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
-					val targetTile = tile(target)
+					val targetTile = tileAt(target)
 					targetTile.entity.getOrElse {
 						val item:Item = player.inventory.items(player.inventory.selected.get)
 						(item.kind) match {
@@ -332,8 +337,21 @@ class World {
 			// invalid index
 		} else {
 			player.inventory.selected = Some(inventoryIndex)
-			this.eventChannel.push(WorldEvent("playerSelect", Some(player.x), Some(player.y), Some(tile(player.x,player.y)), Some(player)))
+			this.eventChannel.push(WorldEvent("playerSelect", Some(player.x), Some(player.y), Some(tileAt(player.x,player.y)), Some(player)))
 		}
+	}
+
+	private def broadcastTileEvent(pos:WorldCoordinates):Unit = {
+		val tile:Tile = tileAt(pos)
+
+		val player:Option[Player] = tileAt(pos).entity match {
+			case Some(entity:EntityPlayer) => (players get entity.player.name)
+			case _ => None
+		}
+
+		val event:WorldEvent = WorldEvent("tile", Some(pos.x), Some(pos.y), Some(tile), player)
+
+		this.eventChannel.push(event)
 	}
 }
 

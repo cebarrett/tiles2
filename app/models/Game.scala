@@ -98,7 +98,7 @@ class Game extends Actor {
 			load map { cc =>
 				channel.push(JsObject(Seq(
 					"kind" -> JsString("chunk"),
-					"chunk" -> Json.toJson(world.chunk(cc.cx, cc.cy))
+					"chunk" -> Json.toJson(world.chunkAt(cc.cx, cc.cy))
 				)))
 			}
 		}

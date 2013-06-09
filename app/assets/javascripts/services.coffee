@@ -45,11 +45,20 @@ services.factory "sub", ["socket", (socket) ->
 			appScope.connected = false
 			appScope.$apply()
 			return
+
 		appScope.connected = true
 		chunk = null
 		tile = null
 		newChunk = null
+
+		if (message.player? and appScope.player? and message.player.name == appScope.player.name) then do ->
+			appScope.player = message.player
+			appScope.$apply()
+
 		if message.tile? then do ->
+			if (message.tile.entity? and appScope.player? and (message.tile.entity.name == appScope.player.name))
+				appScope.playerEntity = message.tile.entity
+				appScope.$apply()
 			chunk = _(appScope.chunks).find({
 				cx: Math.floor(message.x/appScope.chunkLen)
 				cy: Math.floor(message.y/appScope.chunkLen)
@@ -60,9 +69,7 @@ services.factory "sub", ["socket", (socket) ->
 				appScope.$apply()
 				# broadcast the event so the chunk directive can re-render the tile
 				appScope.$broadcast('tileChange', message.x, message.y, tile)
-		if (message.player? and appScope.player? and message.player.name == appScope.player.name) then do ->
-			appScope.player = message.player
-			appScope.$apply()
+
 		switch message.kind
 			when "error" then do ->
 				console.error("Error " + message.code + ": " + message.description)
@@ -72,10 +79,6 @@ services.factory "sub", ["socket", (socket) ->
 			when "gui" then if message.player.name == appScope.player.name
 				appScope.guiOptions = message.options
 				appScope.$apply()
-			# when "playerSpawn" then console.log("player spawned")
-			# when "playerDespawn" then console.log("player despawned")
-			# when "entityDespawn" then console.log("entity despawned")
-			# when "playerUpdate" then console.log("player update")######
 			when "entityMove" then do ->
 				if (message.prevX? && message.prevY?)
 					oldchunk = _(appScope.chunks).find({
@@ -101,7 +104,9 @@ services.factory "sub", ["socket", (socket) ->
 				# despawned players sending commands will cause server errors.
 				if (message.player.name == appScope.player.name)
 					window.location.replace(window.location.href)
-			# else console.log("unknown kind of message: " + message.kind)
+			when "tile", "playerSpawn", "playerUpdate", "entityDespawn", "entitySpawn" then
+				# no-op, no action specific to these msgs
+			else console.log("unknown kind of message: " + message.kind)
 
 	return (scope) -> appScope = scope
 ]

@@ -43,6 +43,10 @@
 							<span>{{player.y}}</span>
 						</span>
 					</div>
+					<div>
+						<small>HP</small>
+						<span>{{playerEntity.hitPoints}}</span>
+					</div>
 				</div>
 				<ul class="itemList">
 					<li item class="item-stack item-selected-{{$index == player.inventory.selected}}" ng-repeat="item in player.inventory.items" ng-click="selectItem($index)">

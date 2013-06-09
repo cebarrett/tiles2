@@ -23,8 +23,14 @@ case class EntityPlayer(val player:Player, val id:String = "player") extends Ent
 	 * applying any other effects to the target, but should not
 	 * despawn the target if its hit points drop to 0.
 	 */
-	def attack(target:EntityLiving):Unit = {
-		target.damage
+	hitPoints = 10
+	def attack(target:EntityLiving):Boolean = {
+		// if (Math.random < 0.5) {
+			target.damage
+			true
+		// } else {
+			// false
+		// }
 	}
 }
 
@@ -55,7 +61,7 @@ case class EntityGoblin(val id:String = "goblin") extends EntityMonster
 
 case class EntitySapling(val id:String = "sapling") extends Entity {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
-		val tile:Tile = world.tile(coords)
+		val tile:Tile = world.tileAt(coords)
 		val chanceOfTreeGrowing:Double = 0.0005;
 		if (Math.random() < chanceOfTreeGrowing) {
 			tile.entity = Some(EntityTree())
