@@ -7,14 +7,27 @@ package models
 class GridRandom[T](val scale:Float, val list:Seq[T]) {
 
 	val noiseGen:Seq[GridNoise] = {
-		val len:Int = Math.ceil(Math.sqrt(list.length)).toInt
-		0 until list.length map { i =>
+		val count:Int = Math.ceil(Math.sqrt(list.length)).toInt
+		0 until count map { i =>
 			new GridNoise
 		}
 	}
 
-	def pick(x:Int, y:Int, options:List[T]):Option[T] = {
-		val noise = PerlinNoise.perlinNoise((x*scale).toFloat, (y*scale).toFloat, 100)
-		list.headOption
+	def pick(x:Int, y:Int):Option[T] = {
+		if (list.length == 0) {
+			return None
+		}
+
+		var index:Int = 0
+		while (index >= list.length) {
+			(0 until list.length) map { i =>
+				val noise:Double = noiseGen(i).noiseAt(x, y)
+				if (noise > 0) {
+					index = index + Math.pow(2, i).toInt
+				}
+			}
+		}
+
+		return Some(list(index))
 	}
 }
