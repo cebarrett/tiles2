@@ -196,11 +196,35 @@ class World {
 	}
 
 	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates):Unit = {
-		val playerEntity:EntityPlayer = entity(attackerCoords).head.asInstanceOf[EntityPlayer]
-		val player:Player = players.get(playerEntity.player.name).get
+
 		val (attackerTile:Tile, targetTile:Tile) = (tileAt(attackerCoords), tileAt(targetCoords))
+		val attackerEntity:EntityLiving = attackerTile.entity.get.asInstanceOf[EntityLiving]
+		val targetEntity:Entity = entity(targetCoords).head
 		val roll:Double = Random.nextDouble
-		entity(targetCoords).head match {
+
+		// actions any living entities can do
+		if (targetEntity.isInstanceOf[EntityLiving]) {
+			val target:EntityLiving = targetEntity.asInstanceOf[EntityLiving]
+			val hit:Boolean = attackerEntity.attack(target)
+			if (hit) {
+				// broadcast an update for both tiles
+				broadcastTileEvent(attackerCoords)
+				broadcastTileEvent(targetCoords)
+				if (target.dead) {
+					if (target.isInstanceOf[EntityMob]) {
+						despawnEntity(targetCoords)
+					}
+					if (target.isInstanceOf[EntityPlayer]) {
+						killPlayer(target.asInstanceOf[EntityPlayer].player)
+					}
+				}
+			}
+		}
+
+		// actions only players can do
+		else {
+			val player:Player = players.get(attackerEntity.asInstanceOf[EntityPlayer].player.name).getOrElse(null)
+			targetEntity match {
 			/*
 			 * FIXME: this is getting very repetitive!
 			 */
@@ -272,25 +296,10 @@ class World {
 					despawnEntity(targetCoords)
 				}
 			}
-			case (target:EntityLiving) => {
-				val hit:Boolean = playerEntity.attack(target)
-				if (hit) {
-					// broadcast an update for both tiles
-					broadcastTileEvent(attackerCoords)
-					broadcastTileEvent(targetCoords)
-					if (target.dead) {
-						if (target.isInstanceOf[EntityMob]) {
-							despawnEntity(targetCoords)
-						}
-						if (target.isInstanceOf[EntityPlayer]) {
-							killPlayer(target.asInstanceOf[EntityPlayer].player)
-						}
-					}
-				}
-			}
 			case (_) => Unit
 		}
 		this.eventChannel.push(WorldEvent("playerUpdate", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player)))
+		}
 	}
 	
 	def doPlaceItem(playerName:String, target:WorldCoordinates) = {

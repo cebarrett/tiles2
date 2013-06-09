@@ -14,24 +14,21 @@ sealed abstract class EntityLiving extends Entity {
 	var hitPoints:Int = 1
 	def dead:Boolean = (hitPoints <= 0)
 	def damage:Unit = (hitPoints = hitPoints-1)
-}
-
-case class EntityPlayer(val player:Player, val id:String = "player") extends EntityLiving {
 	/**
 	 * Attack another entity.
 	 * This method is responsible for subtracting hit points and
 	 * applying any other effects to the target, but should not
 	 * despawn the target if its hit points drop to 0.
 	 */
-	hitPoints = 10
 	def attack(target:EntityLiving):Boolean = {
-		// if (Math.random < 0.5) {
-			target.damage
-			true
-		// } else {
-			// false
-		// }
+		target.damage
+		true
 	}
+	def drop:Seq[Item] = Seq.empty
+}
+
+case class EntityPlayer(val player:Player, val id:String = "player") extends EntityLiving {
+	hitPoints = 10
 }
 
 sealed abstract class EntityMob extends EntityLiving {
@@ -39,6 +36,7 @@ sealed abstract class EntityMob extends EntityLiving {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		ai.tick(world, coords)
 	}
+	override def drop():Seq[Item] = Seq(Item("slimeball", Some(1)))
 }
 
 sealed abstract class EntityAnimal extends EntityMob {
@@ -46,6 +44,7 @@ sealed abstract class EntityAnimal extends EntityMob {
 }
 
 sealed abstract class EntityMonster extends EntityMob {
+	hitPoints = 20
 	def ai:AI = new AIMonster
 }
 

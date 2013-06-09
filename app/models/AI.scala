@@ -27,4 +27,19 @@ class AIAnimal() extends AI {
 	}
 }
 
-class AIMonster() extends AI {}
+/**
+ * AI that stands still but attacks adjacent entities.
+ */
+class AIWall extends AI {
+	override def tick(world:World, coords:WorldCoordinates):Unit = {
+		coords getAdjacent() foreach { adjPos =>
+			world.tileAt(adjPos).entity.map({ adjEntity =>
+				world.doEntityInteraction(coords, adjPos)
+			})
+		}
+	}
+}
+
+class AIMonster extends AIWall {
+
+}
