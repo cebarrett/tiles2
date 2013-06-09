@@ -20,6 +20,8 @@ directives.directive "appControls", [ () ->
 		moveCount = {north: 0, south: 0, east: 0, west: 0}
 
 		doMovement = (dir) ->
+			# FIXME: can move 2 directions at once, so faster diagonally
+			# to fix, only move 1 direction, the most recently selected
 			if ((false == move[dir]?) or (false == move[dir]))
 				return
 			if ((false == moveCount[dir]?) or (moveCount[dir] == 0))

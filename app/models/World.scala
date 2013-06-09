@@ -270,6 +270,10 @@ class World {
 			}
 			case (target:EntityLiving) => {
 				playerEntity.attack(target)
+				// FIXME: also kill players
+				if (target.isInstanceOf[EntityMob] && target.dead) {
+					despawnEntity(targetCoords)
+				}
 			}
 			case (_) => Unit
 		}
