@@ -117,7 +117,7 @@ class Game extends Actor {
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
-			Logger.debug(s"Received message from $playerName: $message")
+			// Logger.debug(s"Received message from $playerName: $message")
 			val kind:String = (message \ "kind").as[String]
 			kind match {
 				// FIXME: players can move while a gui is open.
