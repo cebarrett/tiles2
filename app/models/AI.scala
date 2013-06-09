@@ -27,9 +27,4 @@ class AIAnimal() extends AI {
 	}
 }
 
-/**
- * TODO: stationary monster that fights back when attacked
- */
-class AIWall() extends AI {
-
-}
+class AIMonster() extends AI {}

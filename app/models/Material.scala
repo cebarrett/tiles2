@@ -31,7 +31,7 @@ object Metal {
 		Seq(COPPER, IRON, SILVER, GOLD)
 	}
 	def COPPER       = Metal("copper", "sienna")
-	def IRON         = Metal("iron",   "#987")
+	def IRON         = Metal("iron",   "#907868")
 	def SILVER       = Metal("silver", "silver")
 	def GOLD         = Metal("gold",   "gold")
 }

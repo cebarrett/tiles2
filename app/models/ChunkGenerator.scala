@@ -21,8 +21,11 @@ object ChunkGenerator {
 				// instead try writing a class that uses N perlin noise to select random from a list of N^2
 				// FIXME: use/write a weighted list helper class with a method to pick random, it will be needed a lot.
 				var entity:Option[Entity] = None
-				val terrain = {
+				val terrain:Terrain = {
 					if (noise < -0.2) {
+						if (Math.random < 0.002) {
+							entity = Some(EntityGoblin())
+						}
 						new Terrain("sand")
 					} else if (noise > 0.25 && Math.random < 0.02) {
 						val ore:Metal = genOre(oreNoise)

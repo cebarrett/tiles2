@@ -10,19 +10,31 @@ sealed abstract class Entity {
 	}
 }
 
-sealed abstract class EntityLiving extends Entity
+sealed abstract class EntityLiving extends Entity {
+	def hitPoints:Int = 1
+}
 
 case class EntityPlayer(val playerName:String, val id:String = "player") extends EntityLiving
 
 sealed abstract class EntityMob extends EntityLiving {
-	def ai:AI = new AIWall
-	def hitPoints:Int = 1
+	def ai:AI
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		ai.tick(world, coords)
 	}
 }
 
-case class EntityLlama(val id:String = "llama", override val ai:AI = new AIAnimal) extends EntityMob
+sealed abstract class EntityAnimal extends EntityMob {
+	def ai:AI = new AIAnimal
+}
+
+sealed abstract class EntityMonster extends EntityMob {
+	def ai:AI = new AIMonster
+}
+
+case class EntityLlama(val id:String = "llama") extends EntityAnimal
+
+case class EntityGoblin(val id:String = "goblin") extends EntityMonster
+
 
 /*
  * FIXME: too many entities that just correspond 1-1 with an item
