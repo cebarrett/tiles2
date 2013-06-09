@@ -54,7 +54,8 @@ class World {
 
 	/*
 	 * Run 1 tick of the game loop.
-	 * note: iterates over every tile in the game.
+	 * note: iterates over every tile in the game,
+	 * which may not be scalable.
 	 * if regions need to be more than 512x512, or
 	 * if tick needs to run more often than 1 second,
 	 * will need to schedule tile ticks instead.
