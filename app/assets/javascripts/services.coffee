@@ -88,6 +88,7 @@ services.factory "sub", ["socket", (socket) ->
 						prevTile = oldchunk.tiles[prevTx][prevTy]
 						delete prevTile.entity
 						# broadcast the event so the chunk directive can re-render the tile
+						appScope.$apply()
 						appScope.$broadcast('tileChange', message.prevX, message.prevY, prevTile)
 			when "chunk" then do ->
 				appScope.chunks.push(message.chunk)

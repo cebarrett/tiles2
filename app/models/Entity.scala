@@ -15,13 +15,14 @@ sealed abstract class EntityLiving extends Entity
 case class EntityPlayer(val playerName:String, val id:String = "player") extends EntityLiving
 
 sealed abstract class EntityMob extends EntityLiving {
-	def ai:AI
+	def ai:AI = new AIWall
+	def hitPoints:Int = 1
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		ai.tick(world, coords)
 	}
 }
 
-case class EntityLlama(val id:String = "llama", val ai:AI = new AIAnimal) extends EntityMob
+case class EntityLlama(val id:String = "llama", override val ai:AI = new AIAnimal) extends EntityMob
 
 /*
  * FIXME: too many entities that just correspond 1-1 with an item

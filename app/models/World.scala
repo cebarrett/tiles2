@@ -58,6 +58,8 @@ class World {
  * if regions need to be more than 512x512, or
  * if tick needs to run more often than 1 second,
  * will need to schedule tile ticks instead.
+ *
+ * FIXME: this can move the same llama multiple times per tick
  */
 	def tick():Unit = {
 		chunkGrid.foreach { entry =>

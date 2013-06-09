@@ -2,15 +2,16 @@ package models
 
 import scala.util.control.Breaks._
 
-sealed abstract trait AI {
-	def tick(world:World, coords:WorldCoordinates):Unit
+sealed abstract class AI {
+	def tick(world:World, coords:WorldCoordinates):Unit = Unit
 }
 
+/**
+ * AI that slowly wanders around.
+ */
 class AIAnimal() extends AI {
-
-	var chanceOfEntityMoving:Double = 0.1;
-
-	def tick(world:World, coords:WorldCoordinates):Unit = {
+	var chanceOfEntityMoving:Double = 0.05;
+	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		breakable {
 			if (Math.random() < chanceOfEntityMoving) {
 				chanceOfEntityMoving = 0.8
@@ -26,3 +27,9 @@ class AIAnimal() extends AI {
 	}
 }
 
+/**
+ * TODO: stationary monster that fights back when attacked
+ */
+class AIWall() extends AI {
+
+}
