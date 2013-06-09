@@ -17,6 +17,7 @@ import play.api.libs.functional.syntax.toFunctionalBuilderOps
 import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 import play.api.libs.iteratee.Enumerator
+import play.api.libs.iteratee.Iteratee
 import play.api.libs.json._
 import play.api.libs.json.JsPath.readNullable
 import play.api.libs.json.JsPath.writeNullable
@@ -157,7 +158,9 @@ class Game extends Actor {
 		}
 
 		case Quit(playerName:String) => {
-			val player = world.despawnPlayer(playerName)
+			world.players get playerName map { _ =>
+				world.despawnPlayer(playerName)
+			}
 			playerChannels = playerChannels - playerName
 		}
 

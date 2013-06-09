@@ -95,6 +95,12 @@ services.factory "sub", ["socket", (socket) ->
 			when "chunkUnload" then do ->
 				appScope.chunks = appScope.chunks.filter (chunk) ->
 					!((chunk.cx == message.cx) && (chunk.cy == message.cy))
+			when "playerDespawn" then do ->
+				# FIXME: hack to log out dead players.
+				# needs to be fixed on the server side too,
+				# despawned players sending commands will cause server errors.
+				if (message.player.name == appScope.player.name)
+					window.location.replace(window.location.href)
 			# else console.log("unknown kind of message: " + message.kind)
 
 	return (scope) -> appScope = scope
@@ -106,7 +112,7 @@ services.factory "sub", ["socket", (socket) ->
 services.factory "socket", ["$window", ($window) ->
 	wsUrl = $window.location.origin.replace(/^http/, "ws") + "/ws"
 	ws = new $window.WebSocket wsUrl
-	messageCallback = null # a function that handles all messages, null means disconnected
+	messageCallback = null # a function that handles all messages, null msg means disconnected
 	sendQueue = [] # messages to send after onopen
 	receiveQueue = [] # messages to receive after messageCallback is set
 

@@ -96,7 +96,7 @@ class World {
 		// spawn a player entity
 		val playerEntity = (theTile.entity = Some(new EntityPlayer(player)))
 		// broadcast entity spawn
-		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(theTile)))
+		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(theTile), Some(player)))
 		return player
 	}
 
@@ -107,10 +107,10 @@ class World {
 				val theTile = tile(x, y)
 				// remove the player entity
 				theTile.entity = None
-				// broadcast entity despawn
-				this.eventChannel.push(WorldEvent("playerDespawn", Some(x), Some(y), Some(theTile)))
 				// null out reference to the player object
 				players = players - playerName
+				// broadcast entity despawn
+				this.eventChannel.push(WorldEvent("playerDespawn", Some(x), Some(y), Some(theTile), Some(player)))
 			case None =>
 				// FIXME: there is a bug where this happens if i open around 50
 				// browser tabs w/ the game open then close them all at the same time.
@@ -145,6 +145,10 @@ class World {
 				}
 			}
 		}
+	}
+
+	def killPlayer(player:Player):Unit = {
+		despawnPlayer(player.name)
 	}
 
 	def moveEntity(oldCoords:WorldCoordinates, newCoords:WorldCoordinates):Unit = {
@@ -270,9 +274,13 @@ class World {
 			}
 			case (target:EntityLiving) => {
 				playerEntity.attack(target)
-				// FIXME: also kill players
-				if (target.isInstanceOf[EntityMob] && target.dead) {
-					despawnEntity(targetCoords)
+				if (target.dead) {
+					if (target.isInstanceOf[EntityMob]) {
+						despawnEntity(targetCoords)
+					}
+					if (target.isInstanceOf[EntityPlayer]) {
+						killPlayer(target.asInstanceOf[EntityPlayer].player)
+					}
 				}
 			}
 			case (_) => Unit
