@@ -5,7 +5,9 @@ package models
  *
  * @author Hans Haggstrom
  */
-object PerlinNoise {
+object PerlinNoise extends PerlinNoise
+
+sealed class PerlinNoise {
 
 
 	//======================================================================

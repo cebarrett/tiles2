@@ -2,7 +2,7 @@
 @tileSize: 30px;  /* also defined in script */
 @chunkLength: 16; /* also defined in script */
 @sidebarWidth: 150px;
-@playerInfoHeight: 4em;
+@playerInfoHeight: 5.5em;
 
 html, body, div[ng-app], div[ng-view] {
 	height: 100%;
@@ -74,7 +74,7 @@ body {
 
 .sidebar-button {
 	display: block;
-	padding: 0.33em;
+	padding: 0.5em;
 	background-color: rgba(20,20,20,20);
 	color: white;
 	font-size: 1em;
@@ -86,8 +86,8 @@ body {
 
 .player-info {
 	.sidebar-button;
-	width: 100%;
 	height: @playerInfoHeight;
+	font-size: 1.2em;
 }
 
 .itemList {
@@ -102,7 +102,7 @@ body {
 
 .item-stack {
 	.sidebar-button;
-	padding: 1em 0.5em;
+	padding: 0.75em 0.5em;
 }
 
 .item-selected-true {
