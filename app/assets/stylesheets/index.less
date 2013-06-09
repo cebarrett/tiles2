@@ -1,7 +1,8 @@
 
 @tileSize: 30px;  /* also defined in script */
 @chunkLength: 16; /* also defined in script */
-@sidebarWidth: 125px;
+@sidebarWidth: 150px;
+@playerInfoHeight: 3.5em;
 
 html, body, div[ng-app], div[ng-view] {
 	height: 100%;
@@ -38,24 +39,25 @@ body {
 	top: 0;
 }
 
-#panel {
+#controls {
 	z-index: 1;
 	position: absolute;
-	width: 75px;
+	width: @sidebarWidth;
 	margin: 20px;
 	bottom: 0;
 	left: 0px;
-	display: table;
 	background-color: transparent;
 
-	button {
+	div {
 		.sidebar-button;
-		display: table-cell;
+		display: table;
 		vertical-align: middle;
 		text-align: center;
 		width: 100%;
-		height: 3em;
+		height: 2em;
 		margin-top: 0.5em;
+		font-size: 2em;
+		line-height: 2em;
 	}
 }
 
@@ -85,6 +87,7 @@ body {
 .player-info {
 	.sidebar-button;
 	width: 100%;
+	height: @playerInfoHeight;
 }
 
 .itemList {
@@ -92,7 +95,9 @@ body {
 	overflow-y: auto;
 	position: absolute;
 	bottom: 0;
-	top: 70px;
+	top: @playerInfoHeight;
+	left: 0;
+	right: 0;
 }
 
 .item-stack {

@@ -154,6 +154,9 @@ services.factory "tileRender", [ () ->
 		bedrock:
 			text: "."
 			color: "#666666"
+		grass:
+			text: "."
+			color: "green"
 		workbench:
 			text: "π"
 			color: "#AA6600"

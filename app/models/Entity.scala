@@ -41,7 +41,7 @@ case class EntitySapling(val id:String = "sapling") extends Entity {
 
 case class EntityTree(val species:String = "oak", val id:String = "tree") extends Entity
 case class EntityStone(val material:Stone, val id:String = "stone") extends Entity
-case class EntityOre(val id:String = "ore") extends Entity
+case class EntityOre(val material:Metal, val id:String = "ore") extends Entity
 
 case class EntityWorkbench(val id:String = "workbench") extends Entity
 case class EntityFurnace(val id:String = "furnace") extends Entity

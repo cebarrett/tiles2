@@ -256,8 +256,16 @@ class World {
 				}
 			}
 			case (target:EntityStone) => {
-				if (player isHoldingItem "pick") {
-					player.inventory add Item("rock", Some(1), Some(target.material))
+				if ((player isHoldingItem "pick") && (Random.nextDouble < 0.5)) {
+					despawnEntity(targetCoords)
+					if (Math.random < 0.5) {
+						player.inventory add Item("rock", Some(1), Some(target.material))
+					}
+				}
+			}
+			case (target:EntityOre) => {
+				if ((player isHoldingItem "pick") && (Random.nextDouble < 0.25)) {
+					player.inventory add Item("ore", Some(1), Some(target.material))
 					despawnEntity(targetCoords)
 				}
 			}

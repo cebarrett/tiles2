@@ -15,37 +15,35 @@ object ChunkGenerator {
 				val noise:Float = calcWorldGenNoise(worldPos)
 				val stoneNoise:Float = calcStoneNoise(worldPos)
 				val treeNoise:Float = calcTreeNoise(worldPos)
+				val oreNoise:Float = calcOreNoise(worldPos)
 
+				// FIXME: stone and ore generation clump around each other using just 1 perlin noise,
+				// instead try writing a class that uses N perlin noise to select random from a list of N^2
 				// FIXME: use/write a weighted list helper class with a method to pick random, it will be needed a lot.
 				var entity:Option[Entity] = None
 				val terrain = {
-					if (noise < -0.25) {
+					if (noise < -0.2) {
 						new Terrain("sand")
-					} else if (noise > 0.5 && Math.random < 0.1) {
-						entity = Some(EntityOre())
+					} else if (noise > 0.25 && Math.random < 0.02) {
+						val ore:Metal = genOre(oreNoise)
+						entity = Some(EntityOre(ore))
 						new Terrain("bedrock")
 					} else if (noise > 0.25) {
-						val stone:Stone = {
-							val th1 = 0.4
-							if (stoneNoise < -th1) Stone.CHALK
-							else if (stoneNoise < 0) Stone.LIMESTONE
-							else if (stoneNoise < th1) Stone.GRANITE
-							else Stone.BASALT
-						}
+						val stone:Stone = genStone(noise)
 						entity = Some(EntityStone(stone))
 						new Terrain("bedrock")
 					} else {
-						entity = {
-							if (treeNoise > 0.25 && Math.random < 0.33)
-								Some(new EntityTree("tree"))
-							else if (Math.random < 0.0005)
-								Some(new EntityWorkbench("workbench"))
-							else if (Math.random() < 0.005)
-								Some(new EntityLlama())
-							else
-								None
+						if (treeNoise > 0) {
+							if (Math.random < 0.2) {
+								entity = Some(EntityTree())
+							}
+							Terrain("grass")
+						} else {
+							if (Math.random < 0.003) {
+								entity = Some(EntityLlama())
+							}
+							Terrain("dirt")
 						}
-						new Terrain("dirt")
 					}
 				}
 
@@ -55,10 +53,28 @@ object ChunkGenerator {
 		chunk;
 	}
 
+	private def genStone(stoneNoise:Float):Stone = {
+		val th1 = 0.4
+		if (stoneNoise < -th1) Stone.CHALK
+		else if (stoneNoise < 0) Stone.LIMESTONE
+		else if (stoneNoise < th1) Stone.GRANITE
+		else Stone.BASALT
+	}
+
+	private def genOre(oreNoise:Float):Metal = {
+		val (th1, th2, th3) = (-0.4, -0.25, 0)
+		if      (oreNoise < th1) Metal.GOLD
+		else if (oreNoise < th2) Metal.SILVER
+		else if (oreNoise < th3) Metal.IRON
+		else Metal.COPPER
+	}
+
 	private def defaultScale = if (Game.DEV) 0.1f else 0.01f;
-	private def calcWorldGenNoise(pos:WorldCoordinates):Float = perlinNoise(pos, 0,  defaultScale)
-	private def calcStoneNoise(pos:WorldCoordinates):Float    = perlinNoise(pos, 25, defaultScale / 3)
-	private def calcTreeNoise(pos:WorldCoordinates):Float     = perlinNoise(pos, 50, defaultScale * 3)
+
+	private def calcWorldGenNoise(pos:WorldCoordinates):Float = perlinNoise(pos, 0,   defaultScale)
+	private def calcStoneNoise(pos:WorldCoordinates):Float    = perlinNoise(pos, 100, defaultScale / 3)
+	private def calcTreeNoise(pos:WorldCoordinates):Float     = perlinNoise(pos, 200, defaultScale * 3)
+	private def calcOreNoise(pos:WorldCoordinates):Float      = perlinNoise(pos, 300, defaultScale * 3)
 
 	private def perlinNoise(pos:WorldCoordinates, z:Int = 0, scale:Float):Float = {
 		perlinNoise(pos.x, pos.y, z, scale)

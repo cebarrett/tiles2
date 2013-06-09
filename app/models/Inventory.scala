@@ -13,7 +13,9 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 		Item("rock", Some(500), Some(Stone.GRANITE)),
 		Item("wood", Some(100)),
 		Item("workbench", Some(1))
-	) else Seq.empty
+	) else Seq(
+		Item("workbench", Some(1))
+	)
 
 	/** Returns true if user has the given item (at least as many for item stacks) */
 	def has(other:Item):Boolean = {
