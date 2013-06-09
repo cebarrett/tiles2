@@ -14,7 +14,7 @@ sealed abstract class EntityLiving extends Entity {
 	def hitPoints:Int = 1
 }
 
-case class EntityPlayer(val playerName:String, val id:String = "player") extends EntityLiving
+case class EntityPlayer(val player:Player, val id:String = "player") extends EntityLiving
 
 sealed abstract class EntityMob extends EntityLiving {
 	def ai:AI

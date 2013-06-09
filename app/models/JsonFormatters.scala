@@ -21,7 +21,13 @@ object JsonFormatters {
 		}
 	}
 	implicit val writesTerrain = Json.writes[Terrain]
-	implicit val writesPlayerEntity:Writes[EntityPlayer] = Json.writes[EntityPlayer]
+	implicit val writesPlayerEntity = new Writes[EntityPlayer] {
+		def writes(entity:EntityPlayer):JsValue = JsObject(Seq(
+			"id"        -> JsString(entity.id),
+			"name"      -> JsString(entity.player.name),
+			"hitPoints" -> JsNumber(entity.hitPoints)
+		))
+	}
 	implicit val writesTreeEntity:Writes[EntityTree] = Json.writes[EntityTree]
 	implicit val writesWorkbenchEntity:Writes[EntityWorkbench] = Json.writes[EntityWorkbench]
 	implicit val writesSaplingEntity:Writes[EntitySapling] = Json.writes[EntitySapling]

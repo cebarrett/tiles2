@@ -90,13 +90,13 @@ class World {
 				if (theTile.entity.isEmpty) break
 			}
 		}}
-		// spawn a player entity
-		val playerEntity = (theTile.entity = Some(new EntityPlayer(playerName)))
-		// broadcast entity spawn
-		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(theTile)))
 		// create a player object and hold a reference
 		val player = new Player(playerName, x, y)
 		players = players + (playerName -> player)
+		// spawn a player entity
+		val playerEntity = (theTile.entity = Some(new EntityPlayer(player)))
+		// broadcast entity spawn
+		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(theTile)))
 		return player
 	}
 
@@ -158,7 +158,7 @@ class World {
 
 			newTile.entity.map {
 				case playerEntity:EntityPlayer => {
-					val player = players.get(playerEntity.playerName).get
+					val player = players.get(playerEntity.player.name).get
 					player.x = newCoords.x
 					player.y = newCoords.y
 					val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), None, Some(oldCoords.x), Some(oldCoords.y))
@@ -193,7 +193,7 @@ class World {
 
 	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates):Unit = {
 		val playerEntity:EntityPlayer = entity(attackerCoords).head.asInstanceOf[EntityPlayer]
-		val player:Player = players.get(playerEntity.playerName).get
+		val player:Player = players.get(playerEntity.player.name).get
 		val (attackerTile:Tile, targetTile:Tile) = (tile(attackerCoords), tile(targetCoords))
 		val roll:Double = Random.nextDouble
 		entity(targetCoords).head match {
