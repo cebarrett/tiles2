@@ -103,6 +103,11 @@ class Game extends Actor {
 		}
 	}
 
+	/*
+	 * FIXME: the join/quit events shouldn't do anything gameplay related
+	 * like spawning and despawning, as those things may need to happen
+	 * during a player's session (like when their hit points drop to 0).
+	 */
 	def receive = {
 		case Join(playerName:String) => {
 			val player = world.spawnPlayer(playerName)

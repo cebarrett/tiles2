@@ -197,7 +197,9 @@ class World {
 		val (attackerTile:Tile, targetTile:Tile) = (tile(attackerCoords), tile(targetCoords))
 		val roll:Double = Random.nextDouble
 		entity(targetCoords).head match {
-			// FIXME: this is getting very repetitive!
+			/*
+			 * FIXME: this is getting very repetitive!
+			 */
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
 					player.inventory add Item("log", Some(1))
@@ -210,24 +212,18 @@ class World {
 					}
 				}
 			}
-			case (target:EntityPlayer) => {
-				if (roll < 0.1) {
-					player.inventory.add(Item("meat", Some(1)))
-				}
-			}
 			case (target:EntityWorkbench) => {
 				if (player isHoldingItem "hammer") {
 					player.inventory add Item("workbench", Some(1))
 					despawnEntity(targetCoords)
 				} else {
 					/*
-					 *	FIXME: the world should not be sending the list of recipes,
+					 *	FIXME: World should not be broadcasting the list of recipes,
 					 * just the fact that the player is using the workbench
 					 * (or other crafting type entity).
+					 * Instead send recipes from Game when the player logs in.
 					 */
-					val options:Seq[String] = Seq(
-						"Close"		// FIXME: yuck
-					) ++ (WorkbenchRecipe.ALL.map {_.toString})
+					val options:Seq[String] = "Close" +: WorkbenchRecipe.ALL.map({_.toString})
 					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
@@ -236,9 +232,7 @@ class World {
 					player.inventory add Item("furnace", Some(1))
 					despawnEntity(targetCoords)
 				} else {
-					val options:Seq[String] = Seq(
-						"Close"		// FIXME: yuck
-					) ++ (FurnaceRecipe.ALL.map {_.toString})
+					val options:Seq[String] = "Close" +: SawmillRecipe.ALL.map({_.toString})
 					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
@@ -274,13 +268,8 @@ class World {
 					despawnEntity(targetCoords)
 				}
 			}
-			case (target:EntityLlama) => {
-				if (Random.nextDouble() < 0.1) {
-					player.inventory.add(Item("meat", Some(1)))
-				}
-				if (Random.nextDouble() < 0.1) {
-					player.inventory.add(Item("wool", Some(1)))
-				}
+			case (target:EntityLiving) => {
+				playerEntity.attack(target)
 			}
 			case (_) => Unit
 		}

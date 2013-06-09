@@ -11,10 +11,22 @@ sealed abstract class Entity {
 }
 
 sealed abstract class EntityLiving extends Entity {
-	def hitPoints:Int = 1
+	var hitPoints:Int = 1
+	def dead:Boolean = (hitPoints <= 0)
+	def damage:Unit = (hitPoints = hitPoints-1)
 }
 
-case class EntityPlayer(val player:Player, val id:String = "player") extends EntityLiving
+case class EntityPlayer(val player:Player, val id:String = "player") extends EntityLiving {
+	/**
+	 * Attack another entity.
+	 * This method is responsible for subtracting hit points and
+	 * applying any other effects to the target, but should not
+	 * despawn the target if its hit points drop to 0.
+	 */
+	def attack(target:EntityLiving):Unit = {
+		target.damage
+	}
+}
 
 sealed abstract class EntityMob extends EntityLiving {
 	def ai:AI
