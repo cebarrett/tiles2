@@ -52,15 +52,17 @@ class World {
 	def entity(coords:WorldCoordinates):Option[Entity] = tile(coords).entity
 
 
-/*
- * Run 1 tick of the game loop.
- * note: iterates over every tile in the game.
- * if regions need to be more than 512x512, or
- * if tick needs to run more often than 1 second,
- * will need to schedule tile ticks instead.
- *
- * FIXME: this can move the same llama multiple times per tick
- */
+	/*
+	 * Run 1 tick of the game loop.
+	 * note: iterates over every tile in the game.
+	 * if regions need to be more than 512x512, or
+	 * if tick needs to run more often than 1 second,
+	 * will need to schedule tile ticks instead.
+	 *
+	 * FIXME: this can move the same llama multiple times per tick,
+	 * because it iterates over tiles, not entities, and does not
+	 * remember which entities have already moved.
+	 */
 	def tick():Unit = {
 		chunkGrid.foreach { entry =>
 			val (chunkCoords, chunk) = entry
