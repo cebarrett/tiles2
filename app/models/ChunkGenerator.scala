@@ -17,7 +17,7 @@ object ChunkGenerator {
 				val treeNoise:Float = calcTreeNoise(worldPos)
 				val oreNoise:Float = calcOreNoise(worldPos)
 
-				// FIXME: stone and ore generation clump around each other using just 1 perlin noise,
+				// FIXME: stone and ore generation clump surrounding each other using just 1 perlin noise,
 				// instead try writing a class that uses N perlin noise to select random from a list of N^2
 				// FIXME: use/write a weighted list helper class with a method to pick random, it will be needed a lot.
 				var entity:Option[Entity] = None

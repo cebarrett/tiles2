@@ -65,7 +65,7 @@ class World {
 			chunk.tiles foreach { tcol =>
 				tcol foreach { t =>
 					val coords = TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords)
-					t.entity.map {_.tick(this, coords, t)}
+					t.entity.map {_.tick(this, coords)}
 				}
 			}
 		}

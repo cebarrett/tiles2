@@ -5,7 +5,7 @@ import scala.util.Random
 
 sealed abstract class Entity {
 	def id:String
-	def tick(world:World, coords:WorldCoordinates, tile:Tile):Unit = {
+	def tick(world:World, coords:WorldCoordinates):Unit = {
 		// no-op by default
 	}
 }
@@ -16,12 +16,12 @@ case class EntityPlayer(val playerName:String, val id:String = "player") extends
 
 sealed abstract class EntityMob extends EntityLiving {
 	def ai:AI
-	override def tick(world:World, coords:WorldCoordinates, tile:Tile):Unit = {
-		ai.tick(world, coords, tile)
+	override def tick(world:World, coords:WorldCoordinates):Unit = {
+		ai.tick(world, coords)
 	}
 }
 
-case class EntityLlama(val id:String = "llama", val ai:AI = AIAnimal) extends EntityMob
+case class EntityLlama(val id:String = "llama", val ai:AI = new AIAnimal) extends EntityMob
 
 /*
  * FIXME: too many entities that just correspond 1-1 with an item
@@ -29,7 +29,8 @@ case class EntityLlama(val id:String = "llama", val ai:AI = AIAnimal) extends En
  */
 
 case class EntitySapling(val id:String = "sapling") extends Entity {
-	override def tick(world:World, coords:WorldCoordinates, tile:Tile):Unit = {
+	override def tick(world:World, coords:WorldCoordinates):Unit = {
+		val tile:Tile = world.tile(coords)
 		val chanceOfTreeGrowing:Double = 0.0005;
 		if (Math.random() < chanceOfTreeGrowing) {
 			tile.entity = Some(EntityTree())
