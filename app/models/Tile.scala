@@ -1,6 +1,6 @@
 package models
 
-case class Tile (val tx:Int, val ty:Int, var terrain:Terrain, var entity:Option[Entity])
+case class Tile (val tx:Int, val ty:Int, var terrain:Terrain, var entity:Option[Entity] = None)
 
 object Tile {
 	def coord(worldCoord:Int) = worldCoord - Chunk.coord(worldCoord) * Chunk.length

@@ -35,9 +35,9 @@ case object StoneBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("bedrock")
 		if (Math.random < 0.02) {
-			tile.entity = Some(EntityOre(genOre(Math.random * 2 - 1))
+			tile.entity = Some(EntityOre(genOre(fakeNoise())))
 		} else {
-			tile.entity = Some(EntityStone(genStone(Math.random * 2 - 1)))
+			tile.entity = Some(EntityStone(genStone(fakeNoise())))
 		}
 	}
 
@@ -56,4 +56,6 @@ case object StoneBiome extends Biome {
 		else if (oreNoise < th3) Metal.IRON
 		else Metal.COPPER
 	}
+
+	private def fakeNoise():Float = (Math.random * 2 - 1).toFloat
 }
