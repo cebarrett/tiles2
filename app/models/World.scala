@@ -223,6 +223,7 @@ class World {
 
 		// actions only players can do
 		else {
+			/* FIXME: caused a ClassCastException because attackerEntity was a goblin */
 			val player:Player = players.get(attackerEntity.asInstanceOf[EntityPlayer].player.name).getOrElse(null)
 			targetEntity match {
 			/*
