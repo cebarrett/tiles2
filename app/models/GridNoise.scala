@@ -2,9 +2,9 @@ package models
 
 import scala.util.Random
 
-/*
- * FIXME: replace perlin noise impl with one that can be seeded,
- * so we can generate more than 100k (non-random) noise fields.
+/**
+ * FIXME: replace perlin noise impl with one that can be seeded.
+ * this one generates only about a thousand unique noise fields.
  */
 class GridNoise(val scale:Double = 1) {
 

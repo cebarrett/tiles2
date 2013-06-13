@@ -1,10 +1,10 @@
 package models
 
 /**
- * Select a random element from a list of N for each point
+ * Selects random elements from a list of N for each point
  * on a grid, using sqrt(N) GridNoise generators.
  */
-class GridRandom[T](val scale:Float, val list:Seq[T]) {
+class GridRandom[T](val list:Seq[T], val scale:Float = 1.0f) {
 
 	val noiseGen:Seq[GridNoise] = {
 		val count:Int = Math.ceil(Math.sqrt(list.length)).toInt
