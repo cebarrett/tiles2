@@ -5,7 +5,10 @@ import scala.util.Random
 
 object ChunkGenerator {
 
-	private val biomeGen = new GridRandom[Biome](Seq(DesertBiome, ForestBiome, DirtBiome, StoneBiome))
+	private val biomeGen = new GridRandom[Biome](
+		Seq(DesertBiome, ForestBiome, DirtBiome, StoneBiome),
+		(if (Game.DEV) 25 else 1)
+	)
 
 	def generate(coords:ChunkCoordinates):Chunk = {
 		val chunk = new Chunk(coords.cx, coords.cy)
@@ -21,7 +24,7 @@ object ChunkGenerator {
 	private def generate(coords:WorldCoordinates):Tile = {
 		val tc:TileCoordinates = coords.toTileCoordinates()
 		val tile:Tile = Tile(tc.tx, tc.ty, Terrain("dirt"))
-		biomeGen.pick(coords.x, coords.y).map({_.decorate(tile, coords)})
+		biomeGen.pick(coords.x, coords.y).map({_.decorate(tile)})
 		tile
 	}
 

@@ -78,14 +78,11 @@ class World {
 	}
 
 	def spawnPlayer(playerName:String):Player = {
-		// determine a suitable spawn location
-		// for now, spawn everyone within 50,50 of the origin
+		// determine a suitable spawn location - pretty basic for now
 		var tile:Tile = null
 		var (x, y) = (0, 0)
-		breakable { for (i <- 0 until 50) {
-			x = i
-			for (j <- 0 until 50) {
-				y = j
+		breakable { for (x <- 0 until 500) {
+			for (y <- 0 until 500) {
 				tile = tileAt(x, y)
 				if (tile.entity.isEmpty) break
 			}

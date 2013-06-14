@@ -34,7 +34,11 @@ class AIWall extends AI {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		coords getAdjacent() foreach { adjPos =>
 			world.tileAt(adjPos).entity.map({ adjEntity =>
-				world.doEntityInteraction(coords, adjPos)
+				adjEntity match {
+					case _:EntityPlayer => world.doEntityInteraction(coords, adjPos)
+					case _ => Unit // only attack players for now, there's a bug
+				}
+				
 			})
 		}
 	}

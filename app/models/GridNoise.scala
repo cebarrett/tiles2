@@ -18,7 +18,7 @@ class GridNoise(val scale:Double = 1) {
 }
 
 object GridNoise {
-	private var z:Int = 0;
+	private var z:Int = 50;
 	private def nextZ():Int = {
 		z = z + 100
 		z

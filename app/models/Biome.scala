@@ -1,11 +1,11 @@
 package models
 
 abstract trait Biome {
-	def decorate(tile:Tile, pos:WorldCoordinates):Unit
+	def decorate(tile:Tile):Unit
 }
 
 case object ForestBiome extends Biome {
-	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
+	def decorate(tile:Tile):Unit = {
 		tile.terrain = Terrain("grass")
 		if (Math.random < 0.01) {
 			tile.entity = Some(EntityTree())
@@ -14,7 +14,7 @@ case object ForestBiome extends Biome {
 }
 
 case object DesertBiome extends Biome {
-	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
+	def decorate(tile:Tile):Unit = {
 		tile.terrain = Terrain("sand")
 		if (Math.random < 0.01) {
 			tile.entity = Some(EntityGoblin())
@@ -23,7 +23,7 @@ case object DesertBiome extends Biome {
 }
 
 case object DirtBiome extends Biome {
-	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
+	def decorate(tile:Tile):Unit = {
 		tile.terrain = Terrain("dirt")
 		if (Math.random < 0.01) {
 			tile.entity = Some(EntityLlama())
@@ -32,7 +32,7 @@ case object DirtBiome extends Biome {
 }
 
 case object StoneBiome extends Biome {
-	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
+	def decorate(tile:Tile):Unit = {
 		tile.terrain = Terrain("bedrock")
 		if (Math.random < 0.02) {
 			tile.entity = Some(EntityOre(genOre(fakeNoise())))
