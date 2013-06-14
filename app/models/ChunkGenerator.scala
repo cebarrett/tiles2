@@ -7,7 +7,7 @@ object ChunkGenerator {
 
 	private val biomeGen = new GridRandom[Biome](
 		Seq(DesertBiome, ForestBiome, DirtBiome, StoneBiome),
-		(if (Game.DEV) 25 else 1)
+		(if (Game.DEV) 25 else 5)
 	)
 
 	def generate(coords:ChunkCoordinates):Chunk = {
