@@ -34,5 +34,5 @@ object Chunk {
 }
 
 case class ChunkCoordinates(val cx:Int, val cy:Int) {
-	require(0 <= cx && cx < World.length && 0 <= cy && cy < World.length)
+	// require(0 <= cx && cx < World.length && 0 <= cy && cy < World.length)
 }

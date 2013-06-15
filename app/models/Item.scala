@@ -35,4 +35,11 @@ case class Item(val kind:String, val count:Option[Int] = None, val material:Opti
 			( ! (other.material.isDefined && other.material != material) )
 		)
 	}
+	override def toString():String = {
+		var string:String = ""
+		count map    { c => string = string + c + " " }
+		material map { m => string = string + m.kind + " " }
+		string = string + kind
+		string
+	}
 }

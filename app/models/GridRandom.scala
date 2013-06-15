@@ -6,10 +6,11 @@ import play.api.Logger
  * Selects random elements from a list of N for each point
  * on a grid, using sqrt(N) GridNoise generators.
  */
-class GridRandom[T](val list:Seq[T], val scale:Float = 1.0f) {
+class GridRandom[T](val list:Seq[T], val scale:Double = 1.0) {
 
 	val noiseGen:Seq[GridNoise] = {
-		val count:Int = Math.ceil(Math.sqrt(list.length)).toInt
+		Logger.info(""+Math.log(list.length))
+		val count:Int = Math.ceil(Math.log(list.length)/Math.log(2)).toInt
 		0 until count map { i =>
 			new GridNoise(scale)
 		}
@@ -19,6 +20,8 @@ class GridRandom[T](val list:Seq[T], val scale:Float = 1.0f) {
 		if (list.length == 0) {
 			return None
 		}
+
+		var len = noiseGen.length
 
 		var index:Int = 0
 		do {

@@ -1,5 +1,7 @@
 package models
 
+import play.api.Logger
+
 /**
  *  Perlin noise function.
  *
@@ -63,7 +65,6 @@ sealed class PerlinNoise {
 	 */
 	def perlinNoise(x: Float, y: Float, z: Float = 0): Float =
 		{
-
 			def fade(t: Float): Float =
 				{
 					// fade(t) = 6t^5 - 15t^4 + 10t^3
@@ -118,7 +119,7 @@ sealed class PerlinNoise {
 			val BB = p(B + 1) + Z;
 
 			// and add blended results from 8 corners of cube
-			return interpolate(w,
+			val retv = interpolate(w,
 				interpolate(v,
 					interpolate(u,
 						grad(p(AA), x_, y_, z_),
@@ -133,5 +134,6 @@ sealed class PerlinNoise {
 					interpolate(u,
 						grad(p(AB + 1), x_ , y_ - 1, z_ - 1),
 						grad(p(BB + 1), x_ - 1, y_ - 1, z_ - 1))));
+			retv
 		}
 }

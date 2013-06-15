@@ -41,7 +41,8 @@ object JsonFormatters {
 	}
 	implicit val writesStoneEntity:Writes[EntityStone] = Json.writes[EntityStone]
 	implicit val writesOreEntity:Writes[EntityOre] = Json.writes[EntityOre]
-	implicit val writesFurnaceEntity:Writes[EntityFurnace] = Json.writes[EntityFurnace]
+	implicit val writesKilnEntity:Writes[EntityKiln] = Json.writes[EntityKiln]
+	implicit val writesSmelterEntity:Writes[EntitySmelter] = Json.writes[EntitySmelter]
 	implicit val writesSawmillEntity:Writes[EntitySawmill] = Json.writes[EntitySawmill]
 	implicit val writesStonecutterEntity:Writes[EntityStonecutter] = Json.writes[EntityStonecutter]
 	implicit val writesEntity = new Writes[Entity] {
@@ -51,11 +52,12 @@ object JsonFormatters {
 			case _:EntityWorkbench =>  writesWorkbenchEntity.writes(t.asInstanceOf[EntityWorkbench])
 			case _:EntitySapling => writesSaplingEntity.writes(t.asInstanceOf[EntitySapling])
 			case _:EntityStone => writesStoneEntity.writes(t.asInstanceOf[EntityStone])
-			case _:EntityFurnace => writesFurnaceEntity.writes(t.asInstanceOf[EntityFurnace])
 			case _:EntitySawmill => writesSawmillEntity.writes(t.asInstanceOf[EntitySawmill])
 			case _:EntityStonecutter => writesStonecutterEntity.writes(t.asInstanceOf[EntityStonecutter])
 			case _:EntityOre => writesOreEntity.writes(t.asInstanceOf[EntityOre])
 			case entity:EntityMob => Json.toJson(entity)
+			case entity:EntityKiln => Json.toJson(entity)
+			case entity:EntitySmelter => Json.toJson(entity)
 			case _ => {
 				val msg = "writesEntity: Unknown entity class: " + t.getClass
 				Logger.error(msg)

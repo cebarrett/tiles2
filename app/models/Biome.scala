@@ -1,11 +1,13 @@
 package models
 
+import play.api.Logger
+
 abstract trait Biome {
-	def decorate(tile:Tile):Unit
+	def decorate(tile:Tile, pos:WorldCoordinates):Unit
 }
 
 case object ForestBiome extends Biome {
-	def decorate(tile:Tile):Unit = {
+	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("grass")
 		if (Math.random < 0.01) {
 			tile.entity = Some(EntityTree())
@@ -14,7 +16,7 @@ case object ForestBiome extends Biome {
 }
 
 case object DesertBiome extends Biome {
-	def decorate(tile:Tile):Unit = {
+	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("sand")
 		if (Math.random < 0.01) {
 			tile.entity = Some(EntityGoblin())
@@ -23,7 +25,7 @@ case object DesertBiome extends Biome {
 }
 
 case object DirtBiome extends Biome {
-	def decorate(tile:Tile):Unit = {
+	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("dirt")
 		if (Math.random < 0.01) {
 			tile.entity = Some(EntityLlama())
@@ -32,30 +34,23 @@ case object DirtBiome extends Biome {
 }
 
 case object StoneBiome extends Biome {
-	def decorate(tile:Tile):Unit = {
+	private val stoneNoise = new GridRandom(Seq(
+			Stone.LIMESTONE, Stone.GRANITE), 5.0)
+	private val oreNoise   = new GridRandom(
+			Seq(
+				Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.COPPER,
+				Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.IRON,
+				Metal.IRON, Metal.IRON, Metal.IRON, Metal.IRON,
+				Metal.SILVER, Metal.SILVER, Metal.SILVER, Metal.COPPER
+			), 50.0)
+
+	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("bedrock")
-		if (Math.random < 0.02) {
-			tile.entity = Some(EntityOre(genOre(fakeNoise())))
-		} else {
-			tile.entity = Some(EntityStone(genStone(fakeNoise())))
-		}
+		tile.entity = Some({
+			if (Math.random < 0.02)
+				EntityOre(oreNoise.pick(pos.x, pos.y).get)
+			else
+				EntityStone(stoneNoise.pick(pos.x, pos.y).get)
+		});
 	}
-
-	private def genStone(stoneNoise:Float):Stone = {
-		val th1 = 0.4
-		if (stoneNoise < -th1) Stone.CHALK
-		else if (stoneNoise < 0) Stone.LIMESTONE
-		else if (stoneNoise < th1) Stone.GRANITE
-		else Stone.BASALT
-	}
-
-	private def genOre(oreNoise:Float):Metal = {
-		val (th1, th2, th3) = (-0.4, -0.25, 0)
-		if      (oreNoise < th1) Metal.GOLD
-		else if (oreNoise < th2) Metal.SILVER
-		else if (oreNoise < th3) Metal.IRON
-		else Metal.COPPER
-	}
-
-	private def fakeNoise():Float = (Math.random * 2 - 1).toFloat
 }

@@ -7,7 +7,7 @@ object Tile {
 }
 
 case class TileCoordinates(val tx:Int, val ty:Int) {
-	require(0 <= tx && tx < Chunk.length && 0 <= ty && ty < Chunk.length)
+	// require(0 <= tx && tx < Chunk.length && 0 <= ty && ty < Chunk.length)
 	def toWorldCoordinates(cc:ChunkCoordinates):WorldCoordinates = {
 		WorldCoordinates(cc.cx*Chunk.length+tx, cc.cy*Chunk.length+ty)
 	}

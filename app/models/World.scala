@@ -151,7 +151,7 @@ class World {
 	def moveEntity(oldCoords:WorldCoordinates, newCoords:WorldCoordinates):Unit = {
 		val (oldTile, newTile) = (tileAt(oldCoords), tileAt(newCoords))
 		val (oldEntity, newEntity) = (oldTile.entity, newTile.entity)
-		require(oldEntity.isDefined)
+		// require(oldEntity.isDefined)
 
 		newEntity.getOrElse {
 			newTile.entity = oldEntity
@@ -253,12 +253,21 @@ class World {
 					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
-			case (target:EntityFurnace) => {
+			case (target:EntityKiln) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add Item("furnace", Some(1))
+					player.inventory add Item("kiln", Some(1))
 					despawnEntity(targetCoords)
 				} else {
-					val options:Seq[String] = "Close" +: SawmillRecipe.ALL.map({_.toString})
+					val options:Seq[String] = "Close" +: KilnRecipe.ALL.map({_.toString})
+					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
+				}
+			}
+			case (target:EntitySmelter) => {
+				if (player isHoldingItem "hammer") {
+					player.inventory add Item("smelter", Some(1))
+					despawnEntity(targetCoords)
+				} else {
+					val options:Seq[String] = "Close" +: SmelterRecipe.ALL.map({_.toString})
 					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
@@ -318,9 +327,13 @@ class World {
 								player.inventory.subtract(Item("workbench", Some(1)))
 								targetTile.entity = Some(EntityWorkbench())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "furnace" => 
-								player.inventory.subtract(Item("furnace", Some(1)))
-								targetTile.entity = Some(EntityFurnace())
+							case "kiln" => 
+								player.inventory.subtract(Item("kiln", Some(1)))
+								targetTile.entity = Some(EntityKiln())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "smelter" => 
+								player.inventory.subtract(Item("smelter", Some(1)))
+								targetTile.entity = Some(EntitySmelter())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "sawmill" => 
 								player.inventory.subtract(Item("sawmill", Some(1)))
