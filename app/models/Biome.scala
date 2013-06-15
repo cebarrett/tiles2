@@ -34,15 +34,17 @@ case object DirtBiome extends Biome {
 }
 
 case object StoneBiome extends Biome {
-	private val stoneNoise = new GridRandom(Seq(
-			Stone.LIMESTONE, Stone.GRANITE), 5.0)
+	private val stoneNoise = new GridRandom(
+		Seq(
+			Stone.LIMESTONE, Stone.GRANITE
+		), 1.0)
 	private val oreNoise   = new GridRandom(
-			Seq(
-				Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.COPPER,
-				Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.IRON,
-				Metal.IRON, Metal.IRON, Metal.IRON, Metal.IRON,
-				Metal.SILVER, Metal.SILVER, Metal.SILVER, Metal.GOLD
-			), 50.0)
+		Seq(
+			Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.COPPER,
+			Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.IRON,
+			Metal.IRON, Metal.IRON, Metal.IRON, Metal.IRON,
+			Metal.SILVER, Metal.SILVER, Metal.SILVER, Metal.GOLD
+		), 10.0)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("bedrock")
