@@ -81,8 +81,8 @@ class World {
 		// determine a suitable spawn location - pretty basic for now
 		var tile:Tile = null
 		var (x, y) = (0, 0)
-		breakable { for (x <- 0 until 500) {
-			for (y <- 0 until 500) {
+		breakable { for (y <- 0 until 500) {
+			for (x <- 0 until 500) {
 				tile = tileAt(x, y)
 				if (tile.entity.isEmpty) break
 			}

@@ -41,7 +41,7 @@ case object StoneBiome extends Biome {
 				Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.COPPER,
 				Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.IRON,
 				Metal.IRON, Metal.IRON, Metal.IRON, Metal.IRON,
-				Metal.SILVER, Metal.SILVER, Metal.SILVER, Metal.COPPER
+				Metal.SILVER, Metal.SILVER, Metal.SILVER, Metal.GOLD
 			), 50.0)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
