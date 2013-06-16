@@ -6,7 +6,6 @@ directives.directive "appControls", [ () ->
 	# TODO: shift-Q and shift-E to rearrange items
 	# TODO: mouse wheel to cycle items
 	# TODO: space de-selects item
-	# TODO: use the time delta of requestAnimFrame to smooth and slow down keyboard movement
 	# FIXME: tab still prevents input
 	(scope, elm, attrs) ->
 		speed = 5;	# moves per second
