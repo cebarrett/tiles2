@@ -39,8 +39,9 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 
 	$scope.tileAt = (x, y) ->
 		chunk = $scope.chunkAt(x, y)
-		tc = $scope.tileCoordsAt(x, y)
-		chunk.tiles[tc.tx][tc.ty]
+		if chunk?
+			tc = $scope.tileCoordsAt(x, y)
+			chunk.tiles[tc.tx][tc.ty]
 
 	# tile click callback
 	$scope.place = (x, y) ->
