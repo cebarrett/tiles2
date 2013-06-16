@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def radius:Int = 64;
+	def radius:Int = 32;
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
@@ -76,6 +76,19 @@ class World {
 			}
 		}
 		ticks = ticks + 1;
+	}
+	
+	def loadAllChunks():World = {
+		Logger.debug("Loading all chunks")
+		var chunkCount:Int = 0
+		for (cx <- (-World.radius) until World.radius) {
+			for (cy <- (-World.radius) until World.radius) {
+				chunkGrid.getOrGenerate(ChunkCoordinates(cx, cy))
+				chunkCount = chunkCount + 1
+			}
+		}
+		Logger.debug(s"Done, loaded $chunkCount chunks")
+		this
 	}
 
 	def spawnPlayer(playerName:String):Player = {

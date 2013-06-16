@@ -12,14 +12,16 @@ class GridNoise(val scale:Double = 1) {
 
 	// XXX: increasing this value hoses the server for some reason
 	private val baseScale:Double = .01 * (if (Game.DEV) 5.0 else 1.0)
+	private val baseOffsetX =  449;
+	private val baseOffsetY = -353;
 
 	def noiseAt(x:Int, y:Int):Double = {
-		PerlinNoise.perlinNoise((x*scale*baseScale).toFloat, (y*scale*baseScale).toFloat, z).toDouble
+		PerlinNoise.perlinNoise(((x+baseOffsetX)*scale*baseScale).toFloat, ((y+baseOffsetY)*scale*baseScale).toFloat, z).toDouble
 	}
 }
 
 object GridNoise {
-	private var z:Int = 167;
+	private var z:Int = 839;
 	private def nextZ():Int = {
 		z = z + 89
 		z
