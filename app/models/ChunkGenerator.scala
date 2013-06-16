@@ -8,6 +8,8 @@ object ChunkGenerator {
 	private val biomeGen = new GridRandom[Biome](
 		Seq(DesertBiome, ForestBiome, DirtBiome, StoneBiome))
 
+	private val structureGenList:Seq[Structure] = Seq(StructureSpawn)
+
 	def generate(coords:ChunkCoordinates):Chunk = {
 		val chunk = new Chunk(coords.cx, coords.cy)
 		for (tx <- 0 until Chunk.length) {
@@ -23,6 +25,7 @@ object ChunkGenerator {
 		val tc:TileCoordinates = coords.toTileCoordinates()
 		val tile:Tile = Tile(tc.tx, tc.ty, Terrain("dirt"))
 		biomeGen.pick(coords.x, coords.y).map({_.decorate(tile, coords)})
+		structureGenList map {_.decorate(tile, coords)}
 		tile
 	}
 
