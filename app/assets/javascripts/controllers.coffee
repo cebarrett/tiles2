@@ -67,5 +67,4 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 
 	$scope.closeGui = () ->
 		delete $scope.gui
-		$scope.$apply()
 ];

@@ -29,7 +29,7 @@ import models.JsonFormatters._
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = false
+	def DEV:Boolean = true
 }
 
 class Game extends Actor {
@@ -104,11 +104,6 @@ class Game extends Actor {
 		}
 	}
 
-	/*
-	 * FIXME: the join/quit events shouldn't do anything gameplay related
-	 * like spawning and despawning, as those things may need to happen
-	 * during a player's session (like when their hit points drop to 0).
-	 */
 	def receive = {
 		case Join(playerName:String) => {
 			val player = world.spawnPlayer(playerName)

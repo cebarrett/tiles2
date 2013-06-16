@@ -9,11 +9,13 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 
 	// starting inventory for dev testing
 	items = if (Game.DEV) Seq(
-		Item("pick", Some(1), Some(Wood)),
+		Item("workbench", Some(1)),
+		Item("axe", None, Some(Metal.GOLD)),
+		Item("pick", None, Some(Metal.GOLD)),
+		Item("hammer", None, Some(Metal.GOLD)),
+		Item("wood", Some(500)),
 		Item("rock", Some(500), Some(Stone.GRANITE)),
-		Item("ore", Some(500), Some(Metal.COPPER)),
-		Item("wood", Some(100)),
-		Item("workbench", Some(1))
+		Item("ore", Some(500), Some(Metal.COPPER))
 	) else Seq(
 		Item("workbench", Some(1))
 	)

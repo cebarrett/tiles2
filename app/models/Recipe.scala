@@ -18,9 +18,9 @@ object Recipe {
 		"kiln" -> Seq[Recipe](
 			Recipe(Item("charcoal", Some(1)), Seq(Item("log", Some(1))))
 		),
-		"smelter" -> Seq[Recipe](
-			Recipe(Item("ingot", None, Some(Metal.COPPER)), Seq(Item("ore", Some(20), Some(Metal.COPPER))))
-		),
+		"smelter" -> (Seq(Metal.COPPER, Metal.IRON, Metal.SILVER, Metal.GOLD) map { metal:Metal =>
+			Recipe(Item("bar", Some(1), Some(metal)), Seq(Item("ore", Some(1), Some(metal)), Item("charcoal", Some(1))))
+		}),
 		"sawmill" -> Seq[Recipe](
 			Recipe(Item("wood", Some(1)), Seq(Item("sapling", Some(1))))
 		),
@@ -31,10 +31,8 @@ object Recipe {
 
 	def kind(craft:String):Seq[Recipe] = {
 		all filter { tuple:(String, Seq[Recipe]) =>
-			tuple match {
-				case (craft, _) => true
-				case _ => false
-			}
+			val (otherCraft:String, recipes:Seq[Recipe]) = tuple
+			if (craft == otherCraft) true else false
 		} map { tuple:(String, Seq[Recipe]) =>
 			val (kind, recipes) = tuple
 			recipes
