@@ -17,8 +17,8 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 		south: -> pub {kind: "south"}
 		east:  -> pub {kind: "east"}
 		west:  -> pub {kind: "west"}
-		guiSelect: (index) ->
-			pub {kind: "guiSelect", index: index}
+		craft: (craft, index) ->
+			pub {kind: "craft", craft: craft, index: index}
 		place: (x, y, index) ->
 			pub {kind: "place", x: x, y: y, index: index}
 		selectItem: (index) ->
@@ -75,9 +75,7 @@ services.factory "sub", ["socket", (socket) ->
 				console.error("Error " + message.code + ": " + message.description)
 			when "spawn" then do ->
 				appScope.player = message.player
-				appScope.$apply()
-			when "gui" then if message.player.name == appScope.player.name
-				appScope.guiOptions = message.options
+				appScope.crafts = message.crafts
 				appScope.$apply()
 			when "entityMove" then do ->
 				if (message.prevX? && message.prevY?)

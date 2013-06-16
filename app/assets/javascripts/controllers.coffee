@@ -15,24 +15,57 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 	net.connect $scope
 
 	# view callbacks
-	$scope.north = -> net.north()
-	$scope.east  = -> net.east()
-	$scope.south = -> net.south()
-	$scope.west  = -> net.west()
-	
-	# gui select callback
-	$scope.guiSelect = (index) ->
-		if (index == 0)
-			# assumes first choice is always the close button
-			# and other choices should keep the GUI open
-			delete $scope.guiOptions
-		net.guiSelect(index)
-	
+	$scope.north = -> $scope.openGui(0,1)  || net.north()
+	$scope.east  = -> $scope.openGui(1,0)  || net.east()
+	$scope.south = -> $scope.openGui(0,-1) || net.south()
+	$scope.west  = -> $scope.openGui(-1,0) || net.west()
+
+	$scope.chunkOffset = (n) ->
+		Math.floor(n / $scope.chunkLen)
+
+	$scope.chunkCoordsAt = (x, y) ->
+		{cx: $scope.chunkOffset(x), cy: $scope.chunkOffset(y)}
+
+	$scope.chunkAt = (x, y) ->
+		cc = $scope.chunkCoordsAt(x, y)
+		_($scope.chunks).find(cc)
+
+	$scope.tileOffset = (n) ->
+		chunkLen = $scope.chunkLen
+		((n % chunkLen) + chunkLen) % chunkLen
+
+	$scope.tileCoordsAt = (x, y) ->
+		{tx: $scope.tileOffset(x), ty: $scope.tileOffset(y)}
+
+	$scope.tileAt = (x, y) ->
+		chunk = $scope.chunkAt(x, y)
+		tc = $scope.tileCoordsAt(x, y)
+		chunk.tiles[tc.tx][tc.ty]
+
 	# tile click callback
 	$scope.place = (x, y) ->
 		net.place(x, y, $scope.selectedItemIndex)
-		
+
 	# select active item callback
 	$scope.selectItem = (index) ->
 		net.selectItem(index)
+
+	# open a crafting gui for the tile dx,dy from the player.
+	# return true if one was opened, false otherwise.
+	$scope.openGui = (dx, dy) ->
+		tile = $scope.tileAt($scope.player.x+dx, $scope.player.y+dy)
+		if (tile? && tile.entity?)
+			switch tile.entity.id
+				when "workbench", "kiln", "smelter", "sawmill", "stonecutter"
+					$scope.gui = tile.entity.id
+					$scope.$apply()
+					return true
+		else return false
+
+	$scope.selectRecipe = (craft, index) ->
+		net.craft(craft, index)
+
+	$scope.closeGui = () ->
+		delete $scope.gui
+		$scope.$apply()
 ];

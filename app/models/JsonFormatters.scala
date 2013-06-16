@@ -75,6 +75,23 @@ object JsonFormatters {
 		}
 	}
 	implicit val writesItem = Json.writes[Item]
+	implicit val writesRecipe = Json.writes[Recipe]
+	implicit val writesAllRecipes = new Writes[Seq[(String, Seq[Recipe])]] {
+		def writes(e:Seq[(String, Seq[Recipe])]):JsValue = {
+			JsArray(
+				e map { obj:(String, Seq[Recipe]) =>
+					val (kind:String, recipes:Seq[Recipe]) = obj;
+					val jsRecipes:JsArray = JsArray(recipes map {
+						Json.toJson(_)
+					})
+					JsObject(Seq(
+						"kind" -> JsString(kind),
+						"recipes" -> jsRecipes
+					))
+				}
+			)
+		}
+	}
 	implicit val writesInventory = new Writes[Inventory] {
 		def writes(t:Inventory):JsValue = JsObject(Seq(
 			"items" -> JsArray(t.items.map({Json.toJson(_)})),

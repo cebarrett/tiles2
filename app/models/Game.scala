@@ -118,7 +118,8 @@ class Game extends Actor {
 			sendChunks(player, None)
 			playerChannel.push(JsObject(Seq(
 				"kind" -> JsString("spawn"),
-				"player" -> Json.toJson(player)
+				"player" -> Json.toJson(player),
+				"crafts" -> Json.toJson(Recipe.all)
 			)))
 		}
 
@@ -136,13 +137,10 @@ class Game extends Actor {
 					world.movePlayer(playerName,  1,  0)
 				case "west"  =>
 					world.movePlayer(playerName, -1,  0)
-				case "guiSelect" => {
+				case "craft" => {
+					val craft:String = (message \ "craft").as[String]
 					val index:Int = (message \ "index").as[Int]
-					index match {
-						case 0 => Unit // close button
-						// FIXME: assumes player is using a workbench
-						case _ => world.doPlayerCrafting(playerName, WorkbenchRecipe.ALL(index-1))
-					}
+					world.doPlayerCrafting(playerName, craft, index)
 				}
 				case "selectItem" =>
 					val index:Int = (message \ "index").as[Int]

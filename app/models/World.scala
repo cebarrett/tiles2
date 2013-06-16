@@ -172,10 +172,14 @@ class World {
 			}
 		}
 	}
-	
-	def doPlayerCrafting(playerName:String, recipe:WorkbenchRecipe):Unit = {
-		val player:Player = players.get(playerName).get
-		// validate that the player has enough items to make the recipe
+
+	def doPlayerCrafting(playerName:String, kind:String, index:Int):Unit = {
+		players get playerName map { player:Player =>
+			doPlayerCrafting(player, Recipe.kind(kind)(index))
+		}
+	}
+
+	def doPlayerCrafting(player:Player, recipe:Recipe):Unit = {
 		var hasIngredients:Boolean = true
 		for (i:Item <- recipe.ingredients) {
 			if (player.inventory.has(i) == false) {
@@ -188,7 +192,7 @@ class World {
 			recipe.ingredients.map {player.inventory.subtract(_)}
 			this.eventChannel.push(WorldEvent("playerCraft", Some(player.x), Some(player.y), Some(playerTile), Some(player)))
 		} else {
-			Logger.debug(s"Player $playerName did not have the ingredients to craft $recipe")
+			//Logger.debug(s"Player $playerName did not have the ingredients to craft $recipe")
 		}
 	}
 
@@ -229,76 +233,50 @@ class World {
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
 					player.inventory add Item("log", Some(1))
-					player.inventory.add(Item("sapling", Some(Random.nextInt(4))))
-					despawnEntity(targetCoords)
+					player.inventory add Item("sapling", Some(Random.nextInt(4)))
 				} else {
-					if (roll < 0.05) {
-						player.inventory.add(Item("wood", Some(1)))
-						despawnEntity(targetCoords)
-					}
+					player.inventory add Item("wood", Some(1))
 				}
+				despawnEntity(targetCoords)
 			}
 			case (target:EntityWorkbench) => {
 				if (player isHoldingItem "hammer") {
 					player.inventory add Item("workbench", Some(1))
 					despawnEntity(targetCoords)
-				} else {
-					/*
-					 *	FIXME: World should not be broadcasting the list of recipes,
-					 * just the fact that the player is using the workbench
-					 * (or other crafting type entity).
-					 * Instead send recipes from Game when the player logs in.
-					 */
-					val options:Seq[String] = "Close" +: WorkbenchRecipe.ALL.map({_.toString})
-					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
 			case (target:EntityKiln) => {
 				if (player isHoldingItem "hammer") {
 					player.inventory add Item("kiln", Some(1))
 					despawnEntity(targetCoords)
-				} else {
-					val options:Seq[String] = "Close" +: KilnRecipe.ALL.map({_.toString})
-					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
 			case (target:EntitySmelter) => {
 				if (player isHoldingItem "hammer") {
 					player.inventory add Item("smelter", Some(1))
 					despawnEntity(targetCoords)
-				} else {
-					val options:Seq[String] = "Close" +: SmelterRecipe.ALL.map({_.toString})
-					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
 			case (target:EntitySawmill) => {
 				if (player isHoldingItem "hammer") {
 					player.inventory add Item("sawmill", Some(1))
 					despawnEntity(targetCoords)
-				} else {
-					val options:Seq[String] = "Close" +: SawmillRecipe.ALL.map({_.toString})
-					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
 			case (target:EntityStonecutter) => {
 				if (player isHoldingItem "hammer") {
 					player.inventory add Item("stonecutter", Some(1))
 					despawnEntity(targetCoords)
-				} else {
-					val options:Seq[String] = "Close" +: StonecutterRecipe.ALL.map({_.toString})
-					this.eventChannel.push(WorldEvent("gui", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player), Some(options)))
 				}
 			}
 			case (target:EntityStone) => {
-				if ((player isHoldingItem "pick") && (Random.nextDouble < 0.5)) {
+				if (player isHoldingItem "pick") {
+					player.inventory add Item("rock", Some(1), Some(target.material))
 					despawnEntity(targetCoords)
-					if (Math.random < 0.5) {
-						player.inventory add Item("rock", Some(1), Some(target.material))
-					}
 				}
 			}
 			case (target:EntityOre) => {
-				if ((player isHoldingItem "pick") && (Random.nextDouble < 0.25)) {
+				if (player isHoldingItem "pick") {
 					player.inventory add Item("ore", Some(1), Some(target.material))
 					despawnEntity(targetCoords)
 				}

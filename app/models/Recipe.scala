@@ -1,64 +1,48 @@
 package models
 
-abstract trait Recipe {
-	def result:Item
-	def ingredients:Seq[Item]
-	override def toString():String = {
-		var str:String = "Craft " + result.toString + " from ";
+case class Recipe(result:Item, ingredients:Seq[Item])
 
-		for (i <- 0 until ingredients.length) {
-			val item:Item = ingredients(i)
-			if (i > 0) {
-				str = str + ", "
+object Recipe {
+	val all = Seq(
+		"workbench" -> Seq[Recipe](
+			Recipe(Item("wood",        Some(5)),              Seq(Item("log", Some(1)))),
+			Recipe(Item("axe",         None,     Some(Wood)), Seq(Item("wood", Some(5)))),
+			Recipe(Item("hammer",      None,     Some(Wood)), Seq(Item("wood", Some(10)))),
+			Recipe(Item("pick",        None,     Some(Wood)), Seq(Item("wood", Some(20)))),
+			Recipe(Item("workbench",   Some(1)),              Seq(Item("wood", Some(25)))),
+			Recipe(Item("kiln",        Some(1)),              Seq(Item("rock", Some(25)))),
+			Recipe(Item("smelter",     Some(1)),              Seq(Item("rock", Some(25)))),
+			Recipe(Item("sawmill",     Some(1)),              Seq(Item("wood", Some(50)))),
+			Recipe(Item("stonecutter", Some(1)),              Seq(Item("rock", Some(50))))
+		),
+		"kiln" -> Seq[Recipe](
+			Recipe(Item("charcoal", Some(1)), Seq(Item("log", Some(1))))
+		),
+		"smelter" -> Seq[Recipe](
+			Recipe(Item("ingot", None, Some(Metal.COPPER)), Seq(Item("ore", Some(20), Some(Metal.COPPER))))
+		),
+		"sawmill" -> Seq[Recipe](
+			Recipe(Item("wood", Some(1)), Seq(Item("sapling", Some(1))))
+		),
+		"stonecutter" -> Seq[Recipe](
+			Recipe(Item("sword", None, Some(Stone.GRANITE)), Seq(Item("rock", Some(20), Some(Stone.GRANITE))))
+		)
+	)
+
+	def kind(craft:String):Seq[Recipe] = {
+		all filter { tuple:(String, Seq[Recipe]) =>
+			tuple match {
+				case (craft, _) => true
+				case _ => false
 			}
-			str = str + item.toString
-		}
+		} map { tuple:(String, Seq[Recipe]) =>
+			val (kind, recipes) = tuple
+			recipes
+		} head
+	}
 
-		return str
+	def get(craft:String, index:Int):Recipe = {
+		kind(craft)(index)
 	}
 }
 
-/*
- * FIXME: each crafting station should have a list of case object recipes,
- * not its own subclass of Recipe.
- */
-
-sealed case class WorkbenchRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
-case object WorkbenchRecipe {
-	// TODO: use reflection to get all the fields
-	def ALL = Seq[WorkbenchRecipe](WOOD, AXE, HAMMER, PICK, WORKBENCH, KILN, SMELTER, SAWMILL, STONECUTTER)
-
-	def WOOD = WorkbenchRecipe(Item("wood", Some(5)), Seq(Item("log", Some(1))))
-	def AXE = WorkbenchRecipe(Item("axe", None, Some(Wood)), Seq(Item("wood", Some(5))))
-	def HAMMER = WorkbenchRecipe(Item("hammer", None, Some(Wood)), Seq(Item("wood", Some(10))))
-	def PICK = WorkbenchRecipe(Item("pick", None, Some(Wood)), Seq(Item("wood", Some(20))))
-	def WORKBENCH = WorkbenchRecipe(Item("workbench", Some(1)), Seq(Item("wood", Some(25))))
-	def KILN = WorkbenchRecipe(Item("kiln", Some(1)), Seq(Item("rock", Some(25))))
-	def SMELTER = WorkbenchRecipe(Item("smelter", Some(1)), Seq(Item("rock", Some(25))))
-	def SAWMILL = WorkbenchRecipe(Item("sawmill", Some(1)), Seq(Item("wood", Some(50))))
-	def STONECUTTER = WorkbenchRecipe(Item("stonecutter", Some(1)), Seq(Item("rock", Some(50))))
-}
-
-sealed case class KilnRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
-case object KilnRecipe {
-	def ALL = Seq[KilnRecipe](CHARCOAL)
-
-	def CHARCOAL = KilnRecipe(Item("charcoal", Some(1)), Seq(Item("log", Some(1))))
-}
-
-sealed case class SmelterRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
-case object SmelterRecipe {
-	def ALL = Seq[SmelterRecipe](COPPER_INGOT)
-
-	def COPPER_INGOT = SmelterRecipe(Item("ingot", None, Some(Metal.COPPER)), Seq(Item("ore", Some(20), Some(Metal.COPPER))))
-}
-
-sealed case class SawmillRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
-case object SawmillRecipe {
-	def ALL = Seq[SawmillRecipe]()
-}
-
-sealed case class StonecutterRecipe(val result:Item, val ingredients:Seq[Item]) extends Recipe
-case object StonecutterRecipe {
-	def ALL = Seq[StonecutterRecipe]()
-}

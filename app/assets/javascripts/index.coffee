@@ -1,1 +1,1 @@
-app = angular.module "app", ["app.services", "app.directives", "app.controllers"]
+app = angular.module "app", ["app.filters", "app.services", "app.directives", "app.controllers"]
