@@ -16,8 +16,8 @@ case class Chunk (val cx:Int, val cy:Int, val tiles:Array[Array[Tile]] = Array.o
 
 object Chunk {
 	val length:Int = 16
-	def coord(worldCoord:Int):Int = math.floor(worldCoord/length).toInt
-	def clamp(n:Int):Int = Math.min(Math.max(0, n), World.lengthChunks-1);
+	def coord(n:Int):Int = Math.floor(n.toDouble/length.toDouble).toInt
+	def clamp(n:Int):Int = Math.min(Math.max(-World.radiusChunks, n), World.radiusChunks-1);
 	def radius(coords:ChunkCoordinates, radius:Int):Set[ChunkCoordinates] = {
 		val minX:Int = Chunk.clamp(coords.cx - radius)
 		val maxX:Int = Chunk.clamp(coords.cx + radius)
@@ -33,6 +33,4 @@ object Chunk {
 	}
 }
 
-case class ChunkCoordinates(val cx:Int, val cy:Int) {
-	// require(0 <= cx && cx < World.length && 0 <= cy && cy < World.length)
-}
+case class ChunkCoordinates(val cx:Int, val cy:Int)

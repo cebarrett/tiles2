@@ -27,7 +27,7 @@ case object DesertBiome extends Biome {
 case object DirtBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("dirt")
-		if (Math.random < 0.01) {
+		if (Math.random < 0.02) {
 			tile.entity = Some(EntityLlama())
 		}
 	}
@@ -41,9 +41,7 @@ case object StoneBiome extends Biome {
 	private val oreNoise   = new GridRandom(
 		Seq(
 			Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.COPPER,
-			Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.IRON,
-			Metal.IRON, Metal.IRON, Metal.IRON, Metal.IRON,
-			Metal.SILVER, Metal.SILVER, Metal.SILVER, Metal.GOLD
+			Metal.COPPER, Metal.COPPER, Metal.IRON, Metal.IRON
 		), 10.0)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {

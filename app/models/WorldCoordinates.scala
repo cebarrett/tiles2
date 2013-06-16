@@ -3,7 +3,6 @@ package models
 import scala.util.Random
 
 case class WorldCoordinates(val x:Int, val y:Int) {
-	// require(0 <= x && x < World.length*Chunk.length && 0 <= y && y < World.length*Chunk.length)
 	def toChunkCoordinates():ChunkCoordinates = ChunkCoordinates(Chunk.coord(x), Chunk.coord(y))
 	def toTileCoordinates():TileCoordinates   = TileCoordinates(Tile.coord(x), Tile.coord(y))
 	def inSameChunk(other:WorldCoordinates):Boolean = {

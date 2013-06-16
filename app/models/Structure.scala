@@ -6,7 +6,7 @@ abstract trait Structure {
 
 case object StructureSpawn extends Structure {
 	def decorate(tile:Tile, pos:WorldCoordinates) = {
-		if (pos.x == 5 && pos.y == 5) {
+		if (pos.x == -1 && pos.y == -1) {
 			tile.entity = Some(EntityWorkbench())
 		}
 	}

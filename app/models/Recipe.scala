@@ -3,7 +3,7 @@ package models
 case class Recipe(result:Item, ingredients:Seq[Item])
 
 object Recipe {
-	val all = Seq(
+	val all = Seq( // XXX: change from Seq to Map
 		"workbench" -> Seq[Recipe](
 			Recipe(Item("wood",        Some(5)),              Seq(Item("log", Some(1)))),
 			Recipe(Item("axe",         None,     Some(Wood)), Seq(Item("wood", Some(5)))),

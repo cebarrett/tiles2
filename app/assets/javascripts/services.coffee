@@ -170,6 +170,9 @@ services.factory "tileRender", [ () ->
 		workbench:
 			text: "π"
 			color: "#AA6600"
+		anvil:
+			text: "π"
+			color: "#585858"
 		sapling:
 			text: "τ"
 			color: "#00BB00"
@@ -186,15 +189,15 @@ services.factory "tileRender", [ () ->
 			text: "$"
 			color: "#777777"
 		kiln:
-			text: "☖"
+			text: "θ"
 			color: "#AA6600"
 		smelter:
-			text: "☖"
+			text: "θ"
 			color: "#585858"
 		stonecutter:
-			text: "ø"
+			text: "Ø"
 			color: "#585858"
 		sawmill:
-			text: "ø"
+			text: "Ø"
 			color: "#AA6600"
 ]

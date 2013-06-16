@@ -8,10 +8,10 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def length:Int = 32;
-	def lengthChunks = length
-	def lengthTiles = lengthChunks * Chunk.length
-	def clamp(n:Int):Int = Math.min(Math.max(0, n), World.lengthTiles-1);
+	def radius:Int = 64;
+	def radiusChunks = radius;
+	def radiusTiles = radius * Chunk.length
+	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
 }
 
 /**
@@ -46,7 +46,8 @@ class World {
 	def tileAt(coords:WorldCoordinates):Tile = tileAt(coords.x, coords.y)
 
 	def tileAt(x:Int, y:Int):Tile = {
-		return chunkAt(WorldCoordinates(x, y).toChunkCoordinates()).tileAt(x,y)
+		val chunk = chunkAt(WorldCoordinates(x, y).toChunkCoordinates())
+		return chunk.tileAt(x,y)
 	}
 
 	def entity(coords:WorldCoordinates):Option[Entity] = tileAt(coords).entity
@@ -129,7 +130,7 @@ class World {
 			val oldX:Int = player.x
 			val oldY:Int = player.y
 			val (newX, newY) = (oldX+dx, oldY+dy)
-			if (newX < 0 || newX >= World.lengthTiles || newY < 0 || newY >= World.lengthTiles) return
+			if (newX < -World.radiusTiles || newX >= World.radiusTiles || newY < -World.radiusTiles || newY >= World.radiusTiles) return
 			val oldTile = tileAt(oldX, oldY)
 			val newTile = tileAt(newX, newY)
 			(newTile.entity.isEmpty) match {
@@ -148,27 +149,43 @@ class World {
 		despawnPlayer(player.name)
 	}
 
+	/**
+	 * Move an entity from oldCoords to newCoords and handle updating other
+	 * world state and firing events accordingly.
+	 * Preconditions: there is an entity at oldCoords and none at newCoords.
+	 */
 	def moveEntity(oldCoords:WorldCoordinates, newCoords:WorldCoordinates):Unit = {
-		val (oldTile, newTile) = (tileAt(oldCoords), tileAt(newCoords))
-		val (oldEntity, newEntity) = (oldTile.entity, newTile.entity)
-		// require(oldEntity.isDefined)
+		// Logger debug s"moveEntity: $oldCoords -> $newCoords"
 
-		newEntity.getOrElse {
-			newTile.entity = oldEntity
-			oldTile.entity = None
+		val (oldTile:Tile, newTile:Tile) = (tileAt(oldCoords), tileAt(newCoords))
 
-			newTile.entity.map {
-				case playerEntity:EntityPlayer => {
-					val player = players.get(playerEntity.player.name).get
-					player.x = newCoords.x
-					player.y = newCoords.y
-					val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), None, Some(oldCoords.x), Some(oldCoords.y))
-					eventChannel.push(event)
-				}
-				case _:Any => {
-					val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, None, Some(oldCoords.x), Some(oldCoords.y))
-					eventChannel.push(event)
-				}
+		// Logger debug s"oldTile: $oldTile"
+		// Logger debug s"newTile: $newTile"
+
+		val (oldEntity:Option[Entity], newEntity:Option[Entity]) = (oldTile.entity, newTile.entity)
+
+		if (oldEntity.isEmpty) {
+			Logger warn s"Tried to move entity in empty tile at $oldCoords"
+			return
+		}
+		if (newEntity.isDefined) {
+			Logger warn s"Tried to move entity at $oldCoords into occupied tile at $newCoords"
+			return
+		}
+
+		newTile.entity = oldEntity
+		oldTile.entity = None
+		newTile.entity.get match {
+			case playerEntity:EntityPlayer => {
+				val player = players.get(playerEntity.player.name).get
+				player.x = newCoords.x
+				player.y = newCoords.y
+				val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), None, Some(oldCoords.x), Some(oldCoords.y))
+				eventChannel.push(event)
+			}
+			case _:Any => {
+				val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, None, Some(oldCoords.x), Some(oldCoords.y))
+				eventChannel.push(event)
 			}
 		}
 	}
@@ -289,14 +306,14 @@ class World {
 	
 	def doPlaceItem(playerName:String, target:WorldCoordinates) = {
 		players.get(playerName).map { player =>
-			// FIXME: verify the target is within N blocks of player
+			// XXX: should verify the target is within N blocks of player
 			player.inventory.selected map { itemIndex =>
 				if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
 					val targetTile = tileAt(target)
 					targetTile.entity.getOrElse {
 						val item:Item = player.inventory.items(player.inventory.selected.get)
 						(item.kind) match {
-							// FIXME: this is getting repetitive
+							// XXX: this is getting repetitive
 							case "sapling" => 
 								player.inventory.subtract(Item("sapling", Some(1)))
 								targetTile.entity = Some(EntitySapling())
