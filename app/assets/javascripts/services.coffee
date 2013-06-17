@@ -13,7 +13,7 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 		connect: (scope) ->
 			scope.chunks = []
 			sub scope
-			setTimeout () -> pub {kind: "spawn"}, 1000
+			pub {kind: "spawn"}
 		north: -> pub {kind: "north"}
 		south: -> pub {kind: "south"}
 		east:  -> pub {kind: "east"}
@@ -204,6 +204,6 @@ services.factory "tileRender", [ () ->
 			text: "Ø"
 			color: "#AA6600"
 		block:
-			text: "█"
+			text: "#"
 			color: "white"
 ]

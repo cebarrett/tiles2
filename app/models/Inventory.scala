@@ -16,7 +16,8 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 		Item("wood", Some(500)),
 		Item("charcoal", Some(500)),
 		Item("rock", Some(500), Some(Stone.LIMESTONE)),
-		Item("ore", Some(500), Some(Metal.IRON))
+		Item("ore", Some(500), Some(Metal.IRON)),
+		Item("block", Some(500), Some(Metal.IRON))
 	) else Seq(
 		Item("axe", None, Some(Stone.GRANITE))
 	)

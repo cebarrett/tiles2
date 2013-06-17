@@ -79,4 +79,4 @@ case class EntityKiln(val id:String = "kiln") extends Entity
 case class EntitySmelter(val id:String = "smelter") extends Entity
 case class EntitySawmill(val id:String = "sawmill") extends Entity
 case class EntityStonecutter(val id:String = "stonecutter") extends Entity
-case class EntityAnvil(val id:String = "anvil") extends Entity
+case class EntityAnvil(val id:String = "anvil", val material:Material = Metal.IRON) extends Entity
