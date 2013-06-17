@@ -12,8 +12,9 @@ object Recipe {
 			Recipe(Item("workbench",   Some(1)),              Seq(Item("wood", Some(25)))),
 			Recipe(Item("kiln",        Some(1)),              Seq(Item("rock", Some(25)))),
 			Recipe(Item("smelter",     Some(1)),              Seq(Item("rock", Some(25)))),
-			Recipe(Item("sawmill",     Some(1)),              Seq(Item("wood", Some(50)))),
-			Recipe(Item("stonecutter", Some(1)),              Seq(Item("rock", Some(50))))
+			Recipe(Item("sawmill",     Some(1)),              Seq(Item("rock", Some(50)))),
+			Recipe(Item("stonecutter", Some(1)),              Seq(Item("rock", Some(50)))),
+			Recipe(Item("anvil",       Some(1)),              Seq(Item("bar", Some(25), Some(Metal.IRON))))
 		),
 		"kiln" -> Seq[Recipe](
 			Recipe(Item("charcoal", Some(1)), Seq(Item("log", Some(1))))

@@ -357,6 +357,10 @@ class World {
 								player.inventory.subtract(Item("stonecutter", Some(1)))
 								targetTile.entity = Some(EntityStonecutter())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "anvil" => 
+								player.inventory.subtract(Item("anvil", Some(1)))
+								targetTile.entity = Some(EntityAnvil())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "block" => 
 								val material:Metal = item.material.get.asInstanceOf[Metal]
 								player.inventory.subtract(Item("block", Some(1), Some(material)))

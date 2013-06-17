@@ -14,10 +14,11 @@ case class Inventory(var items:Seq[Item] = Seq.empty[Item], var selected:Option[
 		Item("pick", None, Some(Metal.GOLD)),
 		Item("hammer", None, Some(Metal.GOLD)),
 		Item("wood", Some(500)),
-		Item("rock", Some(500), Some(Stone.GRANITE)),
-		Item("ore", Some(500), Some(Metal.COPPER))
+		Item("charcoal", Some(500)),
+		Item("rock", Some(500), Some(Stone.LIMESTONE)),
+		Item("ore", Some(500), Some(Metal.IRON))
 	) else Seq(
-		Item("workbench", Some(1))
+		Item("axe", None, Some(Stone.GRANITE))
 	)
 
 	/** Returns true if user has the given item (at least as many for item stacks) */

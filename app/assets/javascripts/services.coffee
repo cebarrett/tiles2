@@ -13,7 +13,7 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 		connect: (scope) ->
 			scope.chunks = []
 			sub scope
-			pub {kind: "spawn"}
+			setTimeout () -> pub {kind: "spawn"}, 1000
 		north: -> pub {kind: "north"}
 		south: -> pub {kind: "south"}
 		east:  -> pub {kind: "east"}
@@ -75,6 +75,8 @@ services.factory "sub", ["socket", (socket) ->
 			when "error" then do ->
 				console.error("Error " + message.code + ": " + message.description)
 			when "spawn" then do ->
+				console.log("got spawn message...")
+				console.log(message)
 				appScope.player = message.player
 				appScope.crafts = message.crafts
 				appScope.$apply()

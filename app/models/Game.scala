@@ -29,7 +29,7 @@ import models.JsonFormatters._
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = false
+	def DEV:Boolean = true
 }
 
 class Game extends Actor {
@@ -118,13 +118,22 @@ class Game extends Actor {
 			kind match {
 				case "spawn" => {
 					world.spawnPlayer(playerName)
-					val player:Player = (world.players get playerName).get
-					sendChunks(player, None)
-					playerChannels.get(playerName).get.push(JsObject(Seq(
-						"kind" -> JsString("spawn"),
-						"player" -> Json.toJson(player),
-						"crafts" -> Json.toJson(Recipe.all)
-					)))
+					Akka.system.scheduler.schedule(
+						1 seconds,
+						1 seconds,
+						self,
+						{
+							val player:Player = (world.players get playerName).get
+							sendChunks(player, None)
+							val response:JsValue = JsObject(Seq(
+								"kind" -> JsString("spawn"),
+								"player" -> Json.toJson(player),
+								"crafts" -> Json.toJson(Recipe.all)
+							))
+							Logger.debug(s"$response");
+							playerChannels.get(playerName).get.push(response)
+						}
+					)
 				}
 				// FIXME: players can move while a gui is open.
 				// need to set a flag on the Player and unset when they select something.

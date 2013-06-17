@@ -56,8 +56,8 @@ directives.directive "appControls", [ () ->
 				move.west = new Date().getTime()
 			if (e.keyCode is 68 or e.keyCode is 39) and !move.east
 				move.east = new Date().getTime()
-			if e.keyCode is 27 and scope.guiOptions? #esc
-				scope.guiSelect(0)
+			if e.keyCode is 27 #esc
+				scope.closeGui()
 				scope.$apply()
 
 		$(document).on "keyup", (e) ->
