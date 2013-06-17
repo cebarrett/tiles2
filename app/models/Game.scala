@@ -106,22 +106,26 @@ class Game extends Actor {
 
 	def receive = {
 		case Join(playerName:String) => {
-			val player = world.spawnPlayer(playerName)
+			world.connectPlayer(playerName)
 			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
 			playerChannels = playerChannels + (playerName -> playerChannel)
 			sender ! Connected(jsonWorldEventEnumerator >- chatEnumerator >- playerEnumerator)
-			sendChunks(player, None)
-			playerChannel.push(JsObject(Seq(
-				"kind" -> JsString("spawn"),
-				"player" -> Json.toJson(player),
-				"crafts" -> Json.toJson(Recipe.all)
-			)))
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
 			// Logger.debug(s"Received message from $playerName: $message")
 			val kind:String = (message \ "kind").as[String]
 			kind match {
+				case "spawn" => {
+					world.spawnPlayer(playerName)
+					val player:Player = (world.players get playerName).get
+					sendChunks(player, None)
+					playerChannels.get(playerName).get.push(JsObject(Seq(
+						"kind" -> JsString("spawn"),
+						"player" -> Json.toJson(player),
+						"crafts" -> Json.toJson(Recipe.all)
+					)))
+				}
 				// FIXME: players can move while a gui is open.
 				// need to set a flag on the Player and unset when they select something.
 				case "north" =>

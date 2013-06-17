@@ -25,7 +25,7 @@
 					<div chunk ng-repeat="chunk in chunks"></div>
 				</div>
 				<div class="gui gui-{{gui == craft.kind}}" ng-repeat="craft in crafts">
-					<d type="button" tabIndex="1" ng-click="closeGui()">close</button>
+					<button type="button" tabIndex="1" ng-click="closeGui()" class="gui-close">&times;</button>
 					<div>{{craft.kind}}</div>
 					<div class="gui-option" ng-repeat="recipe in craft.recipes">
 						<button type="button" tabindex="{{$index+2}}" ng-click="selectRecipe(craft.kind, $index)">
@@ -53,7 +53,7 @@
 					</div>
 				</div>
 				<ul class="itemList">
-					<li item class="item-stack item-selected-{{$index == player.inventory.selected}}" ng-repeat="item in player.inventory.items" ng-click="selectItem($index)">
+					<li item class="item-stack item-stack-{{$index == player.inventory.selected}}" ng-repeat="item in player.inventory.items" ng-click="selectItem($index)">
 						<span>{{item.count}}</span>
 						<span>{{item.material.kind}} {{item.kind}}</span>
 					</li>

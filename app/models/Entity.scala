@@ -36,7 +36,6 @@ sealed abstract class EntityMob extends EntityLiving {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		ai.tick(world, coords)
 	}
-	override def drop():Seq[Item] = Seq(Item("slimeball", Some(1)))
 }
 
 sealed abstract class EntityAnimal extends EntityMob {
@@ -73,6 +72,7 @@ case class EntitySapling(val id:String = "sapling") extends Entity {
 case class EntityTree(val species:String = "oak", val id:String = "tree") extends Entity
 case class EntityStone(val material:Stone, val id:String = "stone") extends Entity
 case class EntityOre(val material:Metal, val id:String = "ore") extends Entity
+case class EntityBlock(val material:Metal, val id:String = "block") extends Entity
 
 case class EntityWorkbench(val id:String = "workbench") extends Entity
 case class EntityKiln(val id:String = "kiln") extends Entity

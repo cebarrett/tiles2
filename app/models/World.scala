@@ -90,25 +90,31 @@ class World {
 		Logger.debug(s"Done, loaded $chunkCount chunks")
 		this
 	}
+	
+	def connectPlayer(playerName:String):Player = {
+		Logger debug s"connect: $playerName"
+		// create a player object and hold a reference
+		val player = new Player(playerName, 0, 0)
+		players = players + (playerName -> player)
+		player
+	}
 
-	def spawnPlayer(playerName:String):Player = {
+	def spawnPlayer(playerName:String):Unit = {
+		Logger debug s"spawn: $playerName"
+		val player = players get playerName get
 		// determine a suitable spawn location - pretty basic for now
 		var tile:Tile = null
-		var (x, y) = (0, 0)
-		breakable { for (y <- 0 until 500) {
-			for (x <- 0 until 500) {
+		var (x, y) = (player.x, player.y)
+		breakable { for (y <- (player.y) until (player.y+100)) {
+			for (x <- (player.x) until (player.x+100)) {
 				tile = tileAt(x, y)
 				if (tile.entity.isEmpty) break
 			}
 		}}
-		// create a player object and hold a reference
-		val player = new Player(playerName, x, y)
-		players = players + (playerName -> player)
 		// spawn a player entity
 		val playerEntity = (tile.entity = Some(new EntityPlayer(player)))
 		// broadcast entity spawn
 		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(tile), Some(player)))
-		return player
 	}
 
 	def despawnPlayer(playerName:String):Unit = {
@@ -350,6 +356,11 @@ class World {
 							case "stonecutter" => 
 								player.inventory.subtract(Item("stonecutter", Some(1)))
 								targetTile.entity = Some(EntityStonecutter())
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+							case "block" => 
+								val material:Metal = item.material.get.asInstanceOf[Metal]
+								player.inventory.subtract(Item("block", Some(1), Some(material)))
+								targetTile.entity = Some(EntityBlock(material))
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case _ => Unit
 						}

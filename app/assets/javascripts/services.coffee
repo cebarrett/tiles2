@@ -13,6 +13,7 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 		connect: (scope) ->
 			scope.chunks = []
 			sub scope
+			pub {kind: "spawn"}
 		north: -> pub {kind: "north"}
 		south: -> pub {kind: "south"}
 		east:  -> pub {kind: "east"}
@@ -200,4 +201,7 @@ services.factory "tileRender", [ () ->
 		sawmill:
 			text: "Ø"
 			color: "#AA6600"
+		block:
+			text: "█"
+			color: "white"
 ]

@@ -26,6 +26,12 @@ object Recipe {
 		),
 		"stonecutter" -> Seq[Recipe](
 			Recipe(Item("sword", None, Some(Stone.GRANITE)), Seq(Item("rock", Some(20), Some(Stone.GRANITE))))
+		),
+		"anvil" -> Seq[Recipe](
+			Recipe(Item("block", Some(1), Some(Metal.COPPER)), Seq(Item("bar", Some(10), Some(Metal.COPPER)))),
+			Recipe(Item("block", Some(1), Some(Metal.IRON)),   Seq(Item("bar", Some(10), Some(Metal.IRON))  )),
+			Recipe(Item("block", Some(1), Some(Metal.SILVER)), Seq(Item("bar", Some(10), Some(Metal.SILVER)))),
+			Recipe(Item("block", Some(1), Some(Metal.GOLD)),   Seq(Item("bar", Some(10), Some(Metal.GOLD))  ))
 		)
 	)
 
