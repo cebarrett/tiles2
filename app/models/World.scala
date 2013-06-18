@@ -104,17 +104,21 @@ class World {
 		val player = players get playerName get
 		// determine a suitable spawn location - pretty basic for now
 		var tile:Tile = null
-		var (x, y) = (player.x, player.y)
+		var spawnPos:WorldCoordinates = null
 		breakable { for (y <- (player.y) until (player.y+100)) {
 			for (x <- (player.x) until (player.x+100)) {
 				tile = tileAt(x, y)
+				spawnPos = WorldCoordinates(x, y)
+				Logger warn s"$tile"
 				if (tile.entity.isEmpty) break
 			}
 		}}
-		// spawn a player entity
+		// spawn a player entity and update the player object
 		val playerEntity = (tile.entity = Some(new EntityPlayer(player)))
+		player.x = spawnPos.x;
+		player.y = spawnPos.y;
 		// broadcast entity spawn
-		this.eventChannel.push(WorldEvent("playerSpawn", Some(x), Some(y), Some(tile), Some(player)))
+		this.eventChannel.push(WorldEvent("playerSpawn", Some(spawnPos.x), Some(spawnPos.y), Some(tile), Some(player)))
 	}
 
 	def despawnPlayer(playerName:String):Unit = {

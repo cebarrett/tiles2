@@ -6,7 +6,7 @@ import scala.util.Random
 object ChunkGenerator {
 
 	private val biomeGen = new GridRandom[Biome](
-		Seq(DesertBiome, ForestBiome, DesertBiome, DirtBiome, StoneBiome, DirtBiome, ForestBiome, StoneBiome),
+		Seq(DesertBiome, ForestBiome, DirtBiome, StoneBiome),
 		1.0
 	)
 
