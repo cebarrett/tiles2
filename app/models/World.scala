@@ -109,7 +109,6 @@ class World {
 			for (x <- (player.x) until (player.x+100)) {
 				tile = tileAt(x, y)
 				spawnPos = WorldCoordinates(x, y)
-				Logger warn s"$tile"
 				if (tile.entity.isEmpty) break
 			}
 		}}
