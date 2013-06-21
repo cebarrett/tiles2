@@ -1,38 +1,38 @@
 package models
 
-case class Recipe(result:Item, ingredients:Seq[Item])
+case class Recipe(result:ItemStack, ingredients:Seq[ItemStack])
 
 object Recipe {
 	val all = Seq( // XXX: change from Seq to Map
 		"workbench" -> Seq[Recipe](
-			Recipe(Item("wood",        Some(5)),              Seq(Item("log", Some(1)))),
-			Recipe(Item("axe",         None,     Some(Wood)), Seq(Item("wood", Some(5)))),
-			Recipe(Item("hammer",      None,     Some(Wood)), Seq(Item("wood", Some(10)))),
-			Recipe(Item("pick",        None,     Some(Wood)), Seq(Item("wood", Some(20)))),
-			Recipe(Item("workbench",   Some(1)),              Seq(Item("wood", Some(25)))),
-			Recipe(Item("kiln",        Some(1)),              Seq(Item("rock", Some(25)))),
-			Recipe(Item("smelter",     Some(1)),              Seq(Item("rock", Some(25)))),
-			Recipe(Item("sawmill",     Some(1)),              Seq(Item("rock", Some(50)))),
-			Recipe(Item("stonecutter", Some(1)),              Seq(Item("rock", Some(50)))),
-			Recipe(Item("anvil",       Some(1)),              Seq(Item("bar", Some(25), Some(Metal.IRON))))
+			Recipe(ItemStack("wood",        Some(5)),              Seq(ItemStack("log", Some(1)))),
+			Recipe(ItemStack("axe",         None,     Some(Wood)), Seq(ItemStack("wood", Some(5)))),
+			Recipe(ItemStack("hammer",      None,     Some(Wood)), Seq(ItemStack("wood", Some(10)))),
+			Recipe(ItemStack("pick",        None,     Some(Wood)), Seq(ItemStack("wood", Some(20)))),
+			Recipe(ItemStack("workbench",   Some(1)),              Seq(ItemStack("wood", Some(25)))),
+			Recipe(ItemStack("kiln",        Some(1)),              Seq(ItemStack("rock", Some(25)))),
+			Recipe(ItemStack("smelter",     Some(1)),              Seq(ItemStack("rock", Some(25)))),
+			Recipe(ItemStack("sawmill",     Some(1)),              Seq(ItemStack("rock", Some(50)))),
+			Recipe(ItemStack("stonecutter", Some(1)),              Seq(ItemStack("rock", Some(50)))),
+			Recipe(ItemStack("anvil",       Some(1)),              Seq(ItemStack("bar", Some(25), Some(Metal.IRON))))
 		),
 		"kiln" -> Seq[Recipe](
-			Recipe(Item("charcoal", Some(1)), Seq(Item("log", Some(1))))
+			Recipe(ItemStack("charcoal", Some(1)), Seq(ItemStack("log", Some(1))))
 		),
 		"smelter" -> (Seq(Metal.COPPER, Metal.IRON, Metal.SILVER, Metal.GOLD) map { metal:Metal =>
-			Recipe(Item("bar", Some(1), Some(metal)), Seq(Item("ore", Some(1), Some(metal)), Item("charcoal", Some(1))))
+			Recipe(ItemStack("bar", Some(1), Some(metal)), Seq(ItemStack("ore", Some(1), Some(metal)), ItemStack("charcoal", Some(1))))
 		}),
 		"sawmill" -> Seq[Recipe](
-			Recipe(Item("wood", Some(1)), Seq(Item("sapling", Some(1))))
+			Recipe(ItemStack("wood", Some(1)), Seq(ItemStack("sapling", Some(1))))
 		),
 		"stonecutter" -> Seq[Recipe](
-			Recipe(Item("sword", None, Some(Stone.GRANITE)), Seq(Item("rock", Some(20), Some(Stone.GRANITE))))
+			Recipe(ItemStack("sword", None, Some(Stone.GRANITE)), Seq(ItemStack("rock", Some(20), Some(Stone.GRANITE))))
 		),
 		"anvil" -> Seq[Recipe](
-			Recipe(Item("block", Some(1), Some(Metal.COPPER)), Seq(Item("bar", Some(10), Some(Metal.COPPER)))),
-			Recipe(Item("block", Some(1), Some(Metal.IRON)),   Seq(Item("bar", Some(10), Some(Metal.IRON))  )),
-			Recipe(Item("block", Some(1), Some(Metal.SILVER)), Seq(Item("bar", Some(10), Some(Metal.SILVER)))),
-			Recipe(Item("block", Some(1), Some(Metal.GOLD)),   Seq(Item("bar", Some(10), Some(Metal.GOLD))  ))
+			Recipe(ItemStack("block", Some(1), Some(Metal.COPPER)), Seq(ItemStack("bar", Some(10), Some(Metal.COPPER)))),
+			Recipe(ItemStack("block", Some(1), Some(Metal.IRON)),   Seq(ItemStack("bar", Some(10), Some(Metal.IRON))  )),
+			Recipe(ItemStack("block", Some(1), Some(Metal.SILVER)), Seq(ItemStack("bar", Some(10), Some(Metal.SILVER)))),
+			Recipe(ItemStack("block", Some(1), Some(Metal.GOLD)),   Seq(ItemStack("bar", Some(10), Some(Metal.GOLD))  ))
 		)
 	)
 

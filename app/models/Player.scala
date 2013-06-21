@@ -12,14 +12,14 @@ case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventor
 		)
 	}
 
-	def getSelectedItem():Option[Item] = {
+	def getSelectedItem():Option[ItemStack] = {
 		return inventory.selected.map({ index:Int =>
 			if (index >= 0 && index < inventory.items.length) {
 				Some(inventory.items(index))
 			} else {
 				None
 			}
-		}).getOrElse[Option[Item]](None)
+		}).getOrElse[Option[ItemStack]](None)
 	}
 
 	def isHoldingItem(kind:String):Boolean = {

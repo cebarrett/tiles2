@@ -1,18 +1,18 @@
 package models
 
-case class Item(val kind:String, val count:Option[Int] = None, val material:Option[Material] = None) {
-	def +(other:Item):Option[Item] = {
+case class ItemStack(val kind:String, val count:Option[Int] = None, val material:Option[Material] = None) {
+	def +(other:ItemStack):Option[ItemStack] = {
 		if (stacksWith(other)) {
-			Some(Item(kind, Some(count.head + other.count.head), material))
+			Some(ItemStack(kind, Some(count.head + other.count.head), material))
 		} else {
 			None
 		}
 	}
-	def -(other:Item):Option[Item] = {
+	def -(other:ItemStack):Option[ItemStack] = {
 		if (subtractableFrom(other)) {
 			val newCount:Int = count.head - other.count.head
 			if (newCount >= 0) {
-				Some(Item(kind, Some(newCount), material));
+				Some(ItemStack(kind, Some(newCount), material));
 			} else {
 				None
 			}
@@ -20,7 +20,7 @@ case class Item(val kind:String, val count:Option[Int] = None, val material:Opti
 			None
 		}
 	}
-	def stacksWith(other:Item):Boolean = {
+	def stacksWith(other:ItemStack):Boolean = {
 		return (
 			count.isDefined &&
 			other.count.isDefined &&
@@ -28,7 +28,7 @@ case class Item(val kind:String, val count:Option[Int] = None, val material:Opti
 			material == other.material
 		)
 	}
-	def subtractableFrom(other:Item):Boolean = {
+	def subtractableFrom(other:ItemStack):Boolean = {
 		return (
 			((count == None && other.count == None) || (count.isDefined && other.count.isDefined && (count.get >= other.count.get))) &&
 			(kind == other.kind) &&

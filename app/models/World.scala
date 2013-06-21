@@ -177,12 +177,8 @@ class World {
 	 * Preconditions: there is an entity at oldCoords and none at newCoords.
 	 */
 	def moveEntity(oldCoords:WorldCoordinates, newCoords:WorldCoordinates):Unit = {
-		// Logger debug s"moveEntity: $oldCoords -> $newCoords"
 
 		val (oldTile:Tile, newTile:Tile) = (tileAt(oldCoords), tileAt(newCoords))
-
-		// Logger debug s"oldTile: $oldTile"
-		// Logger debug s"newTile: $newTile"
 
 		val (oldEntity:Option[Entity], newEntity:Option[Entity]) = (oldTile.entity, newTile.entity)
 
@@ -220,7 +216,7 @@ class World {
 
 	def doPlayerCrafting(player:Player, recipe:Recipe):Unit = {
 		var hasIngredients:Boolean = true
-		for (i:Item <- recipe.ingredients) {
+		for (i:ItemStack <- recipe.ingredients) {
 			if (player.inventory.has(i) == false) {
 				hasIngredients = false
 			}
@@ -271,52 +267,52 @@ class World {
 			 */
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
-					player.inventory add Item("log", Some(1))
-					player.inventory add Item("sapling", Some(Random.nextInt(4)))
+					player.inventory add ItemStack("log", Some(1))
+					player.inventory add ItemStack("sapling", Some(Random.nextInt(4)))
 				} else {
-					player.inventory add Item("wood", Some(1))
+					player.inventory add ItemStack("wood", Some(1))
 				}
 				despawnEntity(targetCoords)
 			}
 			case (target:EntityWorkbench) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add Item("workbench", Some(1))
+					player.inventory add ItemStack("workbench", Some(1))
 					despawnEntity(targetCoords)
 				}
 			}
 			case (target:EntityKiln) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add Item("kiln", Some(1))
+					player.inventory add ItemStack("kiln", Some(1))
 					despawnEntity(targetCoords)
 				}
 			}
 			case (target:EntitySmelter) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add Item("smelter", Some(1))
+					player.inventory add ItemStack("smelter", Some(1))
 					despawnEntity(targetCoords)
 				}
 			}
 			case (target:EntitySawmill) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add Item("sawmill", Some(1))
+					player.inventory add ItemStack("sawmill", Some(1))
 					despawnEntity(targetCoords)
 				}
 			}
 			case (target:EntityStonecutter) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add Item("stonecutter", Some(1))
+					player.inventory add ItemStack("stonecutter", Some(1))
 					despawnEntity(targetCoords)
 				}
 			}
 			case (target:EntityStone) => {
 				if (player isHoldingItem "pick") {
-					player.inventory add Item("rock", Some(1), Some(target.material))
+					player.inventory add ItemStack("rock", Some(1), Some(target.material))
 					despawnEntity(targetCoords)
 				}
 			}
 			case (target:EntityOre) => {
 				if (player isHoldingItem "pick") {
-					player.inventory add Item("ore", Some(1), Some(target.material))
+					player.inventory add ItemStack("ore", Some(1), Some(target.material))
 					despawnEntity(targetCoords)
 				}
 			}
@@ -333,40 +329,40 @@ class World {
 				if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
 					val targetTile = tileAt(target)
 					targetTile.entity.getOrElse {
-						val item:Item = player.inventory.items(player.inventory.selected.get)
+						val item = player.inventory.items(player.inventory.selected.get)
 						(item.kind) match {
 							// XXX: this is getting repetitive
 							case "sapling" => 
-								player.inventory.subtract(Item("sapling", Some(1)))
+								player.inventory.subtract(ItemStack("sapling", Some(1)))
 								targetTile.entity = Some(EntitySapling())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "workbench" => 
-								player.inventory.subtract(Item("workbench", Some(1)))
+								player.inventory.subtract(ItemStack("workbench", Some(1)))
 								targetTile.entity = Some(EntityWorkbench())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "kiln" => 
-								player.inventory.subtract(Item("kiln", Some(1)))
+								player.inventory.subtract(ItemStack("kiln", Some(1)))
 								targetTile.entity = Some(EntityKiln())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "smelter" => 
-								player.inventory.subtract(Item("smelter", Some(1)))
+								player.inventory.subtract(ItemStack("smelter", Some(1)))
 								targetTile.entity = Some(EntitySmelter())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "sawmill" => 
-								player.inventory.subtract(Item("sawmill", Some(1)))
+								player.inventory.subtract(ItemStack("sawmill", Some(1)))
 								targetTile.entity = Some(EntitySawmill())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "stonecutter" => 
-								player.inventory.subtract(Item("stonecutter", Some(1)))
+								player.inventory.subtract(ItemStack("stonecutter", Some(1)))
 								targetTile.entity = Some(EntityStonecutter())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "anvil" => 
-								player.inventory.subtract(Item("anvil", Some(1)))
+								player.inventory.subtract(ItemStack("anvil", Some(1)))
 								targetTile.entity = Some(EntityAnvil())
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case "block" => 
 								val material:Metal = item.material.get.asInstanceOf[Metal]
-								player.inventory.subtract(Item("block", Some(1), Some(material)))
+								player.inventory.subtract(ItemStack("block", Some(1), Some(material)))
 								targetTile.entity = Some(EntityBlock(material))
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case _ => Unit

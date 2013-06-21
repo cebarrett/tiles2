@@ -24,7 +24,7 @@ sealed abstract class EntityLiving extends Entity {
 		target.damage
 		true
 	}
-	def drop:Seq[Item] = Seq.empty
+	def drop:Seq[ItemStack] = Seq.empty
 }
 
 case class EntityPlayer(val player:Player, val id:String = "player") extends EntityLiving {

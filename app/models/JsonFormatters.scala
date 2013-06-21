@@ -78,7 +78,7 @@ object JsonFormatters {
 			}
 		}
 	}
-	implicit val writesItem = Json.writes[Item]
+	implicit val writesItemStack = Json.writes[ItemStack]
 	implicit val writesRecipe = Json.writes[Recipe]
 	implicit val writesAllRecipes = new Writes[Seq[(String, Seq[Recipe])]] {
 		def writes(e:Seq[(String, Seq[Recipe])]):JsValue = {
