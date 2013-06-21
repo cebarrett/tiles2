@@ -29,7 +29,7 @@ import models.JsonFormatters._
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = false
+	def DEV:Boolean = true
 }
 
 class Game extends Actor {
@@ -113,7 +113,6 @@ class Game extends Actor {
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
-			// Logger.debug(s"Received message from $playerName: $message")
 			val kind:String = (message \ "kind").as[String]
 			kind match {
 				case "spawn" => {
@@ -130,7 +129,6 @@ class Game extends Actor {
 								"player" -> Json.toJson(player),
 								"crafts" -> Json.toJson(Recipe.all)
 							))
-							Logger.debug(s"$response");
 							playerChannels.get(playerName).get.push(response)
 						}
 					)

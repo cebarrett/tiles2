@@ -57,9 +57,13 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 		tile = $scope.tileAt($scope.player.x+dx, $scope.player.y+dy)
 		if (tile? && tile.entity?)
 			if (_($scope.crafts).find({kind: tile.entity.id})?)
-				$scope.gui = tile.entity.id
-				$scope.$apply()
-				return true
+				item = $scope.item()
+				if (item? && (item.kind == "hammer"))
+					return false
+				else
+					$scope.gui = tile.entity.id
+					$scope.$apply()
+					return true
 		else return false
 
 	$scope.selectRecipe = (craft, index) ->
@@ -67,4 +71,8 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 
 	$scope.closeGui = () ->
 		delete $scope.gui
+
+	$scope.item = ()->
+		index = $scope.player.inventory.selected
+		if (index?) then $scope.player.inventory.items[index]
 ];
