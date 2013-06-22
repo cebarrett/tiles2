@@ -56,12 +56,12 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 	$scope.openGui = (dx, dy) ->
 		tile = $scope.tileAt($scope.player.x+dx, $scope.player.y+dy)
 		if (tile? && tile.entity?)
-			if (_($scope.crafts).find({kind: tile.entity.id})?)
+			if (_($scope.crafts).find({kind: tile.entity.kind})?)
 				item = $scope.item()
 				if (item? && (item.kind == "hammer"))
 					return false
 				else
-					$scope.gui = tile.entity.id
+					$scope.gui = tile.entity.kind
 					$scope.$apply()
 					return true
 		else return false

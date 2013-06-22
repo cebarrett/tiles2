@@ -1,6 +1,5 @@
 package models
 
-import play.api.Logger
 import scala.collection.Set
 import scala.util.control.Breaks._
 
@@ -78,5 +77,9 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 				false
 			}
 		})
+	}
+	
+	def subtractOneOf(other:ItemStack):Boolean = {
+		subtract(other.copy(count = Some(1)))
 	}
 }

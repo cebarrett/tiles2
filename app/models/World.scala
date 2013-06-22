@@ -322,14 +322,25 @@ class World {
 		}
 	}
 	
+	/** Places the player's currently selected item at the given coordinates.
+	    Does not currently verify that the player is within N blocks of the coordinates. */
 	def doPlaceItem(playerName:String, target:WorldCoordinates) = {
 		players.get(playerName).map { player =>
-			// XXX: should verify the target is within N blocks of player
 			player.inventory.selected map { itemIndex =>
 				if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
 					val targetTile = tileAt(target)
 					targetTile.entity.getOrElse {
 						val item = player.inventory.items(player.inventory.selected.get)
+						item match {
+							case item:Placeable => {
+								player.inventory.subtractOneOf(item)
+								targetTile.entity = Some(item.entity)
+								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
+								true
+							}
+							case _ => false
+						}
+						
 						(item.kind) match {
 							// XXX: this is getting repetitive
 							case "sapling" => 
@@ -367,6 +378,7 @@ class World {
 								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
 							case _ => Unit
 						}
+						
 					}
 				}
 			}

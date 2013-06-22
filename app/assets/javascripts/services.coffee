@@ -156,7 +156,7 @@ services.factory "tileRender", [ () ->
 			text: "@"
 			color: "white"
 		tree:
-			text: "♠"
+			text: "♣"
 			color: "#00BB00"
 		sand:
 			text: "."
@@ -204,6 +204,6 @@ services.factory "tileRender", [ () ->
 			text: "Ø"
 			color: "#AA6600"
 		block:
-			text: "#"
+			text: "◼"
 			color: "white"
 ]

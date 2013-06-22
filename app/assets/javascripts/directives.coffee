@@ -101,7 +101,7 @@ directives.directive "chunk", [ "tileRender", (tileRender) ->
 	updateTile = (tile, $tile) ->
 		id =
 			if tile.entity?
-				tile.entity.id
+				tile.entity.kind
 			else
 				tile.terrain.id
 		render = tileRender[id];
