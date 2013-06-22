@@ -75,8 +75,6 @@ services.factory "sub", ["socket", (socket) ->
 			when "error" then do ->
 				console.error("Error " + message.code + ": " + message.description)
 			when "spawn" then do ->
-				console.log("got spawn message...")
-				console.log(message)
 				appScope.player = message.player
 				appScope.crafts = message.crafts
 				appScope.$apply()

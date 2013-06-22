@@ -268,11 +268,9 @@ class World {
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
 					player.inventory add ItemStack("log", Some(1))
-					player.inventory add ItemStack("sapling", Some(Random.nextInt(4)))
-				} else {
-					player.inventory add ItemStack("wood", Some(1))
+					player.inventory add ItemStack("sapling", Some(Random.nextInt(2)+1))
+					despawnEntity(targetCoords)
 				}
-				despawnEntity(targetCoords)
 			}
 			case (target:EntityWorkbench) => {
 				if (player isHoldingItem "hammer") {
@@ -331,16 +329,6 @@ class World {
 					val targetTile = tileAt(target)
 					targetTile.entity.getOrElse {
 						val item = player.inventory.items(player.inventory.selected.get)
-						item match {
-							case item:Placeable => {
-								player.inventory.subtractOneOf(item)
-								targetTile.entity = Some(item.entity)
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-								true
-							}
-							case _ => false
-						}
-						
 						(item.kind) match {
 							// XXX: this is getting repetitive
 							case "sapling" => 
