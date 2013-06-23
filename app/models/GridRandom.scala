@@ -3,6 +3,7 @@ package models
 /**
  * Selects random elements from a list of N for each point
  * on a grid, using sqrt(N) GridNoise generators.
+ * XXX: infinite loop when list length is not a power of 2
  */
 class GridRandom[T](val list:Seq[T], val scale:Double = 1.0) {
 

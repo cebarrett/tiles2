@@ -54,7 +54,7 @@
 				</div>
 				<ul class="itemList">
 					<li item class="item-stack item-stack-{{$index == player.inventory.selected}}" ng-repeat="stack in player.inventory.items" ng-click="selectItem($index)">
-						<span>{{stack.item.count}}</span>
+						<span>{{stack.count}}</span>
 						<span>{{stack.item.material.kind}} {{stack.item.kind}}</span>
 					</li>
 				</ul>

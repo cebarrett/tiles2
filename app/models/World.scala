@@ -198,11 +198,11 @@ class World {
 				val player = players.get(playerEntity.player.name).get
 				player.x = newCoords.x
 				player.y = newCoords.y
-				val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), None, Some(oldCoords.x), Some(oldCoords.y))
+				val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), Some(oldCoords.x), Some(oldCoords.y))
 				eventChannel.push(event)
 			}
 			case _:Any => {
-				val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, None, Some(oldCoords.x), Some(oldCoords.y))
+				val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, Some(oldCoords.x), Some(oldCoords.y))
 				eventChannel.push(event)
 			}
 		}
@@ -256,7 +256,7 @@ class World {
 			 */
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
-					player.inventory add ItemStack(EntityBlock(Wood), Some(Random.nextInt(2)+1))
+					player.inventory add ItemStack(EntityBlock(Wood), Some(1))
 					player.inventory add ItemStack(EntitySapling(), Some(Random.nextInt(2)+1))
 					despawnEntity(targetCoords)
 				}
@@ -362,6 +362,13 @@ class World {
 
 		this.eventChannel.push(event)
 	}
+	
+	def broadcastPlayer(player:Player):Unit = {
+		val tile:Option[Tile] = Option(tileAt(player.x, player.y))
+		val event:WorldEvent = WorldEvent(
+				"player", Some(player.x), Some(player.y), tile, Some(player)) 
+		this.eventChannel.push(event)
+	}
 }
 
 case class WorldEvent(
@@ -370,7 +377,6 @@ case class WorldEvent(
 	val y:Option[Int] = None,
 	val tile:Option[Tile] = None,
 	val player:Option[Player] = None,
-	val options:Option[Seq[String]] = None,
 	val prevX:Option[Int] = None,
 	val prevY:Option[Int] = None
 )

@@ -3,8 +3,7 @@ package models
 import scala.util.Random
 
 /**
- * FIXME: replace perlin noise impl with one that can be seeded.
- * this one generates only about a thousand unique noise fields.
+ * Generates a 2d noise field.
  */
 class GridNoise(val scale:Double = 1) {
 

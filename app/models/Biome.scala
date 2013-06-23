@@ -40,13 +40,13 @@ case object StoneBiome extends Biome {
 		), 10)
 	private val oreNoise   = new GridRandom(
 		Seq(
-			Copper, Copper, Copper, Iron, Iron, Silver, Gold
+			Copper, Copper, Copper, Copper, Iron, Iron, Silver, Gold
 		), 0.25)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("bedrock")
 		
-		var chanceOfOre = 0.02;
+		var chanceOfOre = 0.01;
 
 		tile.entity = Some({
 			if (Math.random < 0.02)
