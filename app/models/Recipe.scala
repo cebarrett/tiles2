@@ -1,37 +1,79 @@
 package models
 
+import scala.util.control.Breaks._
+
 case class Recipe(result:ItemStack, ingredients:Seq[Ingredient]) {
-	
+	def craft(inventory:Inventory):Boolean = {
+		// pair each ingredient with the first item that matches
+		val reagents:Seq[Option[ItemStack]] = ingredients map {
+			_.find(inventory)
+		}
+		
+		// if any reagent does not have a matching item, fail
+		if ((reagents filter {_.isEmpty} length) > 0) {
+			return false
+		}
+		
+		// otherwise, subtract the reagent from inventory,
+		// then add the result
+		reagents map {_ map {inventory subtract _}}
+		inventory add result
+		true
+	}
 }
 
 trait Ingredient {
 	def count:Int = 1
-	def toItemStack:ItemStack
+	def find(inventory:Inventory):Option[ItemStack]
 }
 
 case class IngredientItem(val item:models.Item, override val count:Int = 1) extends Ingredient {
-	def toItemStack = ItemStack(item, Some(count))
+	def find(inventory:Inventory):Option[ItemStack] = {
+		inventory.items.map({ stack =>
+			// map to some item stack if it is $count or more of this item
+			if (stack.item == item && stack.count.isDefined && stack.count.get >= count)
+				Some(stack)
+			else
+				None
+		}).filter({_.isDefined}).headOption.getOrElse(None)
+	}
 }
 
-case class IngredientMaterial[T <: Material](val material:T, override val count:Int = 1) extends Ingredient {
-	def toItemStack = ItemStack(EntityBlock(material), Some(count))
+/** 
+ * An ingredient that matches any block of the given class of material. 
+ */
+case class IngredientMaterial[T <: Material](val material:Class[T], override val count:Int = 1) extends Ingredient {
+	def find(inventory:Inventory):Option[ItemStack] = {
+		inventory.items.map({ stack =>
+			// map to some item stack if it is $count or more blocks of this ingredient
+			stack.item match {
+				case block:EntityBlock => {
+					if (material.isInstance(block.material) && stack.count.isDefined && stack.count.get >= count)
+						Some(stack)
+					else
+						None
+				}
+				case _ => None
+			}
+		}).filter({_.isDefined}).headOption.getOrElse(None)
+	}
 }
 
 object Recipe {
 	val all = Map(
 		"workbench" -> Seq[Recipe](
-			Recipe(ItemStack(Axe(Wood), None),      Seq(IngredientMaterial(Wood,  5))),
-			Recipe(ItemStack(Hammer(Wood), None),   Seq(IngredientMaterial(Wood, 10))),
-			Recipe(ItemStack(Pick(Wood), None),     Seq(IngredientMaterial(Wood, 25))),
-			Recipe(ItemStack(EntityWorkbench()),    Seq(IngredientMaterial(Wood, 25))),
-			Recipe(ItemStack(EntityKiln()),         Seq(IngredientMaterial(Stone, Some(25)))),
-			Recipe(ItemStack(EntitySmelter()),      Seq(IngredientMaterial(Stone, Some(25)))),
-			Recipe(ItemStack(EntitySawmill()),      Seq(IngredientMaterial(Stone, Some(50)))),
-			Recipe(ItemStack(EntityStonecutter()),  Seq(IngredientMaterial(Stone,, Some(50)))),
-			Recipe(ItemStack(EntityAnvil()),        Seq(Ingredient(EntityBlock[Iron], Some(20))))
+			Recipe(ItemStack(Axe(Wood), None),      Seq(IngredientMaterial(Wood.getClass,   5))),
+			Recipe(ItemStack(Hammer(Wood), None),   Seq(IngredientMaterial(Wood.getClass,  10))),
+			Recipe(ItemStack(Pick(Wood), None),     Seq(IngredientMaterial(Wood.getClass,  25))),
+			Recipe(ItemStack(EntityWorkbench()),    Seq(IngredientMaterial(Wood.getClass,  25))),
+			Recipe(ItemStack(EntityKiln()),         Seq(IngredientMaterial(classOf[Stone], 25))),
+			Recipe(ItemStack(EntitySmelter()),      Seq(IngredientMaterial(classOf[Stone], 25))),
+			Recipe(ItemStack(EntitySawmill()),      Seq(IngredientMaterial(classOf[Stone], 50))),
+			Recipe(ItemStack(EntityStonecutter()),  Seq(IngredientMaterial(classOf[Stone], 50))),
+			Recipe(ItemStack(EntityAnvil()),        Seq(IngredientMaterial(Iron.getClass,  20)))
 		),
 		"kiln" -> Seq[Recipe](
-			Recipe(ItemStack(Charcoal(), Some(1)), Seq(ItemStack(EntityBlock(Wood), Some(1))))
+			Recipe(ItemStack(Charcoal(), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 1)))
 		),
 		"smelter" -> Seq[Recipe](
 

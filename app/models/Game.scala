@@ -32,6 +32,15 @@ object Game {
 	def DEV:Boolean = false
 }
 
+/**
+ * The game is an Akka actor that simulates a World, runs a game
+ * loop every tick, and sends and receives messages from other
+ * actors (such as the Play web controller).
+ * 
+ * Messages are currently instances of play.api.lib.json.JsValue
+ * where information is represented in JSON format. Messages
+ * can be broadcast to all players or sent to a specific player.
+ */
 class Game extends Actor {
 
 	/** The world */

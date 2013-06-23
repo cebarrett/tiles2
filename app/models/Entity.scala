@@ -3,10 +3,13 @@ package models
 import scala.util.control.Breaks._
 import scala.util.Random
 
+/**
+ * An Entity is a kind of item that can also occupy a tile.
+ */
 abstract class Entity extends Item {
-	def tick(world:World, coords:WorldCoordinates):Unit = {
-		// no-op by default
-	}
+	/** Runs once per tick when this entity is in a tile in the game world.
+	 *  No-op by default but can be overridden. */
+	def tick(world:World, coords:WorldCoordinates):Unit = Unit
 }
 
 trait EntityLiving extends Entity {
@@ -56,15 +59,20 @@ case class EntitySapling() extends Entity {
 		val chanceOfTreeGrowing:Double = 0.0005;
 		if (Math.random() < chanceOfTreeGrowing) {
 			tile.entity = Some(EntityTree())
-			// FIXME: next line seems out of place
+			// XXX: next line seems out of place
 			world.broadcastTileEvent(coords)
 		}
 	}
 }
 
-case class EntityTree() extends Entity
-case class EntityBlock[T](override val material:T) extends Entity
+/**
+ * A Block is a kind of entity made out of a material.
+ * It can be placed to occupy a tile, and is also used
+ * in crafting recipes that require a material ingredient.
+ */
+case class EntityBlock(val material:Material) extends Entity
 
+case class EntityTree() extends Entity
 case class EntityWorkbench() extends Entity
 case class EntityKiln() extends Entity
 case class EntitySmelter() extends Entity

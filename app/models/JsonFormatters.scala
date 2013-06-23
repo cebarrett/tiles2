@@ -7,6 +7,11 @@ import play.api.Logger
  * Implicits to help with JSON formatting.
  */
 object JsonFormatters {
+	implicit val writesItem = new Writes[Item] {
+		def writes(item:Item):JsValue = JsObject(Seq(
+			"kind"     -> JsString(item.kind)
+		))
+	}
 	// FIXME: don't write an AI at all
 	implicit val writesAI = new Writes[AI] {
 		def writes(arg:AI):JsValue = JsNull
@@ -15,7 +20,6 @@ object JsonFormatters {
 		def writes(arg:Material):JsValue = {
 			JsObject(Seq(
 				"kind" -> JsString(arg.kind),
-				"category" -> JsString(arg.category),
 				"color" -> JsString(arg.color)
 			))
 		}
@@ -28,9 +32,9 @@ object JsonFormatters {
 			"hitPoints" -> JsNumber(entity.hitPoints)
 		))
 	}
-	implicit val writesTreeEntity:Writes[EntityTree] = Json.writes[EntityTree]
-	implicit val writesWorkbenchEntity:Writes[EntityWorkbench] = Json.writes[EntityWorkbench]
-	implicit val writesSaplingEntity:Writes[EntitySapling] = Json.writes[EntitySapling]
+//	implicit val writesTreeEntity:Writes[EntityTree] = Json.writes[EntityTree]
+//	implicit val writesWorkbenchEntity:Writes[EntityWorkbench] = Json.writes[EntityWorkbench]
+//	implicit val writesSaplingEntity:Writes[EntitySapling] = Json.writes[EntitySapling]
 	implicit val writesMobEntity:Writes[EntityMob] = new Writes[EntityMob] {
 		def writes(t:EntityMob):JsValue = {
 			JsObject(Seq(
@@ -39,29 +43,26 @@ object JsonFormatters {
 			))
 		}
 	}
-	implicit val writesStoneEntity:Writes[EntityStone] = Json.writes[EntityStone]
-	implicit val writesOreEntity:Writes[EntityOre] = Json.writes[EntityOre]
-	implicit val writesKilnEntity:Writes[EntityKiln] = Json.writes[EntityKiln]
-	implicit val writesSmelterEntity:Writes[EntitySmelter] = Json.writes[EntitySmelter]
-	implicit val writesSawmillEntity:Writes[EntitySawmill] = Json.writes[EntitySawmill]
-	implicit val writesStonecutterEntity:Writes[EntityStonecutter] = Json.writes[EntityStonecutter]
-	implicit val writesAnvilEntity:Writes[EntityAnvil] = Json.writes[EntityAnvil]
+//	implicit val writesKilnEntity:Writes[EntityKiln] = Json.writes[EntityKiln]
+//	implicit val writesSmelterEntity:Writes[EntitySmelter] = Json.writes[EntitySmelter]
+//	implicit val writesSawmillEntity:Writes[EntitySawmill] = Json.writes[EntitySawmill]
+//	implicit val writesStonecutterEntity:Writes[EntityStonecutter] = Json.writes[EntityStonecutter]
+//	implicit val writesAnvilEntity:Writes[EntityAnvil] = Json.writes[EntityAnvil]
 	implicit val writesBlockEntity:Writes[EntityBlock] = Json.writes[EntityBlock]
 	implicit val writesEntity = new Writes[Entity] {
 		def writes(t:Entity):JsValue = t match {
 			case _:EntityPlayer => writesPlayerEntity.writes(t.asInstanceOf[EntityPlayer])
-			case _:EntityTree   => writesTreeEntity.writes(t.asInstanceOf[EntityTree])
-			case _:EntityWorkbench =>  writesWorkbenchEntity.writes(t.asInstanceOf[EntityWorkbench])
-			case _:EntitySapling => writesSaplingEntity.writes(t.asInstanceOf[EntitySapling])
-			case _:EntityStone => writesStoneEntity.writes(t.asInstanceOf[EntityStone])
-			case _:EntitySawmill => writesSawmillEntity.writes(t.asInstanceOf[EntitySawmill])
-			case _:EntityStonecutter => writesStonecutterEntity.writes(t.asInstanceOf[EntityStonecutter])
-			case _:EntityOre => writesOreEntity.writes(t.asInstanceOf[EntityOre])
-			case entity:EntityMob => Json.toJson(entity)
-			case entity:EntityKiln => Json.toJson(entity)
-			case entity:EntitySmelter => Json.toJson(entity)
-			case entity:EntityAnvil => Json.toJson(entity)
+//			case _:EntityTree   => writesTreeEntity.writes(t.asInstanceOf[EntityTree])
+//			case _:EntityWorkbench =>  writesWorkbenchEntity.writes(t.asInstanceOf[EntityWorkbench])
+//			case _:EntitySapling => writesSaplingEntity.writes(t.asInstanceOf[EntitySapling])
+//			case _:EntitySawmill => writesSawmillEntity.writes(t.asInstanceOf[EntitySawmill])
+//			case _:EntityStonecutter => writesStonecutterEntity.writes(t.asInstanceOf[EntityStonecutter])
+//			case entity:EntityMob => Json.toJson(entity)
+//			case entity:EntityKiln => Json.toJson(entity)
+//			case entity:EntitySmelter => Json.toJson(entity)
+//			case entity:EntityAnvil => Json.toJson(entity)
 			case entity:EntityBlock => Json.toJson(entity)
+			case item:Item => Json.toJson(item)
 			case _ => {
 				val msg = "writesEntity: Unknown entity class: " + t.getClass
 				Logger.error(msg)
@@ -78,12 +79,27 @@ object JsonFormatters {
 			}
 		}
 	}
+	implicit val writesTool = new Writes[Tool] {
+		def writes(tool:Tool):JsValue = JsObject(Seq(
+			"kind"     -> Json.toJson(tool.kind),
+			"material" -> Json.toJson(tool.material)
+		))
+	}
 	implicit val writesItemStack = Json.writes[ItemStack]
+	implicit val writesIngredient = new Writes[Ingredient] {
+		def writes(obj:Ingredient):JsValue = {
+			obj match {
+				case obj:IngredientMaterial[_] => JsObject(Seq("kind" -> JsString(obj.material.toString.toLowerCase), "count" -> JsNumber(obj.count)))
+				case obj:IngredientItem        => JsObject(Seq("kind" -> JsString(obj.item.kind),                     "count" -> JsNumber(obj.count)))
+				case _ => JsNull
+			}
+		}
+	}
 	implicit val writesRecipe = Json.writes[Recipe]
-	implicit val writesAllRecipes = new Writes[Seq[(String, Seq[Recipe])]] {
-		def writes(e:Seq[(String, Seq[Recipe])]):JsValue = {
+	implicit val writesAllRecipes = new Writes[Map[String,Seq[Recipe]]] {
+		def writes(e:Map[String,Seq[Recipe]]):JsValue = {
 			JsArray(
-				e map { obj:(String, Seq[Recipe]) =>
+				e.toSeq map { obj:(String, Seq[Recipe]) =>
 					val (kind:String, recipes:Seq[Recipe]) = obj;
 					val jsRecipes:JsArray = JsArray(recipes map {
 						Json.toJson(_)

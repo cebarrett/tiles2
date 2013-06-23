@@ -215,19 +215,8 @@ class World {
 	}
 
 	def doPlayerCrafting(player:Player, recipe:Recipe):Unit = {
-		var hasIngredients:Boolean = true
-		for (i:ItemStack <- recipe.ingredients) {
-			if (player.inventory.has(i) == false) {
-				hasIngredients = false
-			}
-		}
-		if (hasIngredients) {
-			val playerTile:Tile = tileAt(player.x, player.y)
-			player.inventory.add(recipe.result);
-			recipe.ingredients.map {player.inventory.subtract(_)}
-			this.eventChannel.push(WorldEvent("playerCraft", Some(player.x), Some(player.y), Some(playerTile), Some(player)))
-		} else {
-			//Logger.debug(s"Player $playerName did not have the ingredients to craft $recipe")
+		if (recipe craft player.inventory) {
+			this.broadcastTileEvent(WorldCoordinates(player.x, player.y))
 		}
 	}
 
