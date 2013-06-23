@@ -1,22 +1,26 @@
 package models
 
 trait Item {
-	def material:Material = Cheese
+	def kind:String = {
+		this.getClass().getSimpleName().replaceAll("^(?:Item|Entity)", "").toLowerCase()
+	}
 }
 
 case class Charcoal() extends Item
 case class Log() extends Item
 
-trait Tool extends Item
+trait Tool extends Item {
+	def material:Material
+}
 
-case class Pick(val material:Material) extends Tool {
+case class Pick(override val material:Material) extends Tool {
 	
 }
 
-case class Hammer(val material:Material) extends Tool {
+case class Hammer(override val material:Material) extends Tool {
 	
 }
 
-case class Axe(val material:Material) extends Tool {
+case class Axe(override val material:Material) extends Tool {
 	
 }

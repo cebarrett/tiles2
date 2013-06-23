@@ -1,18 +1,20 @@
 package models
 
 case class ItemStack(val item:Item, val count:Option[Int] = None) {
+	
 	def +(other:ItemStack):Option[ItemStack] = {
 		if (stacksWith(other)) {
-			Some(ItemStack(kind, Some(count.head + other.count.head), material))
+			Some(ItemStack(item, Some(count.head + other.count.head)))
 		} else {
 			None
 		}
 	}
+	
 	def -(other:ItemStack):Option[ItemStack] = {
 		if (subtractableFrom(other)) {
 			val newCount:Int = count.head - other.count.head
 			if (newCount >= 0) {
-				Some(ItemStack(kind, Some(newCount), material));
+				Some(ItemStack(item, Some(newCount)))
 			} else {
 				None
 			}
@@ -20,26 +22,30 @@ case class ItemStack(val item:Item, val count:Option[Int] = None) {
 			None
 		}
 	}
+	
 	def stacksWith(other:ItemStack):Boolean = {
 		return (
 			count.isDefined &&
 			other.count.isDefined &&
-			kind == other.kind &&
-			material == other.material
+			item == other.item
 		)
 	}
+	
 	def subtractableFrom(other:ItemStack):Boolean = {
 		return (
-			((count == None && other.count == None) || (count.isDefined && other.count.isDefined && (count.get >= other.count.get))) &&
-			(kind == other.kind) &&
-			( ! (other.material.isDefined && other.material != material) )
+			(
+				(count == None && other.count == None) || 
+				(
+					count.isDefined &&
+					other.count.isDefined && 
+					(count.get >= other.count.get)
+				)
+			) &&
+			(item.kind == other.item.kind)
 		)
 	}
+	
 	override def toString():String = {
-		var string:String = ""
-		count map    { c => string = string + c + " " }
-		material map { m => string = string + m.kind + " " }
-		string = string + kind
-		string
+		(if (count.isEmpty) s"$count " else "") + s"$item"
 	}
 }

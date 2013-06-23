@@ -63,9 +63,7 @@ case class EntitySapling() extends Entity {
 }
 
 case class EntityTree() extends Entity
-case class EntityStone(val material:Stone) extends Entity
-case class EntityOre(val material:Metal) extends Entity
-case class EntityBlock(val material:Material) extends Entity
+case class EntityBlock[T](override val material:T) extends Entity
 
 case class EntityWorkbench() extends Entity
 case class EntityKiln() extends Entity

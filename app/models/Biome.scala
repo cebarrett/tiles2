@@ -36,14 +36,11 @@ case object DirtBiome extends Biome {
 case object StoneBiome extends Biome {
 	private val stoneNoise = new GridRandom(
 		Seq(
-			Stone.LIMESTONE, Stone.GRANITE
+			Limestone, Granite
 		), 10)
 	private val oreNoise   = new GridRandom(
 		Seq(
-			Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.COPPER,
-			Metal.COPPER, Metal.COPPER, Metal.COPPER, Metal.COPPER,
-			Metal.COPPER, Metal.IRON,   Metal.IRON,   Metal.IRON,
-			Metal.IRON,   Metal.SILVER, Metal.SILVER, Metal.GOLD
+			Copper, Copper, Copper, Iron, Iron, Silver, Gold
 		), 0.25)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
@@ -53,9 +50,9 @@ case object StoneBiome extends Biome {
 
 		tile.entity = Some({
 			if (Math.random < 0.02)
-				EntityOre(oreNoise.pick(pos.x, pos.y).get)
+				EntityBlock(oreNoise.pick(pos.x, pos.y).get)
 			else
-				EntityStone(stoneNoise.pick(pos.x, pos.y).get)
+				EntityBlock(stoneNoise.pick(pos.x, pos.y).get)
 		});
 	}
 }

@@ -267,7 +267,7 @@ class World {
 			 */
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
-					player.inventory add ItemStack(Log(), Some(1))
+					player.inventory add ItemStack(EntityBlock(Wood), Some(Random.nextInt(2)+1))
 					player.inventory add ItemStack(EntitySapling(), Some(Random.nextInt(2)+1))
 					despawnEntity(targetCoords)
 				}
@@ -307,14 +307,7 @@ class World {
 					}
 				}
 			}
-			case (target:EntityStone) => {
-				if (player isHoldingItem "pick") {
-					despawnEntity(targetCoords) map {
-						player.inventory add ItemStack(_, Some(1))
-					}
-				}
-			}
-			case (target:EntityOre) => {
+			case (target:EntityBlock) => {
 				if (player isHoldingItem "pick") {
 					despawnEntity(targetCoords) map {
 						player.inventory add ItemStack(_, Some(1))
