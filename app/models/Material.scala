@@ -6,7 +6,7 @@ package models
  * and probably other properties in the future (such as tool strength).
  */
 abstract class Material(val color:String) {
-	def kind:String = getClass toString() toLowerCase()
+	def kind:String = getClass getSimpleName() toLowerCase() replaceAll("\\$$", "")
 }
 
 case object Wood extends Material("brown")
