@@ -183,12 +183,6 @@ services.factory "tileRender", [ () ->
 		goblin:
 			text: "g"
 			color: "#874"
-		stone:
-			text: "#"
-			color: "#777777"
-		ore:
-			text: "$"
-			color: "#777777"
 		kiln:
 			text: "θ"
 			color: "#AA6600"

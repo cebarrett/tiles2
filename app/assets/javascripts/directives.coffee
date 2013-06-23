@@ -129,6 +129,8 @@ directives.directive "chunk", [ "tileRender", (tileRender) ->
 				$tile.on 'selectstart', () -> false
 				$tile.on 'click', (e) -> 
 					scope.place(x, y) if scope.place?
+				$tile.on 'mouseover', (e) ->
+					scope.place(x, y) if scope.place? and e.which==1
 				updateTile(tile, $tile)
 				$tileCol.append($tile)
 			elm.append($tileCol[0])

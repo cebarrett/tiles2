@@ -1,10 +1,13 @@
 filters = angular.module "app.filters", []
 
 filters.filter "recipeFilter", [ () ->
-	itemFilter = (stack) ->
-		(if stack.count? then stack.count+" " else "a ") +
-		(if stack.item.material? then stack.item.material.kind+" " else "") +
-		stack.item.kind
+	itemFilter = (ingredient) ->
+		string = (if ingredient.count? then ingredient.count+" " else "a ")
+		if (ingredient.material?)
+			string += ingredient.material.kind
+		else if (ingredient.item?)
+			string += (if ingredient.item.material? then ingredient.item.material.kind+" " else "")
+			string += ingredient.item.kind
 
 
 	(recipe) ->

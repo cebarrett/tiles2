@@ -316,28 +316,28 @@ class World {
 	
 	/** Places the player's currently selected item at the given coordinates.
 	    Does not currently verify that the player is within N blocks of the coordinates. */
-	def doPlaceItem(playerName:String, target:WorldCoordinates) = {
+	def doPlaceItem(playerName:String, target:WorldCoordinates):Boolean = {
 		players.get(playerName).map { player =>
 			player.inventory.selected map { itemIndex =>
 				if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
 					val targetTile = tileAt(target)
-					targetTile.entity.getOrElse {
-						val stack:Option[ItemStack] = player.getSelectedItem.map({
-							player.inventory.subtractOneOf(_).get})
-						stack map { stack =>
+					targetTile.entity map {_ => true} getOrElse {
+						player getSelectedItem() map { stack =>
 							stack.item match {
 								case entity:Entity => {
-									player.inventory.subtract(stack)
+									player.inventory.subtractOneOf(stack)
 									targetTile.entity = Some(entity)
 									broadcastTileEvent(target)
+									broadcastPlayer(player)
+									true
 								}
-								case _ => Unit
+								case _ => false
 							}
-						}
+						} getOrElse false
 					}
-				}
-			}
-		}
+				} else false
+			} getOrElse false
+		} getOrElse false
 	}
 
 	def doSelectItem(playerName:String, inventoryIndex:Int) = {

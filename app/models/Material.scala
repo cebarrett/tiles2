@@ -9,7 +9,7 @@ abstract class Material(val color:String) {
 	def kind:String = getClass getSimpleName() toLowerCase() replaceAll("\\$$", "")
 }
 
-case object Wood extends Material("brown")
+case object Wood extends Material("#AA6600")
 
 abstract class Stone(override val color:String) extends Material(color)
 case object Chalk extends Stone("#bbb")

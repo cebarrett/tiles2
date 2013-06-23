@@ -1,5 +1,6 @@
 package models
 
+import play.api.Logger
 import scala.collection.Set
 import scala.util.control.Breaks._
 
@@ -53,6 +54,7 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 	 * Subtract an item. Handles item stacks and updating the selected item index.
 	 */
 	def subtract(other:ItemStack):Option[ItemStack] = {
+		Logger warn s"subtract: $other"
 		// note: (for now) if the other item has no material it will
 		// subtract from the first item stack of the same kind.
 		items.filter({ item:ItemStack =>

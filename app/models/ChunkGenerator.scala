@@ -13,7 +13,6 @@ object ChunkGenerator {
 	private val structureGenList:Seq[Structure] = Seq(StructureSpawn)
 
 	def generate(coords:ChunkCoordinates):Chunk = {
-		Logger.info("generate: start");
 		val chunk = new Chunk(coords.cx, coords.cy)
 		for (tx <- 0 until Chunk.length) {
 			for (ty <- 0 until Chunk.length) {
@@ -21,7 +20,6 @@ object ChunkGenerator {
 				chunk.tiles(tx)(ty) = generate(worldPos)
 			}
 		}
-		Logger.info("generate: finish");
 		chunk
 	}
 
