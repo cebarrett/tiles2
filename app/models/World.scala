@@ -267,56 +267,68 @@ class World {
 			 */
 			case (target:EntityTree) => {
 				if (player isHoldingItem "axe") {
-					player.inventory add ItemStack("log", Some(1))
-					player.inventory add ItemStack("sapling", Some(Random.nextInt(2)+1))
+					player.inventory add ItemStack(Log(), Some(1))
+					player.inventory add ItemStack(EntitySapling(), Some(Random.nextInt(2)+1))
 					despawnEntity(targetCoords)
 				}
 			}
 			case (target:EntityWorkbench) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add ItemStack("workbench", Some(1))
-					despawnEntity(targetCoords)
+					despawnEntity(targetCoords) map {
+						player.inventory add ItemStack(_, Some(1))
+					}
 				}
 			}
 			case (target:EntityKiln) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add ItemStack("kiln", Some(1))
-					despawnEntity(targetCoords)
+					despawnEntity(targetCoords) map {
+						player.inventory add ItemStack(_, Some(1))
+					}
 				}
 			}
 			case (target:EntitySmelter) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add ItemStack("smelter", Some(1))
-					despawnEntity(targetCoords)
+					despawnEntity(targetCoords) map {
+						player.inventory add ItemStack(_, Some(1))
+					}
 				}
 			}
 			case (target:EntitySawmill) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add ItemStack("sawmill", Some(1))
-					despawnEntity(targetCoords)
+					despawnEntity(targetCoords) map {
+						player.inventory add ItemStack(_, Some(1))
+					}
 				}
 			}
 			case (target:EntityStonecutter) => {
 				if (player isHoldingItem "hammer") {
-					player.inventory add ItemStack("stonecutter", Some(1))
-					despawnEntity(targetCoords)
+					despawnEntity(targetCoords) map {
+						player.inventory add ItemStack(_, Some(1))
+					}
 				}
 			}
 			case (target:EntityStone) => {
 				if (player isHoldingItem "pick") {
-					player.inventory add ItemStack("rock", Some(1), Some(target.material))
-					despawnEntity(targetCoords)
+					despawnEntity(targetCoords) map {
+						player.inventory add ItemStack(_, Some(1))
+					}
 				}
 			}
 			case (target:EntityOre) => {
 				if (player isHoldingItem "pick") {
-					player.inventory add ItemStack("ore", Some(1), Some(target.material))
-					despawnEntity(targetCoords)
+					despawnEntity(targetCoords) map {
+						player.inventory add ItemStack(_, Some(1))
+					}
 				}
 			}
 			case (_) => Unit
 		}
-		this.eventChannel.push(WorldEvent("playerUpdate", Some(attackerCoords.x), Some(attackerCoords.y), Some(attackerTile), Some(player)))
+		this.eventChannel.push(WorldEvent(
+				"playerUpdate",
+				Some(attackerCoords.x),
+				Some(attackerCoords.y),
+				Some(attackerTile),
+				Some(player)))
 		}
 	}
 	
@@ -328,45 +340,18 @@ class World {
 				if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
 					val targetTile = tileAt(target)
 					targetTile.entity.getOrElse {
-						val item = player.inventory.items(player.inventory.selected.get)
-						(item.kind) match {
-							// XXX: this is getting repetitive
-							case "sapling" => 
-								player.inventory.subtract(ItemStack("sapling", Some(1)))
-								targetTile.entity = Some(EntitySapling())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "workbench" => 
-								player.inventory.subtract(ItemStack("workbench", Some(1)))
-								targetTile.entity = Some(EntityWorkbench())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "kiln" => 
-								player.inventory.subtract(ItemStack("kiln", Some(1)))
-								targetTile.entity = Some(EntityKiln())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "smelter" => 
-								player.inventory.subtract(ItemStack("smelter", Some(1)))
-								targetTile.entity = Some(EntitySmelter())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "sawmill" => 
-								player.inventory.subtract(ItemStack("sawmill", Some(1)))
-								targetTile.entity = Some(EntitySawmill())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "stonecutter" => 
-								player.inventory.subtract(ItemStack("stonecutter", Some(1)))
-								targetTile.entity = Some(EntityStonecutter())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "anvil" => 
-								player.inventory.subtract(ItemStack("anvil", Some(1)))
-								targetTile.entity = Some(EntityAnvil())
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case "block" => 
-								val material:Metal = item.material.get.asInstanceOf[Metal]
-								player.inventory.subtract(ItemStack("block", Some(1), Some(material)))
-								targetTile.entity = Some(EntityBlock(material))
-								this.eventChannel.push(WorldEvent("placeBlock", Some(target.x), Some(target.y), Some(targetTile), Some(player)))
-							case _ => Unit
+						val stack:Option[ItemStack] = player.getSelectedItem.map({
+							player.inventory.subtractOneOf(_).get})
+						stack map { stack =>
+							stack.item match {
+								case entity:Entity => {
+									player.inventory.subtract(stack)
+									targetTile.entity = Some(entity)
+									broadcastTileEvent(target)
+								}
+								case _ => Unit
+							}
 						}
-						
 					}
 				}
 			}
@@ -383,7 +368,7 @@ class World {
 		}
 	}
 
-	private def broadcastTileEvent(pos:WorldCoordinates):Unit = {
+	def broadcastTileEvent(pos:WorldCoordinates):Unit = {
 		val tile:Tile = tileAt(pos)
 
 		val player:Option[Player] = tileAt(pos).entity match {

@@ -3,7 +3,7 @@ package models
 import scala.util.control.Breaks._
 import scala.util.Random
 
-trait Entity extends Item {
+abstract class Entity extends Item {
 	def tick(world:World, coords:WorldCoordinates):Unit = {
 		// no-op by default
 	}
@@ -26,7 +26,7 @@ trait EntityLiving extends Entity {
 	def drop:Seq[ItemStack] = Seq.empty
 }
 
-case class EntityPlayer(val player:Player, val kind:String = "player") extends EntityLiving {
+case class EntityPlayer(val player:Player) extends EntityLiving {
 	hitPoints = 10
 }
 
@@ -46,30 +46,30 @@ sealed abstract class EntityMonster extends EntityMob {
 	def ai:AI = new AIMonster
 }
 
-case class EntityLlama(val kind:String = "llama") extends EntityAnimal
+case class EntityLlama() extends EntityAnimal
 
-case class EntityGoblin(val kind:String = "goblin") extends EntityMonster
+case class EntityGoblin() extends EntityMonster
 
-case class EntitySapling(val kind:String = "sapling") extends Entity {
+case class EntitySapling() extends Entity {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		val tile:Tile = world.tileAt(coords)
 		val chanceOfTreeGrowing:Double = 0.0005;
 		if (Math.random() < chanceOfTreeGrowing) {
 			tile.entity = Some(EntityTree())
 			// FIXME: next line seems out of place
-			world.eventChannel.push(WorldEvent("entitySpawn", Some(coords.x), Some(coords.y), Some(tile)))
+			world.broadcastTileEvent(coords)
 		}
 	}
 }
 
-case class EntityTree(val kind:String = "tree") extends Entity
-case class EntityStone(val material:Stone, val kind:String = "stone") extends Entity
-case class EntityOre(val material:Metal, val kind:String = "ore") extends Entity
-case class EntityBlock(val material:Material, val kind:String = "block") extends Entity
+case class EntityTree() extends Entity
+case class EntityStone(val material:Stone) extends Entity
+case class EntityOre(val material:Metal) extends Entity
+case class EntityBlock(val material:Material) extends Entity
 
-case class EntityWorkbench(val kind:String = "workbench") extends Entity
-case class EntityKiln(val kind:String = "kiln") extends Entity
-case class EntitySmelter(val kind:String = "smelter") extends Entity
-case class EntitySawmill(val kind:String = "sawmill") extends Entity
-case class EntityStonecutter(val kind:String = "stonecutter") extends Entity
-case class EntityAnvil(val kind:String = "anvil", val material:Material = Metal.IRON) extends Entity
+case class EntityWorkbench() extends Entity
+case class EntityKiln() extends Entity
+case class EntitySmelter() extends Entity
+case class EntitySawmill() extends Entity
+case class EntityStonecutter() extends Entity
+case class EntityAnvil() extends Entity

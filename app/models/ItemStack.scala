@@ -1,6 +1,6 @@
 package models
 
-case class ItemStack(val kind:String, val count:Option[Int] = None, val material:Option[Material] = None) {
+case class ItemStack(val item:Item, val count:Option[Int] = None) {
 	def +(other:ItemStack):Option[ItemStack] = {
 		if (stacksWith(other)) {
 			Some(ItemStack(kind, Some(count.head + other.count.head), material))

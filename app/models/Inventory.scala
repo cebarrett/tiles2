@@ -8,17 +8,16 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 
 	// starting inventory for dev testing
 	items = if (Game.DEV) Seq(
-		ItemStack("workbench", Some(1)),
-		ItemStack("axe", None, Some(Metal.GOLD)),
-		ItemStack("pick", None, Some(Metal.GOLD)),
-		ItemStack("hammer", None, Some(Metal.GOLD)),
-		ItemStack("wood", Some(500)),
-		ItemStack("charcoal", Some(500)),
-		ItemStack("rock", Some(500), Some(Stone.LIMESTONE)),
-		ItemStack("ore", Some(500), Some(Metal.IRON)),
-		ItemStack("block", Some(500), Some(Metal.IRON))
+		ItemStack(EntityWorkbench(), Some(1)),
+		ItemStack(Axe(Gold), None),
+		ItemStack(Pick(Gold), None),
+		ItemStack(Hammer(Gold), None),
+		ItemStack(Charcoal(), Some(500)),
+		ItemStack(EntityStone(Limestone), Some(500)),
+		ItemStack(EntityOre(Iron), Some(500)),
+		ItemStack(EntityBlock(Silver), Some(500))
 	) else Seq(
-		ItemStack("axe", None, Some(Stone.GRANITE))
+		ItemStack(Axe(Granite), None)
 	)
 
 	/** Returns true if user has the given item (at least as many for item stacks) */
@@ -53,33 +52,34 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 	/**
 	 * Subtract an item. Handles item stacks and updating the selected item index.
 	 */
-	def subtract(other:ItemStack):Boolean = {
+	def subtract(other:ItemStack):Option[ItemStack] = {
 		// note: (for now) if the other item has no material it will
 		// subtract from the first item stack of the same kind.
 		items.filter({ item:ItemStack =>
 			item.subtractableFrom(other)
 		}).headOption.map({ item:ItemStack =>
+			// handle stacks with count
 			val updated:ItemStack = (item - other).head
 			if (updated.count.get > 0) {
 				// replace
 				items = items.patch(items.indexOf(item), Seq(updated), 1)
-				true
 			} else {
 				// subtract
 				items = items.filter({_ != item})
-				true
 			}
+			Some(other)
 		}).headOption.getOrElse({
+			// handle stacks with no count
 			if (other.count.isEmpty && items.contains(other)) {
 				items = items.patch(items.indexOf(other), Seq(), 1)
-				true
+				Some(other)
 			} else {
-				false
+				None
 			}
 		})
 	}
 	
-	def subtractOneOf(other:ItemStack):Boolean = {
+	def subtractOneOf(other:ItemStack):Option[ItemStack] = {
 		subtract(other.copy(count = Some(1)))
 	}
 }

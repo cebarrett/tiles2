@@ -1,37 +1,19 @@
 package models
 
-sealed trait Material {
-	val kind:String
-	val color:String
-	val category:String
-}
+abstract class Material(val color:String)
 
-sealed abstract class BaseMaterial(val kind:String = "none", val color:String = "white", val category:String = "none") extends Material {
+case object Cheese extends Material("#FB1")
+case object Plant extends Material("#22D")
+case object Wood extends Material("brown")
 
-}
+abstract class Stone(val color:String) extends Material(color)
+case object Chalk extends Stone("#bbb")
+case object Limestone extends Stone("#999")
+case object Granite extends Stone("#666")
+case object Basalt extends Stone("#444")
 
-case object Wood extends BaseMaterial(kind = "wood", color = "brown", category = "wood")
-
-sealed case class Stone (override val kind:String, override val color:String) extends BaseMaterial(category = "stone")
-object Stone {
-	def ALL = {
-		// TODO: use reflection to get all the fields
-		Seq(CHALK, LIMESTONE, GRANITE, BASALT)
-	}
-	def CHALK     = Stone("chalk",     "#bbb")
-	def LIMESTONE = Stone("limestone", "#999")
-	def GRANITE   = Stone("granite",   "#666")
-	def BASALT    = Stone("basalt",    "#444")
-}
-
-sealed case class Metal (override val kind:String, override val color:String) extends BaseMaterial(category = "metal")
-object Metal {
-	def ALL = {
-		// TODO: use reflection to get all the fields
-		Seq(COPPER, IRON, SILVER, GOLD)
-	}
-	def COPPER       = Metal("copper", "sienna")
-	def IRON         = Metal("iron",   "#907868")
-	def SILVER       = Metal("silver", "silver")
-	def GOLD         = Metal("gold",   "gold")
-}
+abstract class Metal(val color:String) extends Material(color)
+case object Copper extends Metal("sienna")
+case object Iron extends Metal("#907868")
+case object Silver extends Metal("silver")
+case object Gold extends Metal("gold")
