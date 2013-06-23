@@ -3,14 +3,13 @@ package models
 import scala.util.control.Breaks._
 import scala.util.Random
 
-sealed abstract trait Entity {
-	def kind:String
+trait Entity extends Item {
 	def tick(world:World, coords:WorldCoordinates):Unit = {
 		// no-op by default
 	}
 }
 
-sealed abstract class EntityLiving extends Entity {
+trait EntityLiving extends Entity {
 	var hitPoints:Int = 1
 	def dead:Boolean = (hitPoints <= 0)
 	def damage:Unit = (hitPoints = hitPoints-1)
@@ -51,12 +50,6 @@ case class EntityLlama(val kind:String = "llama") extends EntityAnimal
 
 case class EntityGoblin(val kind:String = "goblin") extends EntityMonster
 
-
-/*
- * FIXME: too many entities that just correspond 1-1 with an item
- * and don't do anything else. make an EntityItem or an ItemEntity
- */
-
 case class EntitySapling(val kind:String = "sapling") extends Entity {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		val tile:Tile = world.tileAt(coords)
@@ -69,7 +62,7 @@ case class EntitySapling(val kind:String = "sapling") extends Entity {
 	}
 }
 
-case class EntityTree(val species:String = "oak", val kind:String = "tree") extends Entity
+case class EntityTree(val kind:String = "tree") extends Entity
 case class EntityStone(val material:Stone, val kind:String = "stone") extends Entity
 case class EntityOre(val material:Metal, val kind:String = "ore") extends Entity
 case class EntityBlock(val material:Material, val kind:String = "block") extends Entity
