@@ -153,48 +153,48 @@ services.factory "tileRender", [ () ->
 		player:
 			text: "@"
 			color: "white"
-		tree:
-			text: "♣"
-			color: "#00BB00"
-		sand:
-			text: "."
-			color: "#DDBB77"
-		dirt:
-			text: "."
-			color: "#804828"
-		bedrock:
-			text: "."
-			color: "#666666"
-		grass:
-			text: "."
-			color: "green"
-		workbench:
-			text: "π"
-			color: "#AA6600"
-		anvil:
-			text: "π"
-			color: "#585858"
-		sapling:
-			text: "τ"
-			color: "#00BB00"
 		llama:
 			text: "L"
 			color: "#BBBB99"
 		goblin:
 			text: "g"
 			color: "#874"
+		tree:
+			text: "♣"
+			color: "#00BB00"
+		sapling:
+			text: "τ"
+			color: "#00BB00"
+		sand:
+			text: "·"
+			color: "#DDBB77"
+		dirt:
+			text: "·"
+			color: "#804828"
+		bedrock:
+			text: "·"
+			color: "#666666"
+		grass:
+			text: "·"
+			color: "green"
+		workbench:
+			text: "Π"
+			color: "#998877"
+		anvil:
+			text: "Π"
+			color: "#999988"
 		kiln:
-			text: "θ"
-			color: "#AA6600"
+			text: "ϴ"
+			color: "#998877"
 		smelter:
-			text: "θ"
-			color: "#585858"
-		stonecutter:
-			text: "Ø"
-			color: "#585858"
+			text: "ϴ"
+			color: "#999988"
 		sawmill:
 			text: "Ø"
-			color: "#AA6600"
+			color: "#998877"
+		stonecutter:
+			text: "Ø"
+			color: "#999988"
 		block:
 			text: "◼"
 			color: "white"

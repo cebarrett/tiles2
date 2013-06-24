@@ -1,5 +1,6 @@
 package models
 
+import math._
 import scala.util.Random
 
 case class WorldCoordinates(val x:Int, val y:Int) {
@@ -21,4 +22,8 @@ case class WorldCoordinates(val x:Int, val y:Int) {
 			WorldCoordinates(x,World.clamp(y-1))
 		))
 	}
+	def distanceTo(other:WorldCoordinates):Double = {
+		sqrt(pow(other.x-x, 2) + pow(other.y-y, 2))
+	}
 }
+

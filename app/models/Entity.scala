@@ -70,7 +70,7 @@ case class EntitySapling() extends Entity {
  * It can be placed to occupy a tile, and is also used
  * in crafting recipes that require a material ingredient.
  */
-case class EntityBlock(val material:Material) extends Entity
+case class EntityBlock(val material:Material) extends Entity with ItemWithMaterial
 
 case class EntityTree() extends Entity
 case class EntityWorkbench() extends Entity

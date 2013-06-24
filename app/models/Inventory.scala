@@ -54,12 +54,13 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 	 * Subtract an item. Handles item stacks and updating the selected item index.
 	 */
 	def subtract(other:ItemStack):Option[ItemStack] = {
-		Logger warn s"subtract: $other"
 		// note: (for now) if the other item has no material it will
 		// subtract from the first item stack of the same kind.
 		items.filter({ item:ItemStack =>
+			// filter itemstacks from which other can be subtracted
 			item.subtractableFrom(other)
 		}).headOption.map({ item:ItemStack =>
+			Logger warn "subtractable"
 			// handle stacks with count
 			val updated:ItemStack = (item - other).head
 			if (updated.count.get > 0) {
@@ -71,6 +72,7 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 			}
 			Some(other)
 		}).headOption.getOrElse({
+			Logger warn "not subtractable"
 			// handle stacks with no count
 			if (other.count.isEmpty && items.contains(other)) {
 				items = items.patch(items.indexOf(other), Seq(), 1)
@@ -82,6 +84,10 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 	}
 	
 	def subtractOneOf(other:ItemStack):Option[ItemStack] = {
-		subtract(other.copy(count = Some(1)))
+		if (other.count isEmpty) {
+			subtract(other)
+		} else {
+			subtract(other.copy(count = Some(1)))
+		}
 	}
 }

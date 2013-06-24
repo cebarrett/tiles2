@@ -11,25 +11,31 @@ trait Item {
 }
 
 case class Charcoal() extends Item
-case class Log() extends Item
+
+/**
+ * An ItemWithMaterial is an item made out of a Material,
+ * whose color (and in the future other properties) are
+ * determined by that material.
+ */
+trait ItemWithMaterial extends Item {
+	def material:Material
+}
 
 /**
  * A Tool is an Item that has some effect or use when held,
  * such as enabling the player to pick up certain blocks.
  * It must be crafted from a material.
  */
-trait Tool extends Item {
-	def material:Material
-}
+trait Tool extends ItemWithMaterial
 
-case class Pick(override val material:Material) extends Tool {
+case class Pick(val material:Material) extends Tool {
 	
 }
 
-case class Hammer(override val material:Material) extends Tool {
+case class Hammer(val material:Material) extends Tool {
 	
 }
 
-case class Axe(override val material:Material) extends Tool {
+case class Axe(val material:Material) extends Tool {
 	
 }

@@ -9,7 +9,7 @@ abstract trait Biome {
 case object ForestBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("grass")
-		if (Math.random < 0.01) {
+		if (Math.random < 0.125) {
 			tile.entity = Some(EntityTree())
 		}
 	}

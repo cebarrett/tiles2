@@ -1,22 +1,19 @@
 package models
 
 import scala.util.control.Breaks._
+import scala.collection.mutable
 
 case class Recipe(result:ItemStack, ingredients:Seq[Ingredient]) {
 	def craft(inventory:Inventory):Boolean = {
 		// pair each ingredient with the first item that matches
-		val reagents:Seq[Option[ItemStack]] = ingredients map {
-			_.find(inventory)
-		}
+		val reagents = new mutable.HashMap[Ingredient,Option[ItemStack]]
+		ingredients foreach { i => reagents.put(i, i.find(inventory).map(_.copy(count = Some(i.count))))}
 		
 		// if any reagent does not have a matching item, fail
-		if ((reagents filter {_.isEmpty} length) > 0) {
-			return false
-		}
+		reagents.values map {opt => if (opt.isEmpty) return false}
 		
-		// otherwise, subtract the reagent from inventory,
-		// then add the result
-		reagents map {_ map {inventory subtract _}}
+		// otherwise, subtract reagent from inventory, then add the result
+		reagents.values map {_ map {inventory subtract _}}
 		inventory add result
 		true
 	}
@@ -62,9 +59,9 @@ case class IngredientMaterial[T <: Material](val material:Class[T], override val
 object Recipe {
 	val all = Map(
 		"workbench" -> Seq[Recipe](
-			Recipe(ItemStack(Axe(Wood), None),      Seq(IngredientMaterial(Wood.getClass,   5))),
-			Recipe(ItemStack(Hammer(Wood), None),   Seq(IngredientMaterial(Wood.getClass,  10))),
-			Recipe(ItemStack(Pick(Wood), None),     Seq(IngredientMaterial(Wood.getClass,  25))),
+			Recipe(ItemStack(Axe(Wood)),            Seq(IngredientMaterial(Wood.getClass,   5))),
+			Recipe(ItemStack(Hammer(Wood)),         Seq(IngredientMaterial(Wood.getClass,  10))),
+			Recipe(ItemStack(Pick(Wood)),           Seq(IngredientMaterial(Wood.getClass,  25))),
 			Recipe(ItemStack(EntityWorkbench()),    Seq(IngredientMaterial(Wood.getClass,  25))),
 			Recipe(ItemStack(EntityKiln()),         Seq(IngredientMaterial(classOf[Stone], 25))),
 			Recipe(ItemStack(EntitySmelter()),      Seq(IngredientMaterial(classOf[Stone], 25))),

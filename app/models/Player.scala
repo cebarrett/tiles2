@@ -25,5 +25,6 @@ case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventor
 	def isHoldingItem(kind:String):Boolean = {
 		return getSelectedItem map {_.item.kind == kind} getOrElse false
 	}
-
+	
+	def pos:WorldCoordinates = WorldCoordinates(x, y)
 }

@@ -251,92 +251,71 @@ class World {
 			/* FIXME: caused a ClassCastException because attackerEntity was a goblin */
 			val player:Player = players.get(attackerEntity.asInstanceOf[EntityPlayer].player.name).getOrElse(null)
 			targetEntity match {
-			/*
-			 * FIXME: this is getting very repetitive!
-			 */
-			case (target:EntityTree) => {
-				if (player isHoldingItem "axe") {
-					player.inventory add ItemStack(EntityBlock(Wood), Some(1))
-					player.inventory add ItemStack(EntitySapling(), Some(Random.nextInt(2)+1))
-					despawnEntity(targetCoords)
-				}
-			}
-			case (target:EntityWorkbench) => {
-				if (player isHoldingItem "hammer") {
-					despawnEntity(targetCoords) map {
-						player.inventory add ItemStack(_, Some(1))
+				// XXX: this behavior belongs in the entity subclass
+				case (target:EntityTree) => {
+					if (player isHoldingItem "axe") {
+						player.inventory add ItemStack(EntityBlock(Wood), Some(1))
+						player.inventory add ItemStack(EntitySapling(), Some(Random.nextInt(2)+1))
+						despawnEntity(targetCoords)
 					}
 				}
-			}
-			case (target:EntityKiln) => {
-				if (player isHoldingItem "hammer") {
-					despawnEntity(targetCoords) map {
-						player.inventory add ItemStack(_, Some(1))
+				case _:EntityWorkbench | _:EntityKiln | _:EntitySmelter |
+						_:EntitySawmill | _:EntityStonecutter => {
+					if (player isHoldingItem "hammer") {
+						despawnEntity(targetCoords) map {
+							player.inventory add ItemStack(_, Some(1))
+						}
 					}
 				}
-			}
-			case (target:EntitySmelter) => {
-				if (player isHoldingItem "hammer") {
-					despawnEntity(targetCoords) map {
-						player.inventory add ItemStack(_, Some(1))
+				case (target:EntityBlock) => {
+					if (player isHoldingItem "pick") {
+						despawnEntity(targetCoords) map {
+							player.inventory add ItemStack(_, Some(1))
+						}
 					}
 				}
+				case (_) => Unit
 			}
-			case (target:EntitySawmill) => {
-				if (player isHoldingItem "hammer") {
-					despawnEntity(targetCoords) map {
-						player.inventory add ItemStack(_, Some(1))
-					}
-				}
-			}
-			case (target:EntityStonecutter) => {
-				if (player isHoldingItem "hammer") {
-					despawnEntity(targetCoords) map {
-						player.inventory add ItemStack(_, Some(1))
-					}
-				}
-			}
-			case (target:EntityBlock) => {
-				if (player isHoldingItem "pick") {
-					despawnEntity(targetCoords) map {
-						player.inventory add ItemStack(_, Some(1))
-					}
-				}
-			}
-			case (_) => Unit
-		}
-		this.eventChannel.push(WorldEvent(
-				"playerUpdate",
-				Some(attackerCoords.x),
-				Some(attackerCoords.y),
-				Some(attackerTile),
-				Some(player)))
+			this.eventChannel.push(WorldEvent(
+					"playerUpdate",
+					Some(attackerCoords.x),
+					Some(attackerCoords.y),
+					Some(attackerTile),
+					Some(player)))
 		}
 	}
 	
-	/** Places the player's currently selected item at the given coordinates.
-	    Does not currently verify that the player is within N blocks of the coordinates. */
+	/**
+	 * Places the player's currently selected item at the given coordinates
+	 * if the player is within 20 blocks.
+	 * 
+	 * @return true if the item was placed, false if not.
+	 */
 	def doPlaceItem(playerName:String, target:WorldCoordinates):Boolean = {
 		players.get(playerName).map { player =>
-			player.inventory.selected map { itemIndex =>
-				if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
-					val targetTile = tileAt(target)
-					targetTile.entity map {_ => true} getOrElse {
-						player getSelectedItem() map { stack =>
-							stack.item match {
-								case entity:Entity => {
-									player.inventory.subtractOneOf(stack)
-									targetTile.entity = Some(entity)
-									broadcastTileEvent(target)
-									broadcastPlayer(player)
-									true
+			if (player.pos.distanceTo(target) > 10) {
+				return false
+			} else {
+				player.inventory.selected map { itemIndex =>
+					if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
+						val targetTile = tileAt(target)
+						targetTile.entity map {_ => true} getOrElse {
+							player getSelectedItem() map { stack =>
+								stack.item match {
+									case entity:Entity => {
+										player.inventory.subtractOneOf(stack)
+										targetTile.entity = Some(entity)
+										broadcastTileEvent(target)
+										broadcastPlayer(player)
+										true
+									}
+									case _ => false
 								}
-								case _ => false
-							}
-						} getOrElse false
-					}
-				} else false
-			} getOrElse false
+							} getOrElse false
+						}
+					} else false
+				} getOrElse false
+			}
 		} getOrElse false
 	}
 

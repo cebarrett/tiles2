@@ -29,7 +29,7 @@ import models.JsonFormatters._
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = false
+	def DEV:Boolean = true
 }
 
 /**
