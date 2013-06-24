@@ -70,7 +70,7 @@ object Recipe {
 			Recipe(ItemStack(EntityAnvil()),        Seq(IngredientMaterial(Iron.getClass,  20)))
 		),
 		"kiln" -> Seq[Recipe](
-			Recipe(ItemStack(Charcoal(), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 1)))
+			Recipe(ItemStack(EntityBlock(Charcoal), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 1)))
 		),
 		"smelter" -> Seq[Recipe](
 

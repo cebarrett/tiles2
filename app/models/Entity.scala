@@ -30,7 +30,7 @@ trait EntityLiving extends Entity {
 }
 
 case class EntityPlayer(val player:Player) extends EntityLiving {
-	hitPoints = 10
+	hitPoints = 20
 }
 
 sealed abstract class EntityMob extends EntityLiving {

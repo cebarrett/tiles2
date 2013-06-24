@@ -13,10 +13,9 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 		ItemStack(Axe(Gold)),
 		ItemStack(Pick(Gold)),
 		ItemStack(Hammer(Gold)),
-		ItemStack(Charcoal(), Some(100)),
-		ItemStack(EntityBlock(Basalt), Some(100)),
-		ItemStack(EntityBlock(Iron), Some(100)),
-		ItemStack(EntityBlock(Silver), Some(100))
+		ItemStack(EntityBlock(Wood), Some(250)),
+		ItemStack(EntityBlock(Basalt), Some(250)),
+		ItemStack(EntityBlock(Iron), Some(250))
 	) else Seq(
 		ItemStack(Axe(Granite))
 	)

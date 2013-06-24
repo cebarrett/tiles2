@@ -10,8 +10,6 @@ trait Item {
 	}
 }
 
-case class Charcoal() extends Item
-
 /**
  * An ItemWithMaterial is an item made out of a Material,
  * whose color (and in the future other properties) are

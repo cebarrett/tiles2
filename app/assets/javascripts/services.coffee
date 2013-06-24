@@ -173,28 +173,28 @@ services.factory "tileRender", [ () ->
 			color: "#804828"
 		bedrock:
 			text: "·"
-			color: "#666666"
+			color: "#444444"
 		grass:
 			text: "·"
 			color: "green"
 		workbench:
-			text: "Π"
-			color: "#998877"
+			text: "π"
+			color: "#555555"
 		anvil:
 			text: "Π"
-			color: "#999988"
+			color: "#555555"
 		kiln:
-			text: "ϴ"
-			color: "#998877"
+			text: "Ω"
+			color: "#555555"
 		smelter:
-			text: "ϴ"
-			color: "#999988"
+			text: "ʭ"
+			color: "#555555"
 		sawmill:
 			text: "Ø"
-			color: "#998877"
+			color: "#555555"
 		stonecutter:
-			text: "Ø"
-			color: "#999988"
+			text: "Θ"
+			color: "#555555"
 		block:
 			text: "◼"
 			color: "white"
