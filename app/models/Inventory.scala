@@ -9,16 +9,16 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 
 	// starting inventory for dev testing
 	items = if (Game.DEV) Seq(
-		ItemStack(EntityWorkbench(), Some(1)),
-		ItemStack(Axe(Gold), None),
-		ItemStack(Pick(Gold), None),
-		ItemStack(Hammer(Gold), None),
-		ItemStack(Charcoal(), Some(500)),
-		ItemStack(EntityBlock(Limestone), Some(500)),
-		ItemStack(EntityBlock(Iron), Some(500)),
-		ItemStack(EntityBlock(Silver), Some(500))
+		ItemStack(EntityWorkbench()),
+		ItemStack(Axe(Gold)),
+		ItemStack(Pick(Gold)),
+		ItemStack(Hammer(Gold)),
+		ItemStack(Charcoal(), Some(100)),
+		ItemStack(EntityBlock(Basalt), Some(100)),
+		ItemStack(EntityBlock(Iron), Some(100)),
+		ItemStack(EntityBlock(Silver), Some(100))
 	) else Seq(
-		ItemStack(Axe(Granite), None)
+		ItemStack(Axe(Granite))
 	)
 
 	/** Returns true if user has the given item (at least as many for item stacks) */
@@ -60,7 +60,6 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 			// filter itemstacks from which other can be subtracted
 			item.subtractableFrom(other)
 		}).headOption.map({ item:ItemStack =>
-			Logger warn "subtractable"
 			// handle stacks with count
 			val updated:ItemStack = (item - other).head
 			if (updated.count.get > 0) {
@@ -72,7 +71,6 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 			}
 			Some(other)
 		}).headOption.getOrElse({
-			Logger warn "not subtractable"
 			// handle stacks with no count
 			if (other.count.isEmpty && items.contains(other)) {
 				items = items.patch(items.indexOf(other), Seq(), 1)
