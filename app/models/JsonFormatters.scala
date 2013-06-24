@@ -37,8 +37,14 @@ object JsonFormatters {
 	implicit val writesIngredient = new Writes[Ingredient] {
 		def writes(obj:Ingredient):JsValue = {
 			obj match {
-				case obj:IngredientMaterial[_] => JsObject(Seq("kind" -> JsString(obj.material.getSimpleName.toLowerCase), "count" -> JsNumber(obj.count)))
-				case obj:IngredientItem        => JsObject(Seq("kind" -> JsString(obj.item.kind),                          "count" -> JsNumber(obj.count)))
+				case obj:IngredientMaterial[_] => {
+					JsObject(Seq(
+						"kind"  -> JsString(obj.material.getSimpleName.toLowerCase.replaceAll("\\$*$", "")),
+						"count" -> JsNumber(obj.count)))}
+				case obj:IngredientItem => {
+					JsObject(Seq(
+						"kind"  -> JsString(obj.item.kind),
+						"count" -> JsNumber(obj.count)))}
 				case _ => JsNull
 			}
 		}
