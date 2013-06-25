@@ -23,7 +23,7 @@ class GridNoise(val scale:Double = 1) {
 }
 
 object GridNoise {
-	private var z:Int = 7;
+	private var z:Int = 117;
 	private def nextZ():Int = {
 		z = z + 89
 		z
