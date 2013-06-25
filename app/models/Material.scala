@@ -19,7 +19,6 @@ case object Granite extends Stone("#5c5555")
 case object Basalt extends Stone("#414140")
 case object Malachite extends Stone("#5FB39B")
 case object Hematite extends Stone("#6B3333")
-case object Tetrahedrite extends Stone("#6B5433")
 case object Cassiterite extends Stone("#857B40")
 
 abstract class Metal(override val color:String) extends Material(color)

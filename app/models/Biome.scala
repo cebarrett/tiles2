@@ -36,11 +36,14 @@ case object DirtBiome extends Biome {
 case object StoneBiome extends Biome {
 	private val stoneNoise = new GridRandom(
 		Seq(
-			Limestone, Granite
+			Limestone, Granite, Sandstone, Basalt
 		), 10)
 	private val oreNoise   = new GridRandom(
 		Seq(
-			Copper, Copper, Copper, Copper, Iron, Iron, Silver, Gold
+			Malachite, Malachite, Malachite, Cassiterite,
+			Cassiterite, Cassiterite, Hematite, Hematite,
+			Hematite, Hematite, Hematite, Copper,
+			Silver, Silver, Gold, Cassiterite
 		), 0.25)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
