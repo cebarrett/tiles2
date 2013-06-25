@@ -73,10 +73,10 @@ object Recipe {
 			Recipe(ItemStack(EntityBlock(Charcoal), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 1)))
 		),
 		"smelter" -> Seq[Recipe](
-			Recipe(ItemStack(EntityBlock(Copper), Some(1)),  Seq(IngredientMaterial(Malachite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1)))
-			Recipe(ItemStack(EntityBlock(Iron), Some(1)),  Seq(IngredientMaterial(Hematite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1)))
-			Recipe(ItemStack(EntityBlock(Tin), Some(1)),  Seq(IngredientMaterial(Cassiterite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1)))
-			Recipe(ItemStack(EntityBlock(Bronze), Some(2)),  Seq(IngredientMaterial(Copper.getClass, 1), IngredientMaterial(Tin.getClass, 1), IngredientMaterial(Charcoal.getClass, 1)))
+			Recipe(ItemStack(EntityBlock(Copper), Some(1)),  Seq(IngredientMaterial(Malachite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
+			Recipe(ItemStack(EntityBlock(Iron), Some(1)),  Seq(IngredientMaterial(Hematite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
+			Recipe(ItemStack(EntityBlock(Tin), Some(1)),  Seq(IngredientMaterial(Cassiterite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
+			Recipe(ItemStack(EntityBlock(Bronze), Some(2)),  Seq(IngredientMaterial(Copper.getClass, 1), IngredientMaterial(Tin.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
 			Recipe(ItemStack(EntityBlock(Electrum), Some(2)),  Seq(IngredientMaterial(Gold.getClass, 1), IngredientMaterial(Silver.getClass, 1), IngredientMaterial(Charcoal.getClass, 1)))
 
 		),
