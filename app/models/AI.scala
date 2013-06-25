@@ -26,6 +26,24 @@ class AIAnimal() extends AI {
 	}
 }
 
+class AIMonster extends AI {
+	override def tick(world:World, coords:WorldCoordinates):Unit = {
+		world.players filter { player =>
+			val playerCoords = WorldCoordinates(player.x, player.y)
+			(playerCoords.distanceTo(coords) < Chunk.length)
+		} headOption map { player =>
+			val dir = new Path(playerCoords).directionFrom(coords)
+			val nextPos = WorldCoordinates(coords.x+dir.x, coords.y+dir.y)
+			world.tileAt(nextPos).entity map { entity =>
+				if (entity.isInstanceOf[Player])
+					world.doEntityInteraction(coords, nextPos)
+			} getOrElse {
+				world.moveEntity(coords, nextPos)
+			}
+		}
+	}
+}
+
 /**
  * AI that stands still but attacks adjacent entities.
  */
@@ -41,8 +59,4 @@ class AIWall extends AI {
 			})
 		}
 	}
-}
-
-class AIMonster extends AIWall {
-
 }
