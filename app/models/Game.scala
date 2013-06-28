@@ -73,7 +73,6 @@ class Game extends Actor {
 	/** Broadcast JSON messages to all players. */
 	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
-
 	/** Schedule the game loop to run repeatedly. */
 	private val gameLoop = {
 		Akka.system.scheduler.schedule(

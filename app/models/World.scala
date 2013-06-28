@@ -61,8 +61,15 @@ class World {
 			chunk.tiles foreach { tcol =>
 				tcol foreach { t =>
 					t.entity map { e =>
-						val coords = TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords)
-						allEntityCoords = (e, coords) +: allEntityCoords
+						// XXX: don't tick EntityBlock for now - too many of them.
+						// kind of a hack, entities that move need a subclass.
+						e match {
+							case _:EntityBlock => Unit
+							case _ => {
+								val coords = TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords)
+								allEntityCoords = (e, coords) +: allEntityCoords
+							}
+						}
 					}
 				}
 			}
