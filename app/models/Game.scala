@@ -44,7 +44,11 @@ object Game {
 class Game extends Actor {
 
 	/** The world */
-	val world = new World()
+	val world = {
+		val w = new World()
+		w.loadAllChunks		// XXX: possible performance issues & spams browser with all events
+		w
+	}
 
 	/** Translates WorldEvents into JSON that can be broadcast to players,
 	    and also listens for and handles certain WorldEvents. */
