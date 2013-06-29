@@ -39,7 +39,7 @@ class AIMonster extends AI {
 				if (entity.isInstanceOf[EntityPlayer])
 					world.doEntityInteraction(coords, nextPos)
 			} getOrElse {
-				if (Math.random < 0.75) world.moveEntity(coords, nextPos)
+				world.moveEntity(coords, nextPos)
 			}
 		}
 	}

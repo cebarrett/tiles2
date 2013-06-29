@@ -12,7 +12,7 @@ abstract class Entity extends Item {
 	def tick(world:World, coords:WorldCoordinates):Unit = Unit
 }
 
-trait EntityLiving extends Entity {
+abstract class EntityLiving extends Entity {
 	var hitPoints:Int = 1
 	def dead:Boolean = (hitPoints <= 0)
 	def damage:Unit = (hitPoints = hitPoints-1)
@@ -33,18 +33,18 @@ case class EntityPlayer(val player:Player) extends EntityLiving {
 	hitPoints = 20
 }
 
-sealed abstract class EntityMob extends EntityLiving {
+abstract class EntityMob extends EntityLiving {
 	def ai:AI
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		ai.tick(world, coords)
 	}
 }
 
-sealed abstract class EntityAnimal extends EntityMob {
+abstract class EntityAnimal extends EntityMob {
 	def ai:AI = new AIAnimal
 }
 
-sealed abstract class EntityMonster extends EntityMob {
+abstract class EntityMonster extends EntityMob {
 	hitPoints = 20
 	def ai:AI = new AIMonster
 }
@@ -56,7 +56,7 @@ case class EntityGoblin() extends EntityMonster
 case class EntitySapling() extends Entity {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		val tile:Tile = world.tileAt(coords)
-		val chanceOfTreeGrowing:Double = 0.0005;
+		val chanceOfTreeGrowing:Double = 0.0001;
 		if (Math.random() < chanceOfTreeGrowing) {
 			tile.entity = Some(EntityTree())
 			// XXX: next line seems out of place

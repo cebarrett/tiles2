@@ -76,8 +76,8 @@ class Game extends Actor {
 	/** Schedule the game loop to run repeatedly. */
 	private val gameLoop = {
 		Akka.system.scheduler.schedule(
-			1 seconds,
-			1 seconds,
+			0.2 seconds,
+			0.2 seconds,
 			self,
 			Loop()
 		)

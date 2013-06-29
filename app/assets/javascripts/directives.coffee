@@ -22,24 +22,26 @@ directives.directive "appControls", [ () ->
 			# FIXME: can move 2 directions at once, so faster diagonally
 			# to fix, only move 1 direction, the most recently selected
 			if ((false == move[dir]?) or (false == move[dir]))
-				return
+				return false
 			if ((false == moveCount[dir]?) or (moveCount[dir] == 0))
 				scope[dir]()
 				moveCount[dir] = 1
-				return
+				return true
 			timestamp = new Date().getTime()
 			delta = timestamp - move[dir]
 			newMoveCount = Math.floor(delta * speed / 1000)
 			if (newMoveCount > moveCount[dir])
 				scope[dir]()
 				moveCount[dir]++
-				return
+				return true
+			else
+				return false
 
 		step = () ->
-			doMovement("north")
-			doMovement("east")
-			doMovement("south")
-			doMovement("west")
+			if !doMovement("north")
+				if !doMovement("east")
+					if !doMovement("south")
+						doMovement("west")
 			window.requestAnimationFrame(step)
 		step()
 
