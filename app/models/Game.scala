@@ -129,21 +129,13 @@ class Game extends Actor {
 			kind match {
 				case "spawn" => {
 					world.spawnPlayer(playerName)
-					Akka.system.scheduler.schedule(
-						1 seconds,
-						1 seconds,
-						self,
-						{
-							val player:Player = (world.players get playerName).get
-							sendChunks(player, None)
-							val response:JsValue = JsObject(Seq(
-								"kind" -> JsString("spawn"),
-								"player" -> Json.toJson(player),
-								"crafts" -> Json.toJson(Recipe.all)
-							))
-							playerChannels.get(playerName).get.push(response)
-						}
-					)
+					val player:Player = (world.players get playerName).get
+					sendChunks(player, None)
+					val response:JsValue = JsObject(Seq(
+						"kind" -> JsString("spawn"),
+						"player" -> Json.toJson(player),
+						"crafts" -> Json.toJson(Recipe.all)))
+					playerChannels.get(playerName).get.push(response)
 				}
 				// FIXME: players can move while a gui is open.
 				// need to set a flag on the Player and unset when they select something.

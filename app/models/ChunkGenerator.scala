@@ -10,7 +10,7 @@ object ChunkGenerator {
 		1.0
 	)
 
-	private val structureGenList:Seq[Structure] = Seq(StructureSpawn)
+	private val structureGenList:Seq[StructureGen] = Seq(StructureSpawn)
 
 	def generate(coords:ChunkCoordinates):Chunk = {
 		val chunk = new Chunk(coords.cx, coords.cy)

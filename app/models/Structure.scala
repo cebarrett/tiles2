@@ -1,12 +1,12 @@
 package models
 
-abstract trait Structure {
+trait StructureGen {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit
 }
 
-case object StructureSpawn extends Structure {
+case object StructureSpawn extends StructureGen {
 	def decorate(tile:Tile, pos:WorldCoordinates) = {
-		if (pos.x == -1 && pos.y == -1) {
+		if (pos.x == 0 && pos.y == 0) {
 			tile.entity = Some(EntityWorkbench())
 		}
 	}

@@ -17,7 +17,8 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 		ItemStack(EntityBlock(Copper), Some(250)),
 		ItemStack(EntityBlock(Iron), Some(250))
 	) else Seq(
-		ItemStack(Axe(Granite))
+		ItemStack(Axe(Granite)),
+		ItemStack(EntityWorkbench())
 	)
 
 	/** Returns true if user has the given item (at least as many for item stacks) */

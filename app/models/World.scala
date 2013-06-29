@@ -112,22 +112,22 @@ class World {
 	def spawnPlayer(playerName:String):Unit = {
 		Logger debug s"spawn: $playerName"
 		val player = players get playerName get
-		// determine a suitable spawn location - pretty basic for now
-		var tile:Tile = null
-		var spawnPos:WorldCoordinates = null
-		breakable { for (y <- (player.y) until (player.y+100)) {
-			for (x <- (player.x) until (player.x+100)) {
-				tile = tileAt(x, y)
-				spawnPos = WorldCoordinates(x, y)
-				if (tile.entity.isEmpty) break
-			}
-		}}
+		val spawnPos = findRandomPositionNearSpawn()
+		val spawnTile = tileAt(spawnPos)
 		// spawn a player entity and update the player object
-		val playerEntity = (tile.entity = Some(new EntityPlayer(player)))
+		val playerEntity = (spawnTile.entity = Some(new EntityPlayer(player)))
 		player.x = spawnPos.x;
 		player.y = spawnPos.y;
 		// broadcast entity spawn
-		this.eventChannel.push(WorldEvent("playerSpawn", Some(spawnPos.x), Some(spawnPos.y), Some(tile), Some(player)))
+		broadcastTileEvent(spawnPos)
+	}
+	
+	def findRandomPositionNearSpawn():WorldCoordinates = {
+		while (true) {
+			val c = WorldCoordinates(0, 0).randomCoordsInRadius(20)
+			if (tileAt(c).entity.isEmpty) return c
+		}
+		WorldCoordinates(0,0) // never get here
 	}
 
 	def despawnPlayer(playerName:String):Unit = {
