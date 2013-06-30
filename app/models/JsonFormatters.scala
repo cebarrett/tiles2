@@ -7,10 +7,8 @@ import play.api.Logger
  * Implicits to help with JSON formatting.
  */
 object JsonFormatters {
-	// FIXME: don't write an AI at all
-	implicit val writesAI = new Writes[AI] {
-		def writes(arg:AI):JsValue = JsNull
-	}
+	
+	// material
 	implicit val writesMaterial = new Writes[Material] {
 		def writes(arg:Material):JsValue = {
 			JsObject(Seq(
@@ -19,12 +17,8 @@ object JsonFormatters {
 			))
 		}
 	}
-	implicit val writesTerrain = new Writes[Terrain] {
-		def writes(terrain:Terrain):JsValue = JsObject(Seq(
-			"id"     -> Json.toJson(terrain.id),
-			"passable" -> Json.toJson(terrain.passable)
-		))
-	}
+	
+	// items
 	implicit val writesMaterialItem = new Writes[ItemWithMaterial] {
 		def writes(item:ItemWithMaterial):JsValue = JsObject(
 			Seq("kind" -> Json.toJson(item.kind)) ++ {
@@ -35,13 +29,40 @@ object JsonFormatters {
 			}
 		)
 	}
+	implicit val writesPlayerEntity = new Writes[EntityPlayer] {
+		def writes(entity:EntityPlayer):JsValue = JsObject(Seq(
+			"kind"      -> JsString(entity.kind),
+			"name"      -> JsString(entity.player.name),
+			"hitPoints" -> JsNumber(entity.hitPoints)
+		))
+	}
+	implicit val writesLivingEntity:Writes[EntityLiving] = new Writes[EntityLiving] {
+		def writes(t:EntityLiving):JsValue = {
+			JsObject(Seq(
+				"kind" -> JsString(t.kind),
+				"hitPoints" -> JsNumber(t.hitPoints)
+			))
+		}
+	}
 	implicit val writesItem = new Writes[Item] {
 		def writes(item:Item):JsValue = item match {
+			case item:EntityPlayer      => writesPlayerEntity.writes(item)
+			case item:EntityLiving      => writesLivingEntity.writes(item)
 			case item:ItemWithMaterial  => writesMaterialItem.writes(item)
 			case _                      => JsObject(Seq("kind" -> JsString(item.kind)))
 		}
 	}
+	
+	// inventory
 	implicit val writesItemStack = Json.writes[ItemStack]
+	implicit val writesInventory = new Writes[Inventory] {
+		def writes(t:Inventory):JsValue = JsObject(Seq(
+			"items" -> JsArray(t.items.map({Json.toJson(_)})),
+			"selected" -> Json.toJson(t.selected)
+		))
+	}
+	
+	// crafting
 	implicit val writesIngredient = new Writes[Ingredient] {
 		def writes(obj:Ingredient):JsValue = {
 			obj match {
@@ -74,30 +95,23 @@ object JsonFormatters {
 			)
 		}
 	}
-	implicit val writesInventory = new Writes[Inventory] {
-		def writes(t:Inventory):JsValue = JsObject(Seq(
-			"items" -> JsArray(t.items.map({Json.toJson(_)})),
-			"selected" -> Json.toJson(t.selected)
-		))
-	}
-	implicit val writesPlayerEntity = new Writes[EntityPlayer] {
-		def writes(entity:EntityPlayer):JsValue = JsObject(Seq(
-			"kind"      -> JsString(entity.kind),
-			"name"      -> JsString(entity.player.name),
-			"hitPoints" -> JsNumber(entity.hitPoints)
-		))
-	}
-	implicit val writesMobEntity:Writes[EntityMob] = new Writes[EntityMob] {
-		def writes(t:EntityMob):JsValue = {
-			JsObject(Seq(
-				"kind" -> JsString(t.kind),
-				"hitPoints" -> JsNumber(t.hitPoints)
-			))
-		}
-	}
-	implicit val writesBlockEntity:Writes[EntityBlock] = Json.writes[EntityBlock]
+	
+	// player
 	implicit val writesPlayer = Json.writes[Player]
+	
+	// world
+	implicit val writesTerrain = new Writes[Terrain] {
+		def writes(terrain:Terrain):JsValue = JsObject(Seq(
+			"id"     -> Json.toJson(terrain.id),
+			"passable" -> Json.toJson(terrain.passable)
+		))
+	}
 	implicit val writesTile = Json.writes[Tile]
 	implicit val writesChunk = Json.writes[Chunk]
+	
+	// event
 	implicit val writesWorldEvent = Json.writes[WorldEvent]
+	
+	// misc entities
+	implicit val writesBlockEntity:Writes[EntityBlock] = Json.writes[EntityBlock]
 }

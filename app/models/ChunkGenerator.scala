@@ -30,16 +30,16 @@ object ChunkGenerator {
 		
 		val terrainNoise = terrainGen noiseAt (coords.x, coords.y)
 //		Logger debug s"$terrainNoise"
-		if (terrainNoise < 0.125) {
+		if (terrainNoise < 0.00) {
 			tile.terrain = TerrainWater
-		} else if (terrainNoise < 0.13) {
+		} else if (terrainNoise < 0.01) {
 			tile.terrain = TerrainSand
-		} else if (terrainNoise < 0.25) {
+		} else if (terrainNoise < 0.33) {
 			biomeGen pick (coords.x, coords.y) map {_ decorate (tile, coords)}
 			structureGenList map {_ decorate (tile, coords)}
-		} else if (terrainNoise < 0.50) {
+		} else if (terrainNoise < 0.90) {
 			StoneBiome decorate (tile, coords)
-		} else if (terrainNoise < 0.51) {
+		} else if (terrainNoise < 0.91) {
 			tile.terrain = TerrainBedrock
 			tile.entity = Some(EntityBlock(Obsidian))
 		} else {

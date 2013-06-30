@@ -156,11 +156,12 @@ class World {
 		}
 	}
 
+	/** Remove the entity from a tile and broadcast the event. */
 	def despawnEntity(coords:WorldCoordinates):Option[Entity] = {
 		val tile = tileAt(coords)
 		val entity = tile.entity;
 		tile.entity = None;
-		this.eventChannel.push(WorldEvent("entityDespawn", Some(coords.x), Some(coords.y), Some(tile)))
+		broadcastTileEvent(coords)
 		return entity
 	}
 
@@ -298,14 +299,14 @@ class World {
 						}
 					}
 				}
+				case (target:Food) => {
+					despawnEntity(targetCoords)
+					attackerEntity.hitPoints = 1 + attackerEntity.hitPoints
+					
+				}
 				case (_) => Unit
 			}
-			this.eventChannel.push(WorldEvent(
-					"playerUpdate",
-					Some(attackerCoords.x),
-					Some(attackerCoords.y),
-					Some(attackerTile),
-					Some(player)))
+			broadcastPlayer(player)
 		}
 	}
 	

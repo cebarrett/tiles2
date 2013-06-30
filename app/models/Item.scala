@@ -30,26 +30,19 @@ abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithM
 case class Floor(override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
 case class Door (override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
 
-/**
- * A Tool is an Item that has some effect or use when held,
- * such as enabling the player to pick up certain blocks.
- * It must be crafted from a material.
- */
-trait Tool extends ItemWithMaterial {
+case class Pick(override val material:Material) extends AbstractItemWithMaterial(material) {
 	
 }
 
-abstract class AbstractTool(override val material:Material) extends AbstractItemWithMaterial(material)
-
-case class Pick(override val material:Material) extends AbstractTool(material) {
+case class Hammer(override val material:Material) extends AbstractItemWithMaterial(material) {
 	
 }
 
-case class Hammer(override val material:Material) extends AbstractTool(material) {
+case class Axe(override val material:Material) extends AbstractItemWithMaterial(material) {
 	
 }
 
-case class Axe(override val material:Material) extends AbstractTool(material) {
+case class Sword(override val material:Material) extends AbstractItemWithMaterial(material) {
 	
 }
 

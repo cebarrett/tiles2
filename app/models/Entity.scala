@@ -12,7 +12,7 @@ trait Entity extends Item {
 	def tick(world:World, coords:WorldCoordinates):Unit = Unit
 }
 
-case class Meat() extends Entity
+case class Food() extends Entity
 
 abstract class EntityLiving extends Entity {
 	var hitPoints:Int = 1
@@ -52,11 +52,11 @@ abstract class EntityMonster extends EntityMob {
 }
 
 case class EntityLlama() extends EntityAnimal {
-	override def drop = Seq(ItemStack(EntityBlock(Wool)), ItemStack(Meat()))
+	override def drop = Seq(ItemStack(EntityBlock(Wool)), ItemStack(Food()))
 }
 
 case class EntityGoblin() extends EntityMonster {
-	override def drop = Seq(ItemStack(Meat()))
+	override def drop = Seq(ItemStack(Food(), Some(Random nextInt 5 + 1)))
 }
 
 case class EntitySapling() extends Entity {
