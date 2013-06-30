@@ -14,8 +14,18 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net
 	# initialize the chunk dom element pool
 	chunkManager.init $scope
 	
-	$scope.loadChunk   = (chunk)  -> chunkManager.loadChunk chunk
-	$scope.unloadChunk = (cx, cy) -> chunkManager.unloadChunk(cx, cy)
+	$scope.loadChunk = (chunk)  ->
+		$scope.unloadChunk(chunk.cx, chunk.cy)
+		$scope.chunks.push(chunk)
+		chunkManager.loadChunk chunk
+	$scope.unloadChunk = (cx, cy) ->
+		$scope.chunks = _($scope.chunks).filter((chunk) ->
+			if (chunk.cx == cx && chunk.cy == cy)
+				chunkManager.unloadChunk(cx, cy)
+				return false
+			else
+				return true
+		).value()
 
 	# connect to the server
 	net.connect $scope

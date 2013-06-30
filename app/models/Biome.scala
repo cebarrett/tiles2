@@ -11,7 +11,7 @@ case object ForestBiome extends Biome {
 		tile.terrain = Terrain("grass")
 		if (Math.random < 0.125) {
 			tile.entity = Some(EntityTree())
-		} else if (Math.random < 0.005) {
+		} else if (Math.random < 0.005 && !Game.DEV) {
 			tile.entity = Some(EntityLlama())
 		}
 	}
