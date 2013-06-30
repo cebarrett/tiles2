@@ -28,6 +28,7 @@ abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithM
 }
 
 case class Floor(override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
+case class Door (override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
 
 /**
  * A Tool is an Item that has some effect or use when held,

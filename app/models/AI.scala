@@ -39,7 +39,9 @@ class AIMonster extends AI {
 				if (entity.isInstanceOf[EntityPlayer])
 					world.doEntityInteraction(coords, nextPos)
 			} getOrElse {
-				world.moveEntity(coords, nextPos)
+				// monsters don't pass through doors
+				if (world.tileAt(nextPos).terrain.isInstanceOf[Door] == false)
+					world.moveEntity(coords, nextPos)
 			}
 		}
 	}

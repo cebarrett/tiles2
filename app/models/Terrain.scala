@@ -13,3 +13,4 @@ object TerrainGrass extends Terrain
 object TerrainSand extends Terrain
 object TerrainWater extends AbstractTerrain(passable = false)
 object TerrainLava extends AbstractTerrain(passable = false)
+object TerrainDoor extends Terrain

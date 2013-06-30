@@ -66,15 +66,17 @@ case class IngredientMaterial[T <: Material](val material:Class[T], override val
 object Recipe {
 	val all = Map(
 		"workbench" -> Seq[Recipe](
-			Recipe(ItemStack(EntityWorkbench()),    Seq(IngredientMaterial(Wood.getClass,  25))),
-			Recipe(ItemStack(EntityKiln()),         Seq(IngredientMaterial(classOf[Stone], 25))),
-			Recipe(ItemStack(EntitySmelter()),      Seq(IngredientMaterial(classOf[Stone], 25))),
-			Recipe(ItemStack(EntitySawmill()),      Seq(IngredientMaterial(classOf[Stone], 50))),
-			Recipe(ItemStack(EntityStonecutter()),  Seq(IngredientMaterial(classOf[Stone], 50))),
-			Recipe(ItemStack(EntityAnvil()),        Seq(IngredientMaterial(Iron.getClass,  20)))
+			Recipe(ItemStack(Axe(null)),            Seq(IngredientMaterial(Wood.getClass,  10)), true),
+			Recipe(ItemStack(Hammer(null)),         Seq(IngredientMaterial(Wood.getClass,  10)), true),
+			Recipe(ItemStack(Pick(null)),           Seq(IngredientMaterial(Wood.getClass,  15)), true),
+			Recipe(ItemStack(EntityKiln()),         Seq(IngredientMaterial(classOf[Stone], 50))),
+			Recipe(ItemStack(EntitySmelter()),      Seq(IngredientMaterial(classOf[Stone], 50))),
+			Recipe(ItemStack(EntitySawmill()),      Seq(IngredientMaterial(classOf[Stone], 100))),
+			Recipe(ItemStack(EntityStonecutter()),  Seq(IngredientMaterial(classOf[Stone], 100)))
 		),
 		"kiln" -> Seq[Recipe](
-			Recipe(ItemStack(EntityBlock(Charcoal), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 1)))
+			Recipe(ItemStack(EntityBlock(Charcoal), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 1))),
+			Recipe(ItemStack(EntityAnvil()),        Seq(IngredientMaterial(Iron.getClass,  15)))
 		),
 		"smelter" -> Seq[Recipe](
 			Recipe(ItemStack(EntityBlock(Copper), Some(1)),  Seq(IngredientMaterial(Malachite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
@@ -84,10 +86,9 @@ object Recipe {
 			Recipe(ItemStack(EntityBlock(Electrum), Some(2)),  Seq(IngredientMaterial(Gold.getClass, 1), IngredientMaterial(Silver.getClass, 1), IngredientMaterial(Charcoal.getClass, 1)))
 		),
 		"sawmill" -> Seq[Recipe](
-			Recipe(ItemStack(Axe(null)),            Seq(IngredientMaterial(Wood.getClass,  10)), true),
-			Recipe(ItemStack(Hammer(null)),         Seq(IngredientMaterial(Wood.getClass,  10)), true),
-			Recipe(ItemStack(Pick(null)),           Seq(IngredientMaterial(Wood.getClass,  15)), true),
-			Recipe(ItemStack(Floor(Wood), Some(2)), Seq(IngredientMaterial(Wood.getClass, 1)), true)
+			Recipe(ItemStack(Floor(Wood), Some(2)), Seq(IngredientMaterial(Wood.getClass, 1)), true),
+			Recipe(ItemStack(Door(Wood), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 5)), true),
+			Recipe(ItemStack(EntityWorkbench()),    Seq(IngredientMaterial(Wood.getClass, 20)))
 		),
 		"stonecutter" -> Seq[Recipe](
 			Recipe(ItemStack(Axe(null)),    Seq(IngredientMaterial(classOf[Stone], 10)), true),

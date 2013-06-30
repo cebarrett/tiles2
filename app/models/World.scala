@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def radius:Int = 32;
+	def radius:Int = 16;
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
@@ -327,9 +327,9 @@ class World {
 										broadcastPlayer(player)
 										true
 									}
-									case floor:Floor => {
+									case _:Floor | _:Door => {
 										player.inventory.subtractOneOf(stack)
-										targetTile.terrain = floor
+										targetTile.terrain = stack.item.asInstanceOf[Terrain]
 										broadcastTileEvent(target)
 										broadcastPlayer(player)
 										true

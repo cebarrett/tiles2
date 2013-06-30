@@ -254,7 +254,10 @@ services.factory "tileRender", [ () ->
 			color: "green"
 		floor:
 			text: "+"
-			color: "#605040"
+			color: "#68583E"
+		door:
+			text: "÷"
+			color: "#68583E"
 		workbench:
 			text: "π"
 			color: "#555555"
