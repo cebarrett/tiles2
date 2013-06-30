@@ -19,7 +19,12 @@ object JsonFormatters {
 			))
 		}
 	}
-	implicit val writesTerrain = Json.writes[Terrain]
+	implicit val writesTerrain = new Writes[Terrain] {
+		def writes(terrain:Terrain):JsValue = JsObject(Seq(
+			"id"     -> Json.toJson(terrain.id),
+			"passable" -> Json.toJson(terrain.passable)
+		))
+	}
 	implicit val writesTool = new Writes[Tool] {
 		def writes(tool:Tool):JsValue = JsObject(Seq(
 			"kind"     -> Json.toJson(tool.kind),

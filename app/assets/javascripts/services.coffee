@@ -273,4 +273,10 @@ services.factory "tileRender", [ () ->
 		block:
 			text: "◼"
 			color: "white"
+		water:
+			text: "≈"
+			color: "#13E"
+		lava:
+			text: "≈"
+			color: "#E31"
 ]

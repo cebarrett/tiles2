@@ -4,14 +4,17 @@ import scala.util.Random
 
 /**
  * Generates a 2d noise field.
+ * 
+ * FIXME: has a artifact where noise at area near origin is always 0 regardless of z
+ * can fix by replacing perlin noise impl with a better one?
  */
 class GridNoise(val scale:Double = 1) {
 
 	private val z:Int = GridNoise.nextZ
 
 	private val baseScale:Double = .005 * (if (Game.DEV) 10.0 else 1.0)
-	private val baseOffsetX = 0; // may have bugs
-	private val baseOffsetY = 0; // may have bugs
+	private val baseOffsetX = 1000; // may have bugs
+	private val baseOffsetY = 1000; // may have bugs
 
 	def noiseAt(x:Int, y:Int):Double = {
 		PerlinNoise.perlinNoise(
@@ -23,9 +26,9 @@ class GridNoise(val scale:Double = 1) {
 }
 
 object GridNoise {
-	private var z:Int = 444;
+	private var z:Int = 362;
 	private def nextZ():Int = {
-		z = z + 89
+		z = z + 113
 		z
 	}
 }

@@ -8,7 +8,7 @@ abstract trait Biome {
 
 case object ForestBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
-		tile.terrain = Terrain("grass")
+		tile.terrain = TerrainGrass
 		if (Math.random < 0.125) {
 			tile.entity = Some(EntityTree())
 		} else if (Math.random < 0.005 && !Game.DEV) {
@@ -19,7 +19,7 @@ case object ForestBiome extends Biome {
 
 case object DesertBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
-		tile.terrain = Terrain("sand")
+		tile.terrain = TerrainSand
 		if (Math.random < 0.02 && !Game.DEV) {
 			tile.entity = Some(EntityGoblin())
 		}
@@ -28,7 +28,7 @@ case object DesertBiome extends Biome {
 
 case object DirtBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
-		tile.terrain = Terrain("dirt")
+		tile.terrain = TerrainDirt
 		if (Math.random < 0.02 && !Game.DEV) {
 			tile.entity = Some(EntityGoblin())
 		}
@@ -49,7 +49,7 @@ case object StoneBiome extends Biome {
 		), 0.10)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
-		tile.terrain = Terrain("bedrock")
+		tile.terrain = TerrainBedrock
 		
 		var chanceOfOre = 0.01;
 

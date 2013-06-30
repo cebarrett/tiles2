@@ -4,11 +4,12 @@ import play.api.Logger
 import scala.util.Random
 
 object ChunkGenerator {
+	
+	private var terrainGen = new GridNoise(if (Game.DEV) 1.5 else 15)
 
 	private val biomeGen = new GridRandom[Biome](
-		Seq(DesertBiome, ForestBiome, DirtBiome, StoneBiome),
-		1.0
-	)
+		Seq(ForestBiome, ForestBiome, DesertBiome, DirtBiome),
+		1.0)
 
 	private val structureGenList:Seq[StructureGen] = Seq(StructureSpawn)
 
@@ -25,9 +26,27 @@ object ChunkGenerator {
 
 	private def generate(coords:WorldCoordinates):Tile = {
 		val tc:TileCoordinates = coords.toTileCoordinates()
-		val tile:Tile = Tile(tc.tx, tc.ty, Terrain("dirt"))
-		biomeGen.pick(coords.x, coords.y).map({_.decorate(tile, coords)})
-		structureGenList map {_.decorate(tile, coords)}
+		val tile:Tile = Tile(tc.tx, tc.ty, TerrainDirt)
+		
+		val terrainNoise = terrainGen noiseAt (coords.x, coords.y)
+		Logger info s"$terrainNoise"
+		
+		if (terrainNoise < 0.125) {
+			tile.terrain = TerrainWater
+		} else if (terrainNoise < 0.13) {
+			tile.terrain = TerrainSand
+		} else if (terrainNoise < 0.25) {
+			biomeGen pick (coords.x, coords.y) map {_ decorate (tile, coords)}
+			structureGenList map {_ decorate (tile, coords)}
+		} else if (terrainNoise < 0.50) {
+			StoneBiome decorate (tile, coords)
+		} else if (terrainNoise < 0.51) {
+			tile.terrain = TerrainBedrock
+			tile.entity = Some(EntityBlock(Obsidian))
+		} else {
+			tile.terrain = TerrainLava
+		}
+		
 		tile
 	}
 

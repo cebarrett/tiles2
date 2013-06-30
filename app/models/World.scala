@@ -51,26 +51,31 @@ class World {
 	}
 
 	def entity(coords:WorldCoordinates):Option[Entity] = tileAt(coords).entity
-
-	/** Run 1 tick of the game loop. */
-	def tick():Unit = {
-		Logger debug "tick"
-		// TODO: this builds an array of ~500k entities every 1s... too slow
-		var allEntityCoords = Seq.empty[(Entity, WorldCoordinates)]
+	
+	/** Iterate over every tile in the world (slow) */
+	def forEachTile[B](fn:((Tile, WorldCoordinates) => B)):Unit = {
 		chunkGrid.foreach { entry =>
 			val (chunkCoords, chunk) = entry
 			chunk.tiles foreach { tcol =>
 				tcol foreach { t =>
-					t.entity map { e =>
-						// XXX: don't tick EntityBlock for now - too many of them.
-						// kind of a hack, entities that move need a subclass.
-						e match {
-							case _:EntityBlock => Unit
-							case _ => {
-								val coords = TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords)
-								allEntityCoords = (e, coords) +: allEntityCoords
-							}
-						}
+					fn(t, TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords))
+				}
+			}
+		}
+	}
+
+	/** Run 1 tick of the game loop. */
+	def tick():Unit = {
+		// TODO: this builds an array of ~500k entities every 1s... too slow
+		var allEntityCoords = Seq.empty[(Entity, WorldCoordinates)]
+		forEachTile { (t, pos) =>
+			t.entity map { e =>
+				// XXX: don't tick EntityBlock for now - too many of them.
+				// kind of a hack, entities that move need a subclass.
+				e match {
+					case _:EntityBlock => Unit
+					case _ => {
+						allEntityCoords = (e, pos) +: allEntityCoords
 					}
 				}
 			}
@@ -125,11 +130,12 @@ class World {
 	
 	def findRandomPositionNearSpawn():WorldCoordinates = {
 		// FIXME: for debugging
+		val spawn = WorldCoordinates(0,0)
 		while (true) {
-			val c = WorldCoordinates(0, 0).randomCoordsInRadius(32)
+			val c = spawn.randomCoordsInRadius(10)
 			if (tileAt(c).entity.isEmpty) return c
 		}
-		WorldCoordinates(0,0) // never get here
+		spawn // never get here
 	}
 
 	def despawnPlayer(playerName:String):Unit = {

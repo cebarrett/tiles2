@@ -73,6 +73,8 @@ class Game extends Actor {
 	/** Broadcast JSON messages to all players. */
 	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
+	// FIXME: if the actor crashes and is restarted, the game loop is scheduled again.
+	// multiple ticks are run every turn which makes monsters move too quickly.
 	private val gameLoop = {
 		Akka.system.scheduler.schedule(
 			.25 seconds,
