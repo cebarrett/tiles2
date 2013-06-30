@@ -54,6 +54,7 @@ class World {
 
 	/** Run 1 tick of the game loop. */
 	def tick():Unit = {
+		Logger debug "tick"
 		// TODO: this builds an array of ~500k entities every 1s... too slow
 		var allEntityCoords = Seq.empty[(Entity, WorldCoordinates)]
 		chunkGrid.foreach { entry =>
@@ -80,7 +81,7 @@ class World {
 			// XXX: precondition: the entity has not moved since the previous loop
 			val tile = (this tileAt pos)
 			if (tile.entity.isEmpty || tile.entity.get != e) {
-				throw new RuntimeException("entity moved before its turn")
+				Logger error "entity moved before its turn"
 			}
 			e.tick(this, pos)
 		}
@@ -124,10 +125,10 @@ class World {
 	
 	def findRandomPositionNearSpawn():WorldCoordinates = {
 		// FIXME: for debugging
-//		while (true) {
-//			val c = WorldCoordinates(0, 0).randomCoordsInRadius(20)
-//			if (tileAt(c).entity.isEmpty) return c
-//		}
+		while (true) {
+			val c = WorldCoordinates(0, 0).randomCoordsInRadius(32)
+			if (tileAt(c).entity.isEmpty) return c
+		}
 		WorldCoordinates(0,0) // never get here
 	}
 

@@ -22,7 +22,7 @@ case object Hematite extends Stone("#662211")
 case object Cassiterite extends Stone("#706620")
 
 abstract class Metal(override val color:String) extends Material(color)
-case object Copper extends Metal("#B55A19")
+case object Copper extends Metal("#973B00")
 case object Iron extends Metal("#B1B1B0")
 case object Silver extends Metal("silver")
 case object Gold extends Metal("#DDD000")

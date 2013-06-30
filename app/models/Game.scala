@@ -29,7 +29,7 @@ import models.JsonFormatters._
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = true
+	def DEV:Boolean = false
 }
 
 /**
@@ -73,11 +73,10 @@ class Game extends Actor {
 	/** Broadcast JSON messages to all players. */
 	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
-	/** Schedule the game loop to run repeatedly. */
 	private val gameLoop = {
 		Akka.system.scheduler.schedule(
-			1 seconds,
-			1 seconds,
+			.25 seconds,
+			.25 seconds,
 			self,
 			Loop()
 		)

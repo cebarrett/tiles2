@@ -30,7 +30,7 @@ abstract class EntityLiving extends Entity {
 }
 
 case class EntityPlayer(val player:Player) extends EntityLiving {
-	hitPoints = 20
+	hitPoints = 10
 }
 
 abstract class EntityMob extends EntityLiving {
@@ -45,7 +45,7 @@ abstract class EntityAnimal extends EntityMob {
 }
 
 abstract class EntityMonster extends EntityMob {
-	hitPoints = 20
+	hitPoints = 10
 	def ai:AI = new AIMonster
 }
 
