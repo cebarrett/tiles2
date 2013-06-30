@@ -1,6 +1,6 @@
 controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
-controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
+controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net, chunkManager) ->
 
 	# define some important constants
 	# (should this go here?)
@@ -10,6 +10,12 @@ controllers.controller "AppCtrl", ["$scope", "net", ($scope, net) ->
 	$scope.chunkLen = 16;	# also defined in server side and in LESS
 	$scope.worldLen = 32;	# also defined in server side
 	$scope.showLeftPanel = false
+
+	# initialize the chunk dom element pool
+	chunkManager.init $scope
+	
+	$scope.loadChunk   = (chunk)  -> chunkManager.loadChunk chunk
+	$scope.unloadChunk = (cx, cy) -> chunkManager.unloadChunk(cx, cy)
 
 	# connect to the server
 	net.connect $scope

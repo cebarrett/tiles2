@@ -60,16 +60,7 @@ services.factory "sub", ["socket", (socket) ->
 			if (message.tile.entity? and appScope.player? and (message.tile.entity.name == appScope.player.name))
 				appScope.playerEntity = message.tile.entity
 				appScope.$apply()
-			chunk = _(appScope.chunks).find({
-				cx: Math.floor(message.x/appScope.chunkLen)
-				cy: Math.floor(message.y/appScope.chunkLen)
-			})
-			if (chunk?)
-				chunk.tiles[message.tile.tx][message.tile.ty] = message.tile
-				tile = chunk.tiles[message.tile.tx][message.tile.ty]
-				appScope.$apply()
-				# broadcast the event so the chunk directive can re-render the tile
-				appScope.$broadcast('tileChange', message.x, message.y, tile)
+			appScope.$broadcast('tileChange', message.x, message.y, message.tile)
 
 		switch message.kind
 			when "error" then do ->
@@ -93,10 +84,9 @@ services.factory "sub", ["socket", (socket) ->
 						appScope.$apply()
 						appScope.$broadcast('tileChange', message.prevX, message.prevY, prevTile)
 			when "chunk" then do ->
-				appScope.chunks.push(message.chunk)
+				appScope.loadChunk(message.chunk)
 			when "chunkUnload" then do ->
-				appScope.chunks = appScope.chunks.filter (chunk) ->
-					!((chunk.cx == message.cx) && (chunk.cy == message.cy))
+				appScope.unloadChunk(message.cx, message.cy)
 			when "playerDespawn" then do ->
 				# FIXME: hack to log out dead players.
 				# needs to be fixed on the server side too,
@@ -146,6 +136,85 @@ services.factory "socket", ["$window", ($window) ->
 				sendQueue.push json
 			else
 				ws.send json
+]
+
+# manages a pool of chunk dom elements
+services.factory "chunkManager", [ "tileRender", (tileRender) ->
+	scope = null
+	pool  = []
+	newDomChunk = () ->
+		# XXX: assumes 30px tile size
+		$chunk = $('<div class="chunk"><div class="tile-column" style="left: 0px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 30px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 60px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 90px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 120px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 150px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 180px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 210px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 240px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 270px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 300px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 330px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 360px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">·</div></div><div class="tile-column" style="left: 390px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">◼</div></div><div class="tile-column" style="left: 420px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">◼</div></div><div class="tile-column" style="left: 450px;"><div class="tile" style="top: 450px;"></div><div class="tile" style="top: 420px;"></div><div class="tile" style="top: 390px;"></div><div class="tile" style="top: 360px;"></div><div class="tile" style="top: 330px;"></div><div class="tile" style="top: 300px;"></div><div class="tile" style="top: 270px;"></div><div class="tile" style="top: 240px;"></div><div class="tile" style="top: 210px;"></div><div class="tile" style="top: 180px;"></div><div class="tile" style="top: 150px;"></div><div class="tile" style="top: 120px;"></div><div class="tile" style="top: 90px;"></div><div class="tile" style="top: 60px;"></div><div class="tile" style="top: 30px;"></div><div class="tile" style="top: 0px;">◼</div></div></div>')
+		$chunk.find('.tile-column').each (tx) ->
+			$tileCol = $(this)
+			$tileCol.find('.tile').each (invTy) ->
+				$tile = $(this)
+				# FIXME: don't bind event listeners to each tile
+				$tile.on 'selectstart', () -> false
+				$tile.on 'click', (e) -> place $(this)
+				$tile.on 'mouseover', (e) ->
+					if e.which==1 then place $(this)
+		$chunk
+	while (pool.length < 16)
+		pool.push newDomChunk()
+	addChunkToDom = (chunk, $chunk) ->
+		addCoordClass($chunk, chunk.cx, chunk.cy)
+		$chunk.css "top", -((1+chunk.cy)*scope.tileSizePx*scope.chunkLen)+"px"
+		$chunk.css "left", ((chunk.cx)*scope.tileSizePx*scope.chunkLen)+"px"
+		$chunk.find('.tile-column').each (tx) ->
+			$tileCol = $(this)
+			$tileCol.find('.tile').each (invTy) ->
+				$tile = $(this)
+				ty = scope.chunkLen - invTy - 1
+				tile = _(chunk.tiles).flatten().find({tx: tx, ty: ty})
+				x = chunk.cx * scope.chunkLen + tx
+				y = chunk.cy * scope.chunkLen + ty
+				addCoordClass($tile, x, y)
+				updateTile(tile, $tile)
+		$('.world').append($chunk)
+		$chunk
+	updateTile = (tile, $tile) ->
+		id = if tile.entity? then tile.entity.kind else tile.terrain.id
+		render = tileRender[id];
+		$tile.html "&#"+render.text.charCodeAt(0)+";"
+		renderColor = do ->
+			if (tile.entity? and tile.entity.material? and tile.entity.material.color?)
+				tile.entity.material.color
+			else
+				render.color
+		$tile.css {color: renderColor}
+	place = ($tile) ->
+		classes = $tile.attr('class').split(' ')
+		coordClasses = (_(classes).filter (str) -> /^-?\d+_-?\d+$/.test(str)).__wrapped__
+		console.log coordClasses
+		if coordClasses.length > 0
+			clazz = coordClasses[0]
+			x = parseInt(clazz.split("_")[0], 10)
+			y = parseInt(clazz.split("_")[1], 10)
+			if scope.place? then scope.place(x, y)
+	removeCoordClass = ($el) ->
+		testFn = (str) -> /^-?\d+_-?\d+$/.test str
+		classes = _($el.attr('class').split(' ')).filter testCoordClass
+		_(classes).each((c) -> $el.removeClass(c))
+	addCoordClass = ($el, x, y) ->
+		$el.addClass(x+"_"+y)
+	service =
+		loadChunk: (chunk) ->
+			return if _(scope.chunks).find({cx: chunk.cx, cy: chunk.cy})?
+			$chunk = pool.pop()
+			addChunkToDom(chunk, $chunk)
+		unloadChunk: (cx, cy) ->
+			$domChunk = $('.chunk '+cx+'_'+cy).detach()
+			if ($domChunk.length() > 0)
+				removeCoordClass($domChunk)
+				$domChunk.find('.tile').each () -> removeCoordClass($(this))
+				pool.push($domChunk)
+		init: (s) ->
+			scope = s
+			# these events are broadcast by the sub service when a tile changes
+			scope.$on 'tileChange', (something, x, y, tile) ->
+				$tile = $('.'+x+'_'+y)
+				updateTile(tile, $tile)
 ]
 
 services.factory "tileRender", [ () ->

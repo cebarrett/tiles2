@@ -123,10 +123,11 @@ class World {
 	}
 	
 	def findRandomPositionNearSpawn():WorldCoordinates = {
-		while (true) {
-			val c = WorldCoordinates(0, 0).randomCoordsInRadius(20)
-			if (tileAt(c).entity.isEmpty) return c
-		}
+		// FIXME: for debugging
+//		while (true) {
+//			val c = WorldCoordinates(0, 0).randomCoordsInRadius(20)
+//			if (tileAt(c).entity.isEmpty) return c
+//		}
 		WorldCoordinates(0,0) // never get here
 	}
 

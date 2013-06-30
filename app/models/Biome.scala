@@ -20,7 +20,7 @@ case object ForestBiome extends Biome {
 case object DesertBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("sand")
-		if (Math.random < 0.02) {
+		if (Math.random < 0.02 && !Game.DEV) {
 			tile.entity = Some(EntityGoblin())
 		}
 	}
@@ -29,7 +29,7 @@ case object DesertBiome extends Biome {
 case object DirtBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = Terrain("dirt")
-		if (Math.random < 0.02) {
+		if (Math.random < 0.02 && !Game.DEV) {
 			tile.entity = Some(EntityGoblin())
 		}
 	}

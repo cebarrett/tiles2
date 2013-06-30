@@ -65,7 +65,6 @@ directives.directive "appControls", [ () ->
 			isMoving = times.size() > 0
 			if isMoving
 				totalMovesAllowed = (new Date().getTime() - moveTime)/1000.0 * movesPerSecond
-				console.log(moveCount + " ~ " + Math.floor(totalMovesAllowed))
 				if (moveCount < totalMovesAllowed)
 					newestMoveTime = times.reduce ((a, v) -> Math.max(a, v)), 0
 					newestDir = _(dirMoveTimes).findKey (v) -> v == newestMoveTime
@@ -101,54 +100,6 @@ directives.directive "world", [ "$window", ($window) ->
 		
 		$window.addEventListener "resize", renderPlayerMove, false
 		renderPlayerMove()
-];
-
-#
-# Renders a chunk and all of its tiles.
-# (No longer uses a directive for tiles because ngRepeatWatch
-# is slow with lots of tiles)
-#
-directives.directive "chunk", [ "tileRender", (tileRender) ->
-	updateTile = (tile, $tile) ->
-		id =
-			if tile.entity?
-				tile.entity.kind
-			else
-				tile.terrain.id
-		render = tileRender[id];
-		$tile.html "&#"+render.text.charCodeAt(0)+";"
-		renderColor = do ->
-			if (tile.entity? and tile.entity.material? and tile.entity.material.color?)
-				tile.entity.material.color
-			else
-				render.color
-		$tile.css {color: renderColor}
-
-	(scope, elm, attr) ->
-		elm.addClass "chunk"
-		elm.css "top", -((1+scope.chunk.cy)*scope.tileSizePx*scope.chunkLen)+"px"
-		elm.css "left", ((scope.chunk.cx)*scope.tileSizePx*scope.chunkLen)+"px"
-		_(scope.chunk.tiles).each (tileCol, tx) ->
-			$tileCol = $('<div class="tile-column">')
-			$tileCol.css "left", (tx*scope.tileSizePx)+"px"
-			_(tileCol).each (tile, ty) ->
-				x = scope.chunk.cx * scope.chunkLen + tx
-				y = scope.chunk.cy * scope.chunkLen + ty
-				$tile = $('<div class="tile '+x+'_'+y+'">')
-				$tile.css "top", -((1-scope.chunkLen+ty)*scope.tileSizePx)+"px"
-				# FIXME: don't bind event listeners to each tile
-				$tile.on 'selectstart', () -> false
-				$tile.on 'click', (e) -> 
-					scope.place(x, y) if scope.place?
-				$tile.on 'mouseover', (e) ->
-					scope.place(x, y) if scope.place? and e.which==1
-				updateTile(tile, $tile)
-				$tileCol.append($tile)
-			elm.append($tileCol[0])
-		# these events are broadcast by the sub service when a tile changes
-		scope.$on 'tileChange', (something, x, y, tile) ->
-			$tile = $('.'+x+'_'+y)
-			updateTile(tile, $tile)
 ];
 
 directives.directive "item", [ () ->
