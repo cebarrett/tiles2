@@ -210,8 +210,8 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 			$chunk = pool.pop()
 			addChunkToDom(chunk, $chunk)
 		unloadChunk: (cx, cy) ->
-			$domChunk = $('.chunk '+cx+'_'+cy).detach()
-			if ($domChunk.length() > 0)
+			$domChunk = $('.'+cx+'_'+cy).filter('.chunk').detach()
+			if ($domChunk.size() > 0)
 				removeCoordClass($domChunk)
 				$domChunk.find('.tile').each () -> removeCoordClass($(this))
 				pool.push($domChunk)

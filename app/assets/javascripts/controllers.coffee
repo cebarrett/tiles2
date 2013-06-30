@@ -71,6 +71,8 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net
 	# return true if one was opened, false otherwise.
 	$scope.openGui = (dx, dy) ->
 		tile = $scope.tileAt($scope.player.x+dx, $scope.player.y+dy)
+		if (!tile?)
+			console.warn "no tile at "+($scope.player.x+dx)+" "+ ($scope.player.y+dy)
 		if (tile? && tile.entity?)
 			if (_($scope.crafts).find({kind: tile.entity.kind})?)
 				stack = $scope.item()
