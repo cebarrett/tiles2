@@ -78,7 +78,7 @@ services.factory "sub", ["socket", (socket) ->
 					if oldchunk?
 						prevTx = message.prevX-oldchunk.cx*appScope.chunkLen
 						prevTy = message.prevY-oldchunk.cy*appScope.chunkLen
-						prevTile = oldchunk.tiles[prevTx][prevTy]
+						prevTile = appScope.tileAt(message.prevX, message.prevY)
 						delete prevTile.entity
 						# broadcast the event so the chunk directive can re-render the tile
 						appScope.$apply()
@@ -164,11 +164,11 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 			$tileCol.find('.tile').each (invTy) ->
 				$tile = $(this)
 				ty = scope.chunkLen - invTy - 1
-				tile = _(chunk.tiles).flatten().find({tx: tx, ty: ty})
+				tile = chunk.tiles[tx][ty]
 				x = chunk.cx * scope.chunkLen + tx
 				y = chunk.cy * scope.chunkLen + ty
 				addCoordClass($tile, x, y)
-				updateTile(tile, $tile) # FIXME: tile is undefined
+				updateTile(tile, $tile)
 		$('.world').append($chunk)
 		$chunk
 	updateTile = (tile, $tile) ->
@@ -183,8 +183,8 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 		$tile.css {color: renderColor}
 		pos = getCoordsFromCoordClass($tile)
 		chunk = scope.chunkAt(pos.x, pos.y)
-		chunk.tiles = _(chunk.tiles).reject({tx: tile.tx, ty: tile.ty}).value()
-		chunk.tiles.push(tile)
+		chunk.tiles[tile.tx][tile.ty] = tile
+		scope.$apply()
 	place = ($tile) ->
 		pos = getCoordsFromCoordClass($tile)
 		if (pos? and scope.place?) then scope.place(pos.x, pos.y)
