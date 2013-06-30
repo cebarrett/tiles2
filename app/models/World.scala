@@ -278,7 +278,7 @@ class World {
 					}
 				}
 				case _:EntityWorkbench | _:EntityKiln | _:EntitySmelter |
-						_:EntitySawmill | _:EntityStonecutter => {
+						_:EntitySawmill | _:EntityStonecutter | _:EntityAnvil => {
 					if (player isHoldingItem "hammer") {
 						despawnEntity(targetCoords) map {
 							player.inventory add ItemStack(_, Some(1))
@@ -323,6 +323,13 @@ class World {
 									case entity:Entity => {
 										player.inventory.subtractOneOf(stack)
 										targetTile.entity = Some(entity)
+										broadcastTileEvent(target)
+										broadcastPlayer(player)
+										true
+									}
+									case floor:Floor => {
+										player.inventory.subtractOneOf(stack)
+										targetTile.terrain = floor
 										broadcastTileEvent(target)
 										broadcastPlayer(player)
 										true

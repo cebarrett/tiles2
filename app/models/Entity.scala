@@ -6,7 +6,7 @@ import scala.util.Random
 /**
  * An Entity is a kind of item that can also occupy a tile.
  */
-abstract class Entity extends Item {
+trait Entity extends Item {
 	/** Runs once per tick when this entity is in a tile in the game world.
 	 *  No-op by default but can be overridden. */
 	def tick(world:World, coords:WorldCoordinates):Unit = Unit
@@ -70,7 +70,7 @@ case class EntitySapling() extends Entity {
  * It can be placed to occupy a tile, and is also used
  * in crafting recipes that require a material ingredient.
  */
-case class EntityBlock(val material:Material) extends Entity with ItemWithMaterial
+case class EntityBlock(override val material:Material) extends AbstractItemWithMaterial(material) with Entity
 
 case class EntityTree() extends Entity
 case class EntityWorkbench() extends Entity

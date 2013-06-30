@@ -3,7 +3,7 @@ package models
 import scala.util.control.Breaks._
 import scala.collection.mutable
 
-case class Recipe(result:ItemStack, ingredients:Seq[Ingredient]) {
+case class Recipe(result:ItemStack, ingredients:Seq[Ingredient], useMaterial:Boolean = false) {
 	def craft(inventory:Inventory):Boolean = {
 		// pair each ingredient with the first item that matches
 		val reagents = new mutable.HashMap[Ingredient,Option[ItemStack]]
@@ -12,9 +12,16 @@ case class Recipe(result:ItemStack, ingredients:Seq[Ingredient]) {
 		// if any reagent does not have a matching item, fail
 		reagents.values map {opt => if (opt.isEmpty) return false}
 		
-		// otherwise, subtract reagent from inventory, then add the result
+		// otherwise, subtract reagent from inventory, then add the result.
+		// substitute first ingredient's material if useMaterial is set.
 		reagents.values map {_ map {inventory subtract _}}
-		inventory add result
+		inventory add {
+			if (!useMaterial) result else {
+				val ingItem = reagents.values.head.get.item.asInstanceOf[ItemWithMaterial]
+				val resultItem:Item = result.item.asInstanceOf[ItemWithMaterial] copyWithMaterial ingItem.material
+				ItemStack(resultItem, result.count)
+			}
+		}
 		true
 	}
 }
@@ -59,9 +66,6 @@ case class IngredientMaterial[T <: Material](val material:Class[T], override val
 object Recipe {
 	val all = Map(
 		"workbench" -> Seq[Recipe](
-			Recipe(ItemStack(Axe(Wood)),            Seq(IngredientMaterial(Wood.getClass,   5))),
-			Recipe(ItemStack(Hammer(Wood)),         Seq(IngredientMaterial(Wood.getClass,  10))),
-			Recipe(ItemStack(Pick(Wood)),           Seq(IngredientMaterial(Wood.getClass,  25))),
 			Recipe(ItemStack(EntityWorkbench()),    Seq(IngredientMaterial(Wood.getClass,  25))),
 			Recipe(ItemStack(EntityKiln()),         Seq(IngredientMaterial(classOf[Stone], 25))),
 			Recipe(ItemStack(EntitySmelter()),      Seq(IngredientMaterial(classOf[Stone], 25))),
@@ -78,16 +82,23 @@ object Recipe {
 			Recipe(ItemStack(EntityBlock(Tin), Some(1)),  Seq(IngredientMaterial(Cassiterite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
 			Recipe(ItemStack(EntityBlock(Bronze), Some(2)),  Seq(IngredientMaterial(Copper.getClass, 1), IngredientMaterial(Tin.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
 			Recipe(ItemStack(EntityBlock(Electrum), Some(2)),  Seq(IngredientMaterial(Gold.getClass, 1), IngredientMaterial(Silver.getClass, 1), IngredientMaterial(Charcoal.getClass, 1)))
-
 		),
 		"sawmill" -> Seq[Recipe](
-
+			Recipe(ItemStack(Axe(null)),            Seq(IngredientMaterial(Wood.getClass,  10)), true),
+			Recipe(ItemStack(Hammer(null)),         Seq(IngredientMaterial(Wood.getClass,  10)), true),
+			Recipe(ItemStack(Pick(null)),           Seq(IngredientMaterial(Wood.getClass,  15)), true),
+			Recipe(ItemStack(Floor(Wood), Some(2)), Seq(IngredientMaterial(Wood.getClass, 1)), true)
 		),
 		"stonecutter" -> Seq[Recipe](
-
+			Recipe(ItemStack(Axe(null)),    Seq(IngredientMaterial(classOf[Stone], 10)), true),
+			Recipe(ItemStack(Hammer(null)), Seq(IngredientMaterial(classOf[Stone], 10)), true),
+			Recipe(ItemStack(Pick(null)),   Seq(IngredientMaterial(classOf[Stone], 15)), true)
 		),
 		"anvil" -> Seq[Recipe](
-
+			Recipe(ItemStack(Axe(null)),    Seq(IngredientMaterial(classOf[Metal], 10)), true),
+			Recipe(ItemStack(Hammer(null)), Seq(IngredientMaterial(classOf[Metal], 10)), true),
+			Recipe(ItemStack(Pick(null)),   Seq(IngredientMaterial(classOf[Metal], 15)), true),
+			Recipe(ItemStack(Armor(null)),  Seq(IngredientMaterial(classOf[Metal], 30)), true)
 		)
 	)
 

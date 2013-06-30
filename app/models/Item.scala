@@ -17,23 +17,44 @@ trait Item {
  */
 trait ItemWithMaterial extends Item {
 	def material:Material
+	def copyWithMaterial(material:Material):ItemWithMaterial
 }
+
+abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithMaterial {
+	def copyWithMaterial(material:Material) = {
+		val copy = getClass getConstructor classOf[Material] newInstance(material)
+		copy.asInstanceOf[ItemWithMaterial]
+	}
+}
+
+case class Floor(override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
 
 /**
  * A Tool is an Item that has some effect or use when held,
  * such as enabling the player to pick up certain blocks.
  * It must be crafted from a material.
  */
-trait Tool extends ItemWithMaterial
-
-case class Pick(val material:Material) extends Tool {
+trait Tool extends ItemWithMaterial {
 	
 }
 
-case class Hammer(val material:Material) extends Tool {
+abstract class AbstractTool(override val material:Material) extends AbstractItemWithMaterial(material)
+
+case class Pick(override val material:Material) extends AbstractTool(material) {
 	
 }
 
-case class Axe(val material:Material) extends Tool {
+case class Hammer(override val material:Material) extends AbstractTool(material) {
+	
+}
+
+case class Axe(override val material:Material) extends AbstractTool(material) {
+	
+}
+
+/**
+ * TODO: item that protects against damage when worn
+ */
+case class Armor(override val material:Material) extends AbstractItemWithMaterial(material) {
 	
 }

@@ -25,17 +25,20 @@ object JsonFormatters {
 			"passable" -> Json.toJson(terrain.passable)
 		))
 	}
-	implicit val writesTool = new Writes[Tool] {
-		def writes(tool:Tool):JsValue = JsObject(Seq(
-			"kind"     -> Json.toJson(tool.kind),
-			"material" -> Json.toJson(tool.material)
-		))
+	implicit val writesMaterialItem = new Writes[ItemWithMaterial] {
+		def writes(item:ItemWithMaterial):JsValue = JsObject(
+			Seq("kind" -> Json.toJson(item.kind)) ++ {
+				if (item.material == null)
+					Seq.empty
+				else
+					Seq("material" -> Json.toJson(item.material))
+			}
+		)
 	}
 	implicit val writesItem = new Writes[Item] {
 		def writes(item:Item):JsValue = item match {
-			case item:EntityBlock => JsObject(Seq("kind" -> JsString(item.kind), "material" -> Json.toJson(item.material)))
-			case item:Tool        => JsObject(Seq("kind" -> JsString(item.kind), "material" -> Json.toJson(item.material)))
-			case _                => JsObject(Seq("kind" -> JsString(item.kind)))
+			case item:ItemWithMaterial  => writesMaterialItem.writes(item)
+			case _                      => JsObject(Seq("kind" -> JsString(item.kind)))
 		}
 	}
 	implicit val writesItemStack = Json.writes[ItemStack]
