@@ -28,9 +28,7 @@ object ChunkGenerator {
 		val tc:TileCoordinates = coords.toTileCoordinates()
 		val tile:Tile = Tile(tc.tx, tc.ty, TerrainDirt)
 		
-		val terrainNoise = terrainGen noiseAt (coords.x, coords.y)
-		Logger info s"$terrainNoise"
-		
+		val terrainNoise = terrainGen noiseAt (coords.x, coords.y)		
 		if (terrainNoise < 0.125) {
 			tile.terrain = TerrainWater
 		} else if (terrainNoise < 0.13) {
