@@ -250,9 +250,6 @@ class World {
 			val target:EntityLiving = targetEntity.asInstanceOf[EntityLiving]
 			val hit:Boolean = attackerEntity.attack(target)
 			if (hit) {
-				// broadcast an update for both tiles
-				broadcastTileEvent(attackerCoords)
-				broadcastTileEvent(targetCoords)
 				if (target.dead) {
 					if (target.isInstanceOf[EntityMob]) {
 						despawnEntity(targetCoords)
@@ -260,7 +257,16 @@ class World {
 					if (target.isInstanceOf[EntityPlayer]) {
 						killPlayer(target.asInstanceOf[EntityPlayer].player)
 					}
+					// give player a dead mob's drops
+					if (attackerEntity.isInstanceOf[EntityPlayer]) {
+						// give player the dead entity's drops
+						val pe = attackerEntity.asInstanceOf[EntityPlayer]
+						target.drop map {pe.player.inventory add _}
+					}
 				}
+				// broadcast an update for both tiles
+				broadcastTileEvent(attackerCoords)
+				broadcastTileEvent(targetCoords)
 			}
 		}
 

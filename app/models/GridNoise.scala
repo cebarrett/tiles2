@@ -10,25 +10,25 @@ import scala.util.Random
  */
 class GridNoise(val scale:Double = 1) {
 
-	private val z:Int = GridNoise.nextZ
+	private val z:Double = GridNoise.nextZ
 
-	private val baseScale:Double = .005 * (if (Game.DEV) 10.0 else 1.0)
-	private val baseOffsetX = 1000; // may have bugs
-	private val baseOffsetY = 1000; // may have bugs
+	private val baseScale:Double = .005 * (if (Game.DEV) 10.0 else 1)
+	private val baseOffsetX = 1925; // may have bugs
+	private val baseOffsetY = 2000; // may have bugs
 
 	def noiseAt(x:Int, y:Int):Double = {
-		PerlinNoise.perlinNoise(
-				((x+baseOffsetX)*((1/scale)*baseScale)).toFloat,
-				((y+baseOffsetY)*((1/scale)*baseScale)).toFloat,
-				z.toFloat
+		SimplexNoise.noise(
+				((x+baseOffsetX)*((1/scale)*baseScale)),
+				((y+baseOffsetY)*((1/scale)*baseScale)),
+				z
 		).toDouble
 	}
 }
 
 object GridNoise {
-	private var z:Int = 362;
-	private def nextZ():Int = {
-		z = z + 113
+	private var z:Double = 2.58
+	private def nextZ():Double = {
+		z = z + 1
 		z
 	}
 }

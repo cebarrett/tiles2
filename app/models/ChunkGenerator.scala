@@ -5,7 +5,7 @@ import scala.util.Random
 
 object ChunkGenerator {
 	
-	private var terrainGen = new GridNoise(if (Game.DEV) 1.5 else 15)
+	private var terrainGen = new GridNoise(3)
 
 	private val biomeGen = new GridRandom[Biome](
 		Seq(ForestBiome, ForestBiome, DesertBiome, DirtBiome),
@@ -29,6 +29,7 @@ object ChunkGenerator {
 		val tile:Tile = Tile(tc.tx, tc.ty, TerrainDirt)
 		
 		val terrainNoise = terrainGen noiseAt (coords.x, coords.y)
+//		Logger debug s"$terrainNoise"
 		if (terrainNoise < 0.125) {
 			tile.terrain = TerrainWater
 		} else if (terrainNoise < 0.13) {

@@ -285,4 +285,7 @@ services.factory "tileRender", [ () ->
 		lava:
 			text: "≈"
 			color: "#E31"
+		meat:
+			text: "❤"
+			color: "#C44"
 ]
