@@ -46,7 +46,7 @@ class Game extends Actor {
 	/** The world */
 	val world = {
 		val w = new World()
-		w.loadAllChunks		// XXX: possible performance issues & spams browser with all events
+		//w.loadAllChunks		// XXX: possible performance issues & spams browser with all events
 		w
 	}
 
@@ -76,8 +76,8 @@ class Game extends Actor {
 	/** Schedule the game loop to run repeatedly. */
 	private val gameLoop = {
 		Akka.system.scheduler.schedule(
-			0.2 seconds,
-			0.2 seconds,
+			1 seconds,
+			1 seconds,
 			self,
 			Loop()
 		)

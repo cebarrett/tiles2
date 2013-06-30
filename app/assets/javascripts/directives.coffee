@@ -1,81 +1,90 @@
 directives = angular.module "app.directives", []
 
 directives.directive "appControls", [ () ->
+
 	# TODO: hold shift to place blocks
 	# TODO: Q and E to cycle items
 	# TODO: shift-Q and shift-E to rearrange items
-	# TODO: mouse wheel to cycle items
 	# TODO: space de-selects item
 	# FIXME: tab still prevents input
-	(scope, elm, attrs) ->
-		speed = 5;	# moves per second
+	
+	return (scope, elm, attrs) ->
+		dirMoveTimes  = {north: null, south: null, east: null, west: null}
+		dirMoveCounts = {north: null, south: null, east: null, west: null}
+		moveTime  = null
+		moveCount = null
+		movesPerSecond = 5
+		
+		$(document).on "keydown", (e) ->
+			if _([87, 38, 83, 40, 65, 37, 68, 39]).contains(e.keyCode)
+				# first check that user isn't typing in an input
+				return if $("input:focus, textarea:focus").size() > 0
+				# now record which direction was pressed
+				if (e.keyCode is 87 or e.keyCode is 38) and !dirMoveTimes.north
+					dirMoveTimes.north  = new Date().getTime()
+					dirMoveCounts.north = 0
+				if (e.keyCode is 83 or e.keyCode is 40) and !dirMoveTimes.south
+					dirMoveTimes.south  = new Date().getTime()
+					dirMoveCounts.south = 0
+				if (e.keyCode is 65 or e.keyCode is 37) and !dirMoveTimes.west
+					dirMoveTimes.west  = new Date().getTime()
+					dirMoveCounts.west = 0
+				if (e.keyCode is 68 or e.keyCode is 39) and !dirMoveTimes.east
+					dirMoveTimes.east  = new Date().getTime()
+					dirMoveCounts.east = 0
+				if (!moveTime?)
+					moveTime = new Date().getTime()
+					moveCount = 0
+			if e.keyCode is 27
+				scope.closeGui()
+				scope.$apply()
+		
+		$(document).on "keyup", (e) ->
+			if e.keyCode is 87 or e.keyCode is 38
+				dirMoveTimes.north  = null
+				dirMoveCounts.north = null
+			if e.keyCode is 83 or e.keyCode is 40
+				dirMoveTimes.south  = null
+				dirMoveCounts.south = null
+			if e.keyCode is 65 or e.keyCode is 37
+				dirMoveTimes.west  = null
+				dirMoveCounts.west = null
+			if e.keyCode is 68 or e.keyCode is 39
+				dirMoveTimes.east  = null
+				dirMoveCounts.east = null
+			if _(dirMoveTimes).values().filter().size() == 0
+				moveTime = null
+				moveCount = null
+		
+		step = () ->
+			# if any movement key is selected and the total number of moves
+			# since started moving is less than the total moves allowed
+			# since started moving, move in the most recently selected direction.
+			times  = _(dirMoveTimes).values().filter()
+			counts = _(dirMoveCounts).values().filter()
+			isMoving = times.size() > 0
+			if isMoving
+				totalMovesAllowed = (new Date().getTime() - moveTime)/1000.0 * movesPerSecond
+				console.log(moveCount + " ~ " + Math.floor(totalMovesAllowed))
+				if (moveCount < totalMovesAllowed)
+					newestMoveTime = times.reduce ((a, v) -> Math.max(a, v)), 0
+					newestDir = _(dirMoveTimes).findKey (v) -> v == newestMoveTime
+					scope[newestDir]()
+					dirMoveCounts[newestDir]++
+					moveCount++;
+			window.requestAnimationFrame(step)
+		step()
+];
 
+# currently unused
+# TODO: mouse wheel to cycle items
+directives.directive "mouseWheelControls", [ () ->
+	(scope, elm, attr) ->
 		$('body').on 'mousewheel', (e) ->
 			delta = e.originalEvent.wheelDeltaY
 			console.log(delta)
 			return
-
-		move = {north: false, south: false, east: false, west: false}
-		moveCount = {north: 0, south: 0, east: 0, west: 0}
-
-		doMovement = (dir) ->
-			# FIXME: can move 2 directions at once, so faster diagonally
-			# to fix, only move 1 direction, the most recently selected
-			if ((false == move[dir]?) or (false == move[dir]))
-				return false
-			if ((false == moveCount[dir]?) or (moveCount[dir] == 0))
-				scope[dir]()
-				moveCount[dir] = 1
-				return true
-			timestamp = new Date().getTime()
-			delta = timestamp - move[dir]
-			newMoveCount = Math.floor(delta * speed / 1000)
-			if (newMoveCount > moveCount[dir])
-				scope[dir]()
-				moveCount[dir]++
-				return true
-			else
-				return false
-
-		step = () ->
-			if !doMovement("north")
-				if !doMovement("east")
-					if !doMovement("south")
-						doMovement("west")
-			window.requestAnimationFrame(step)
-		step()
-
-		$(document).on "keydown", (e) ->
-			# first check that user isn't typing in an input
-			return if $("input:focus, textarea:focus, button:focus").size() > 0
-			
-			# now move
-			if (e.keyCode is 87 or e.keyCode is 38) and !move.north
-				move.north = new Date().getTime()
-			if (e.keyCode is 83 or e.keyCode is 40) and !move.south
-				move.south = new Date().getTime()
-			if (e.keyCode is 65 or e.keyCode is 37) and !move.west
-				move.west = new Date().getTime()
-			if (e.keyCode is 68 or e.keyCode is 39) and !move.east
-				move.east = new Date().getTime()
-			if e.keyCode is 27 #esc
-				scope.closeGui()
-				scope.$apply()
-
-		$(document).on "keyup", (e) ->
-			if e.keyCode is 87 or e.keyCode is 38
-				move.north = false
-				moveCount.north = 0
-			if e.keyCode is 83 or e.keyCode is 40
-				move.south = false
-				moveCount.south = 0
-			if e.keyCode is 65 or e.keyCode is 37
-				move.west = false
-				moveCount.west = 0
-			if e.keyCode is 68 or e.keyCode is 39
-				move.east = false
-				moveCount.east = 0
-];
+]
 
 directives.directive "world", [ "$window", ($window) ->
 	contentElm = $ "#content"
