@@ -93,9 +93,7 @@ services.factory "sub", ["socket", (socket) ->
 				# despawned players sending commands will cause server errors.
 				if (message.player.name == appScope.player.name)
 					window.location.replace(window.location.href)
-			when "tile", "playerSpawn", "playerUpdate", "entityDespawn", "entitySpawn" then
-				# no-op, no action specific to these msgs
-			else console.log("unknown kind of message: " + message.kind)
+			else null # other message types are just model syncing
 
 	return (scope) -> appScope = scope
 ]
@@ -159,7 +157,7 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 		pool.push newDomChunk()
 	addChunkToDom = (chunk, $chunk) ->
 		addCoordClass($chunk, chunk.cx, chunk.cy)
-		$chunk.css "top", -((1+chunk.cy)*scope.tileSizePx*scope.chunkLen)+"px"
+		$chunk.css "top", -((chunk.cy)*scope.tileSizePx*scope.chunkLen)+"px"
 		$chunk.css "left", ((chunk.cx)*scope.tileSizePx*scope.chunkLen)+"px"
 		$chunk.find('.tile-column').each (tx) ->
 			$tileCol = $(this)
@@ -170,7 +168,7 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 				x = chunk.cx * scope.chunkLen + tx
 				y = chunk.cy * scope.chunkLen + ty
 				addCoordClass($tile, x, y)
-				updateTile(tile, $tile)
+				updateTile(tile, $tile) # FIXME: tile is undefined
 		$('.world').append($chunk)
 		$chunk
 	updateTile = (tile, $tile) ->
@@ -183,20 +181,30 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 			else
 				render.color
 		$tile.css {color: renderColor}
+		pos = getCoordsFromCoordClass($tile)
+		chunk = scope.chunkAt(pos.x, pos.y)
+		chunk.tiles = _(chunk.tiles).reject({tx: tile.tx, ty: tile.ty}).value()
+		chunk.tiles.push(tile)
 	place = ($tile) ->
-		classes = $tile.attr('class').split(' ')
-		coordClasses = (_(classes).filter (str) -> /^-?\d+_-?\d+$/.test(str)).__wrapped__
+		pos = getCoordsFromCoordClass($tile)
+		if (pos? and scope.place?) then scope.place(pos.x, pos.y)
+	testCoordClass = (str) -> /^-?\d+_-?\d+$/.test str
+	removeCoordClass = ($el) -> 
+		_classes = _($el.attr('class').split(' ')).filter(testCoordClass)
+		_classes.each((c) -> $el.removeClass(c))
+	addCoordClass = ($el, x, y) ->
+		$el.addClass(x+"_"+y)
+	getCoordsFromCoordClass = ($el) ->
+		classAttr = $el.attr('class')
+		classes = if classAttr? then classAttr.split(' ') else []
+		coordClasses = (_(classes).filter (str) -> /^-?\d+_-?\d+$/.test(str)).value()
 		if coordClasses.length > 0
 			clazz = coordClasses[0]
 			x = parseInt(clazz.split("_")[0], 10)
 			y = parseInt(clazz.split("_")[1], 10)
-			if scope.place? then scope.place(x, y)
-	removeCoordClass = ($el) ->
-		testFn = (str) -> /^-?\d+_-?\d+$/.test str
-		classes = _($el.attr('class').split(' ')).filter testCoordClass
-		_(classes).each((c) -> $el.removeClass(c))
-	addCoordClass = ($el, x, y) ->
-		$el.addClass(x+"_"+y)
+			{x: x, y: y}
+		else
+			null
 	service =
 		loadChunk: (chunk) ->
 			$chunk = pool.pop()
@@ -212,7 +220,7 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 			# these events are broadcast by the sub service when a tile changes
 			scope.$on 'tileChange', (something, x, y, tile) ->
 				$tile = $('.'+x+'_'+y).filter('.tile')
-				updateTile(tile, $tile)
+				if $tile.size() > 0 then updateTile(tile, $tile)
 ]
 
 services.factory "tileRender", [ () ->
