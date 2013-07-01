@@ -26,5 +26,16 @@ case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventor
 		return getSelectedItem map {_.item.kind == kind} getOrElse false
 	}
 	
+	def armor = headItem(classOf[Armor])
+	def sword = headItem(classOf[Sword])
+	
+	def headItem[T <: Item](clazz:Class[T]):Option[T] = {
+		inventory.items.filter({
+			clazz isInstance _.item
+		}).headOption.map({
+			clazz cast _.item
+		})
+	}
+	
 	def pos:WorldCoordinates = WorldCoordinates(x, y)
 }

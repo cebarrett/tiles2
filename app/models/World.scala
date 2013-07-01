@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def radius:Int = 16;
+	def radius:Int = 32;
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
@@ -239,6 +239,9 @@ class World {
 		}
 	}
 
+	/**
+	 * Does interaction between attacker and target and broadcasts events.
+	 */
 	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates):Unit = {
 
 		val (attackerTile:Tile, targetTile:Tile) = (tileAt(attackerCoords), tileAt(targetCoords))
@@ -246,7 +249,7 @@ class World {
 		val targetEntity:Entity = entity(targetCoords).head
 		val roll:Double = Random.nextDouble
 
-		// actions any living entities can do
+		// any living entity can target a living entity
 		if (targetEntity.isInstanceOf[EntityLiving]) {
 			val target:EntityLiving = targetEntity.asInstanceOf[EntityLiving]
 			val hit:Boolean = attackerEntity.attack(target)
@@ -271,7 +274,7 @@ class World {
 			}
 		}
 
-		// actions only players can do
+		// only players can target a non-living entity
 		else {
 			/* FIXME: caused a ClassCastException because attackerEntity was a goblin */
 			val player:Player = players.get(attackerEntity.asInstanceOf[EntityPlayer].player.name).getOrElse(null)
@@ -294,8 +297,14 @@ class World {
 				}
 				case (target:EntityBlock) => {
 					if (player isHoldingItem "pick") {
-						despawnEntity(targetCoords) map {
-							player.inventory add ItemStack(_, Some(1))
+						val material = player.getSelectedItem.get.item
+								.asInstanceOf[ItemWithMaterial].material
+						val toolStrength = ((material.hardness*0.8) + (material.weight*0.2)) *
+								(target.material.hardness*0.5+0.5)
+						if (Math.random < toolStrength) {
+							despawnEntity(targetCoords) map {
+								player.inventory add ItemStack(_, Some(1))
+							}
 						}
 					}
 				}

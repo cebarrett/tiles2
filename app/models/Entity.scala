@@ -17,7 +17,10 @@ case class Food() extends Entity
 abstract class EntityLiving extends Entity {
 	var hitPoints:Int = 1
 	def dead:Boolean = (hitPoints <= 0)
-	def damage:Unit = (hitPoints = hitPoints-1)
+	def damage:Boolean = {
+		hitPoints = hitPoints-1
+		true
+	}
 	/**
 	 * Attack another entity.
 	 * This method is responsible for subtracting hit points and
@@ -25,14 +28,24 @@ abstract class EntityLiving extends Entity {
 	 * despawn the target if its hit points drop to 0.
 	 */
 	def attack(target:EntityLiving):Boolean = {
-		target.damage
-		true
+		return target.damage
 	}
 	def drop:Seq[ItemStack] = Seq.empty
 }
 
 case class EntityPlayer(val player:Player) extends EntityLiving {
 	hitPoints = 10
+	override def damage = {
+		val defense:Double = player.armor.map { armor =>
+			val armorMaterial = armor.material
+			val defense:Double = ((0.66*armorMaterial.weight) + (0.33*armorMaterial.hardness))
+			defense
+		} getOrElse 0.0
+		if (Math.random > defense) {
+			hitPoints = hitPoints-1
+			true
+		} else false
+	}
 }
 
 abstract class EntityMob extends EntityLiving {
@@ -60,7 +73,7 @@ case class EntityGoblin() extends EntityMonster {
 }
 
 case class EntityWizard() extends EntityMonster {
-	hitPoints = 100
+	hitPoints = 50
 	override def drop = Seq(ItemStack(EntityBlock(Diamond), Some(Random nextInt 30 + 1)))
 }
 

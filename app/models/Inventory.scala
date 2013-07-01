@@ -17,6 +17,7 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 		ItemStack(EntityBlock(Iron), Some(250)),
 		ItemStack(EntityBlock(Sandstone), Some(250)),
 		ItemStack(EntityBlock(Diamond), Some(250)),
+		ItemStack(Armor(Basalt), Some(1)),
 		ItemStack(Food(), Some(250))
 	) else Seq(
 		ItemStack(Axe(Granite)),
