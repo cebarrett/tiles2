@@ -7,7 +7,7 @@ trait StructureGen {
 case object StructureSpawn extends StructureGen {
 	def decorate(tile:Tile, pos:WorldCoordinates) = {
 		if (pos.x == 0 && pos.y == 0) {
-			tile.entity = Some(EntityWorkbench())
+			tile.entity = Some(EntityWorkbench(Diamond))
 		}
 	}
 }

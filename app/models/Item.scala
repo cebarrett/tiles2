@@ -43,12 +43,12 @@ case class Axe(override val material:Material) extends AbstractItemWithMaterial(
 }
 
 case class Sword(override val material:Material) extends AbstractItemWithMaterial(material) {
-	
+	def attackStrength:Double = 1 + 1 * ((0.25*material.weight) + (0.75*material.hardness))
 }
 
 /**
  * TODO: item that protects against damage when worn
  */
 case class Armor(override val material:Material) extends AbstractItemWithMaterial(material) {
-	
+	def defense = ((0.66*material.weight) + (0.33*material.hardness))
 }

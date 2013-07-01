@@ -279,6 +279,8 @@ services.factory "tileRender", [ () ->
 		stonecutter:
 			text: "Θ"
 			color: "#555555"
+		gemcutter:
+			text: "Θ"
 		block:
 			text: "◼"
 			color: "white"

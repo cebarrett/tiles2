@@ -26,8 +26,19 @@ case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventor
 		return getSelectedItem map {_.item.kind == kind} getOrElse false
 	}
 	
-	def armor = headItem(classOf[Armor])
-	def sword = headItem(classOf[Sword])
+	/** Get currently equipped armor (currently always the best armor) */
+	def armor:Option[Armor] = inventory.items.filter({
+		_.item.isInstanceOf[Armor]
+	}).sortBy({ stack =>
+		(1.0 / (stack.item.asInstanceOf[Armor].defense))
+	}).map({_.item.asInstanceOf[Armor]}).headOption;
+	
+	/** Get currently equipped armor (currently always the best armor) */
+	def sword:Option[Sword] = inventory.items.filter({
+		_.item.isInstanceOf[Sword]
+	}).sortBy({ stack =>
+		(1.0 / (stack.item.asInstanceOf[Sword].attackStrength))
+	}).map({_.item.asInstanceOf[Sword]}).headOption;
 	
 	def headItem[T <: Item](clazz:Class[T]):Option[T] = {
 		inventory.items.filter({

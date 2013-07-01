@@ -52,7 +52,7 @@ case class ItemStack(val item:Item, val count:Option[Int] = Some(1)) {
 			case otherItem:ItemWithMaterial => {
 				this.item match {
 					case thisItem:ItemWithMaterial => {
-						thisItem.material equals otherItem.material 
+						otherItem.material equals thisItem.material
 					}
 					case _ => false
 				}

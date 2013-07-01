@@ -34,7 +34,9 @@ object JsonFormatters {
 			"kind"      -> JsString(entity.kind),
 			"name"      -> JsString(entity.player.name),
 			"hitPoints" -> JsNumber(entity.hitPoints)
-		))
+		) ++ (if (entity.player.armor.isEmpty) Seq.empty else Seq(
+			"material"  -> Json.toJson(entity.player.armor.get.material)
+		)))
 	}
 	implicit val writesLivingEntity:Writes[EntityLiving] = new Writes[EntityLiving] {
 		def writes(t:EntityLiving):JsValue = {
