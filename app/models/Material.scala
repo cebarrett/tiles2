@@ -21,7 +21,7 @@ case object Wool     extends AbstractMaterial(0.01, 0.01, "#DEDFDE")
 case object Charcoal extends AbstractMaterial(0.15, 0.10, "#282725")
 
 abstract class Stone(override val weight:Double, override val hardness:Double, override val color:String) extends Material
-case object Sandstone   extends Stone(1.00, 0.40, "rgb(110, 100, 60)")
+case object Sandstone   extends Stone(1.00, 0.40, "rgb(110, 95, 65)")
 case object Limestone   extends Stone(1.00, 0.40, "#5c5c55")
 case object Granite     extends Stone(1.00, 0.50, "#5c5555")
 case object Basalt      extends Stone(1.00, 0.60, "#414140")
@@ -38,3 +38,6 @@ case object Gold     extends Metal(1.00, 0.25, "#DDD000")
 case object Tin      extends Metal(0.50, 0.60, "#8B8B8B")
 case object Bronze   extends Metal(0.70, 0.70, "rgb(180, 155, 87)")
 case object Electrum extends Metal(0.95, 0.35, "#EEE898")
+
+abstract class Gem(override val weight:Double, override val hardness:Double, override val color:String) extends Material
+case object Diamond extends Gem(1.00, 1.00, "rgba(0, 255, 255, 0.66)")

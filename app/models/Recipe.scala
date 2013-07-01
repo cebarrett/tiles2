@@ -68,15 +68,16 @@ object Recipe {
 		"workbench" -> Seq[Recipe](
 			Recipe(ItemStack(Axe(null)),            Seq(IngredientMaterial(Wood.getClass,  10)), true),
 			Recipe(ItemStack(Hammer(null)),         Seq(IngredientMaterial(Wood.getClass,  10)), true),
-			Recipe(ItemStack(Pick(null)),           Seq(IngredientMaterial(Wood.getClass,  15)), true),
+			Recipe(ItemStack(Pick(null)),           Seq(IngredientMaterial(Wood.getClass,  20)), true),
+			Recipe(ItemStack(Sword(null)),          Seq(IngredientMaterial(Wood.getClass,  20)), true),
 			Recipe(ItemStack(EntityKiln()),         Seq(IngredientMaterial(classOf[Stone], 50))),
 			Recipe(ItemStack(EntitySmelter()),      Seq(IngredientMaterial(classOf[Stone], 50))),
 			Recipe(ItemStack(EntitySawmill()),      Seq(IngredientMaterial(classOf[Stone], 100))),
 			Recipe(ItemStack(EntityStonecutter()),  Seq(IngredientMaterial(classOf[Stone], 100)))
 		),
 		"kiln" -> Seq[Recipe](
-			Recipe(ItemStack(EntityBlock(Charcoal), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 1))),
-			Recipe(ItemStack(EntityAnvil()),        Seq(IngredientMaterial(Iron.getClass,  15)))
+			Recipe(ItemStack(EntityBlock(Charcoal), Some(1)), Seq(IngredientMaterial(Wood.getClass, 1))),
+			Recipe(ItemStack(EntityAnvil()), Seq(IngredientMaterial(Iron.getClass, 15)))
 		),
 		"smelter" -> Seq[Recipe](
 			Recipe(ItemStack(EntityBlock(Copper), Some(1)),  Seq(IngredientMaterial(Malachite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
@@ -93,12 +94,14 @@ object Recipe {
 		"stonecutter" -> Seq[Recipe](
 			Recipe(ItemStack(Axe(null)),    Seq(IngredientMaterial(classOf[Stone], 10)), true),
 			Recipe(ItemStack(Hammer(null)), Seq(IngredientMaterial(classOf[Stone], 10)), true),
-			Recipe(ItemStack(Pick(null)),   Seq(IngredientMaterial(classOf[Stone], 15)), true)
+			Recipe(ItemStack(Pick(null)),   Seq(IngredientMaterial(classOf[Stone], 20)), true),
+			Recipe(ItemStack(Sword(null)),  Seq(IngredientMaterial(classOf[Stone], 20)), true)
 		),
 		"anvil" -> Seq[Recipe](
 			Recipe(ItemStack(Axe(null)),    Seq(IngredientMaterial(classOf[Metal], 10)), true),
 			Recipe(ItemStack(Hammer(null)), Seq(IngredientMaterial(classOf[Metal], 10)), true),
-			Recipe(ItemStack(Pick(null)),   Seq(IngredientMaterial(classOf[Metal], 15)), true),
+			Recipe(ItemStack(Pick(null)),   Seq(IngredientMaterial(classOf[Metal], 20)), true),
+			Recipe(ItemStack(Sword(null)),  Seq(IngredientMaterial(classOf[Metal], 20)), true),
 			Recipe(ItemStack(Armor(null)),  Seq(IngredientMaterial(classOf[Metal], 30)), true)
 		)
 	)

@@ -59,6 +59,11 @@ case class EntityGoblin() extends EntityMonster {
 	override def drop = Seq(ItemStack(Food(), Some(Random nextInt 5 + 1)))
 }
 
+case class EntityWizard() extends EntityMonster {
+	hitPoints = 100
+	override def drop = Seq(ItemStack(EntityBlock(Diamond), Some(Random nextInt 30 + 1)))
+}
+
 case class EntitySapling() extends Entity {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		val tile:Tile = world.tileAt(coords)

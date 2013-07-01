@@ -234,6 +234,9 @@ services.factory "tileRender", [ () ->
 		goblin:
 			text: "g"
 			color: "#874"
+		wizard:
+			text: "W"
+			color: "cyan"
 		tree:
 			text: "♣"
 			color: "#00BB00"
