@@ -101,9 +101,3 @@ directives.directive "world", [ "$window", ($window) ->
 		$window.addEventListener "resize", renderPlayerMove, false
 		renderPlayerMove()
 ];
-
-directives.directive "item", [ () ->
-	return (scope, elm, attr) ->
-		$('body').on('selectstart', () -> false)
-		$('body').on('select', () -> false)
-];

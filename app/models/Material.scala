@@ -28,7 +28,7 @@ case object Basalt      extends Stone(1.00, 0.60, "#414140")
 case object Malachite   extends Stone(1.00, 0.50, "#2F6350")
 case object Hematite    extends Stone(1.00, 0.50, "#662211")
 case object Cassiterite extends Stone(1.00, 0.50, "#706620")
-case object Obsidian    extends Stone(1.00, 0.70, "#1F1D1E")
+case object Obsidian    extends Stone(1.00, 0.70, "#1C1A1E")
 
 abstract class Metal(override val weight:Double, override val hardness:Double, override val color:String) extends Material
 case object Copper   extends Metal(0.60, 0.60, "#973B00")

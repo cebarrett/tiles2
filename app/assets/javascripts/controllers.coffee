@@ -2,14 +2,13 @@ controllers = angular.module "app.controllers", ["app.services", "app.directives
 
 controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net, chunkManager) ->
 
-	# define some important constants
-	# (should this go here?)
-	# FIXME: send the server side ones in init
-	# FIXME: use jquery to get the css width of any tile
+	# XXX: put this init stuff somewhere else?
+	# XXX: should send the server side ones in init
+	$('body').on('selectstart', () -> false)
+	$('body').on('select', () -> false)
 	$scope.tileSizePx = 30;	# also defined in LESS
 	$scope.chunkLen = 16;	# also defined in server side and in LESS
 	$scope.worldLen = 32;	# also defined in server side
-	$scope.showLeftPanel = false
 
 	# initialize the chunk dom element pool
 	chunkManager.init $scope

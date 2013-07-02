@@ -40,6 +40,7 @@ case object StoneBiome extends Biome {
 		Seq(
 			Limestone, Granite, Sandstone, Basalt
 		), 10)
+	// FIXME: make the ore clump together like MC, currently mining is tedious and takes too long
 	private val oreNoise   = new GridRandom(
 		Seq(
 			Malachite, Malachite, Malachite, Cassiterite,

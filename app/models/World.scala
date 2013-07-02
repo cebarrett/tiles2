@@ -165,7 +165,6 @@ class World {
 		return entity
 	}
 
-
 	def movePlayer(playerName:String, dx:Int, dy:Int):Unit = {
 		players.get(playerName) map { player =>
 			val oldX:Int = player.x
@@ -288,7 +287,8 @@ class World {
 					}
 				}
 				case _:EntityWorkbench | _:EntityKiln | _:EntitySmelter |
-						_:EntitySawmill | _:EntityStonecutter | _:EntityAnvil => {
+						_:EntitySawmill | _:EntityStonecutter | _:EntityAnvil |
+						_:Gemcutter => {
 					if (player isHoldingItem "hammer") {
 						despawnEntity(targetCoords) map {
 							player.inventory add ItemStack(_, Some(1))
