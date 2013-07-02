@@ -190,13 +190,15 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 	removeCoordClass = ($el) -> 
 		_classes = _($el.attr('class').split(' ')).filter(testCoordClass)
 		_classes.each((c) -> $el.removeClass(c))
+		$el.removeAttr('x')
+		$el.removeAttr('y')
 	addCoordClass = ($el, x, y) ->
 		$el.addClass(x+"_"+y)
 		$el.attr('x', x)
 		$el.attr('y', y)
 	getCoordsFromCoordClass = ($el) ->
 		if ($el.attr('x')?)
-			{x: $el.attr('x'), y: $el.attr('y')}
+			{x: parseInt($el.attr('x'),10), y: parseInt($el.attr('y'),10)}
 		else
 			null
 	service =

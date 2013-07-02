@@ -52,7 +52,7 @@ case object StoneBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainBedrock
 		
-		var chanceOfOre = 0.01;
+		var chanceOfOre = 0.03;
 
 		tile.entity = Some({
 			if (Math.random < chanceOfOre)
