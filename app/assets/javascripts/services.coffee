@@ -151,8 +151,6 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 				# FIXME: don't bind event listeners to each tile
 				$tile.on 'click mouseover', (e) ->
 					if e.which==1 then place $(this)
-		# chunks are always in the dom but hidden when not in use
-		$chunk.css('display', 'none').appendTo($('.world'))
 		$chunk
 	while (pool.length < 16)
 		pool.push newDomChunk()
@@ -170,7 +168,7 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 				y = chunk.cy * scope.chunkLen + ty
 				addCoordClass($tile, x, y)
 				updateTile(tile, $tile)
-		$chunk.css('display', 'inline')
+		$('.world').append($chunk)
 		$chunk
 	updateTile = (tile, $tile) ->
 		id = if tile.entity? then tile.entity.kind else tile.terrain.id
@@ -194,15 +192,11 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 		_classes.each((c) -> $el.removeClass(c))
 	addCoordClass = ($el, x, y) ->
 		$el.addClass(x+"_"+y)
+		$el.attr('x', x)
+		$el.attr('y', y)
 	getCoordsFromCoordClass = ($el) ->
-		classAttr = $el.attr('class')
-		classes = if classAttr? then classAttr.split(' ') else []
-		coordClasses = (_(classes).filter (str) -> /^-?\d+_-?\d+$/.test(str)).value()
-		if coordClasses.length > 0
-			clazz = coordClasses[0]
-			x = parseInt(clazz.split("_")[0], 10)
-			y = parseInt(clazz.split("_")[1], 10)
-			{x: x, y: y}
+		if ($el.attr('x')?)
+			{x: $el.attr('x'), y: $el.attr('y')}
 		else
 			null
 	service =
@@ -213,7 +207,7 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 		unloadChunk: (cx, cy) ->
 			chunks = _(chunks).reject({cx:cx, cy:cy}).value()
 			$domChunk = $('.'+cx+'_'+cy).filter('.chunk')
-			$domChunk.css('display', 'none')
+			$domChunk.detach()
 			if ($domChunk.size() > 0)
 				removeCoordClass($domChunk)
 				$domChunk.find('.tile').each () -> removeCoordClass($(this))
