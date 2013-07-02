@@ -88,7 +88,6 @@ directives.directive "mouseWheelControls", [ () ->
 directives.directive "world", [ "$window", ($window) ->
 	contentElm = $ "#content"
 	(scope, elm, attr) ->
-		# doesn't do much yet
 		elm.addClass "world"
 		renderPlayerMove = () ->
 			if scope.player? then elm.css {

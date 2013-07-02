@@ -4,6 +4,7 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net
 
 	# XXX: put this init stuff somewhere else?
 	# XXX: should send the server side ones in init
+	window.scope = $scope
 	$('body').on('selectstart', () -> false)
 	$('body').on('select', () -> false)
 	$scope.tileSizePx = 30;	# also defined in LESS
@@ -14,17 +15,9 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net
 	chunkManager.init $scope
 	
 	$scope.loadChunk = (chunk)  ->
-		$scope.unloadChunk(chunk.cx, chunk.cy)
-		$scope.chunks.push(chunk)
-		chunkManager.loadChunk chunk
+		chunkManager.loadChunk(chunk)
 	$scope.unloadChunk = (cx, cy) ->
-		$scope.chunks = _($scope.chunks).filter((chunk) ->
-			if (chunk.cx == cx && chunk.cy == cy)
-				chunkManager.unloadChunk(cx, cy)
-				return false
-			else
-				return true
-		).value()
+		chunkManager.unloadChunk(cx, cy)
 
 	# connect to the server
 	net.connect $scope
@@ -43,7 +36,7 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net
 
 	$scope.chunkAt = (x, y) ->
 		cc = $scope.chunkCoordsAt(x, y)
-		_($scope.chunks).find(cc)
+		chunkManager.chunkAt(cc.cx, cc.cy)
 
 	$scope.tileOffset = (n) ->
 		chunkLen = $scope.chunkLen

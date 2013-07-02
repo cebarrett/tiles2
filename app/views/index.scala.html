@@ -12,9 +12,9 @@
 		<link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/index.css")">
 	</head>
 	<body>
-		<div id="app" ng-app="app" ng-controller="AppCtrl" app-controls>
+		<div id="app" ng-controller="AppCtrl" app-controls>
 			<div id="content" ng-show="connected">
-				<div world></div>
+				<div world class="world"></div>
 				<div class="gui gui-{{gui == craft.kind}}" ng-repeat="craft in crafts">
 					<button type="button" tabIndex="1" ng-click="closeGui()" class="gui-close">&times;</button>
 					<div>{{craft.kind}}</div>

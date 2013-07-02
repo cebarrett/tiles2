@@ -43,10 +43,10 @@ case object StoneBiome extends Biome {
 	// FIXME: make the ore clump together like MC, currently mining is tedious and takes too long
 	private val oreNoise   = new GridRandom(
 		Seq(
-			Malachite, Malachite, Malachite, Cassiterite,
-			Cassiterite, Cassiterite, Hematite, Hematite,
-			Hematite, Hematite, Hematite, Copper,
-			Silver, Silver, Gold, Cassiterite
+			Malachite, Malachite, Malachite, Malachite,
+			Cassiterite, Cassiterite, Cassiterite, Hematite,
+			Hematite, Hematite, Hematite, Hematite,
+			Silver, Silver, Gold, Copper
 		), 0.10)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
@@ -55,7 +55,7 @@ case object StoneBiome extends Biome {
 		var chanceOfOre = 0.01;
 
 		tile.entity = Some({
-			if (Math.random < 0.02)
+			if (Math.random < chanceOfOre)
 				EntityBlock(oreNoise.pick(pos.x, pos.y).get)
 			else
 				EntityBlock(stoneNoise.pick(pos.x, pos.y).get)

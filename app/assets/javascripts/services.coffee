@@ -11,7 +11,6 @@ services = angular.module "app.services", []
 services.factory "net", ["pub", "sub", (pub, sub) ->
 	service =
 		connect: (scope) ->
-			scope.chunks = []
 			sub scope
 			pub {kind: "spawn"}
 		north: -> pub {kind: "north"}
@@ -40,62 +39,60 @@ services.factory "pub", ["socket", (socket) ->
 #
 services.factory "sub", ["socket", (socket) ->
 	# FIXME: spaghetti code
-	appScope = null
+	scope = null
 	socket.setMessageCallback (message) ->
 		if (message == null)
-			appScope.connected = false
-			appScope.$apply()
+			scope.connected = false
+			scope.$apply()
 			return
 
-		appScope.connected = true
+		scope.connected = true
 		chunk = null
 		tile = null
 		newChunk = null
 
-		if (message.player? and appScope.player? and message.player.name == appScope.player.name) then do ->
-			appScope.player = message.player
-			appScope.$apply()
+		if (message.player? and scope.player? and message.player.name == scope.player.name) then do ->
+			scope.player = message.player
+			# optimization
+			if (message.kind != "entityMove") then scope.$apply()
 
 		if message.tile? then do ->
-			if (message.tile.entity? and appScope.player? and (message.tile.entity.name == appScope.player.name))
-				appScope.playerEntity = message.tile.entity
-				appScope.$apply()
-			appScope.$broadcast('tileChange', message.x, message.y, message.tile)
+			if (message.tile.entity? and scope.player? and (message.tile.entity.name == scope.player.name))
+				scope.playerEntity = message.tile.entity
+#				scope.$apply()
+			scope.$broadcast('tileChange', message.x, message.y, message.tile)
 
 		switch message.kind
 			when "error" then do ->
 				console.error("Error " + message.code + ": " + message.description)
 			when "spawn" then do ->
-				appScope.player = message.player
-				appScope.crafts = message.crafts
-				appScope.$apply()
+				scope.player = message.player
+				scope.crafts = message.crafts
+				scope.$apply()
 			when "entityMove" then do ->
 				if (message.prevX? && message.prevY?)
-					oldchunk = _(appScope.chunks).find({
-						cx: Math.floor(message.prevX/appScope.chunkLen)
-						cy: Math.floor(message.prevY/appScope.chunkLen)
-					})
+					oldchunk = scope.chunkAt(message.prevX, message.prevY)
 					if oldchunk?
-						prevTx = message.prevX-oldchunk.cx*appScope.chunkLen
-						prevTy = message.prevY-oldchunk.cy*appScope.chunkLen
-						prevTile = appScope.tileAt(message.prevX, message.prevY)
+						prevTx = message.prevX-oldchunk.cx*scope.chunkLen
+						prevTy = message.prevY-oldchunk.cy*scope.chunkLen
+						prevTile = scope.tileAt(message.prevX, message.prevY)
 						delete prevTile.entity
 						# broadcast the event so the chunk directive can re-render the tile
-						appScope.$apply()
-						appScope.$broadcast('tileChange', message.prevX, message.prevY, prevTile)
+						scope.$apply()
+						scope.$broadcast('tileChange', message.prevX, message.prevY, prevTile)
 			when "chunk" then do ->
-				appScope.loadChunk(message.chunk)
+				scope.loadChunk(message.chunk)
 			when "chunkUnload" then do ->
-				appScope.unloadChunk(message.cx, message.cy)
+				scope.unloadChunk(message.cx, message.cy)
 			when "playerDespawn" then do ->
 				# FIXME: hack to log out dead players.
 				# needs to be fixed on the server side too,
 				# despawned players sending commands will cause server errors.
-				if (message.player.name == appScope.player.name)
+				if (message.player.name == scope.player.name)
 					window.location.replace(window.location.href)
 			else null # other message types are just model syncing
 
-	return (scope) -> appScope = scope
+	return (sc) -> scope = sc
 ]
 
 #
@@ -139,6 +136,10 @@ services.factory "socket", ["$window", ($window) ->
 # manages a pool of chunk dom elements
 services.factory "chunkManager", [ "tileRender", (tileRender) ->
 	scope = null
+	# all loaded chunks in the game
+	chunks = []
+	# pool of reusable chunk dom elements
+	# FIXME: these are being added to the dom on chunk load
 	pool  = []
 	newDomChunk = () ->
 		# XXX: assumes 30px tile size
@@ -148,10 +149,10 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 			$tileCol.find('.tile').each (invTy) ->
 				$tile = $(this)
 				# FIXME: don't bind event listeners to each tile
-				$tile.on 'selectstart', () -> false
-				$tile.on 'click', (e) -> place $(this)
-				$tile.on 'mouseover', (e) ->
+				$tile.on 'click mouseover', (e) ->
 					if e.which==1 then place $(this)
+		# chunks are always in the dom but hidden when not in use
+		$chunk.css('display', 'none').appendTo($('.world'))
 		$chunk
 	while (pool.length < 16)
 		pool.push newDomChunk()
@@ -169,7 +170,7 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 				y = chunk.cy * scope.chunkLen + ty
 				addCoordClass($tile, x, y)
 				updateTile(tile, $tile)
-		$('.world').append($chunk)
+		$chunk.css('display', 'inline')
 		$chunk
 	updateTile = (tile, $tile) ->
 		id = if tile.entity? then tile.entity.kind else tile.terrain.id
@@ -184,7 +185,6 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 		pos = getCoordsFromCoordClass($tile)
 		chunk = scope.chunkAt(pos.x, pos.y)
 		chunk.tiles[tile.tx][tile.ty] = tile
-		scope.$apply()
 	place = ($tile) ->
 		pos = getCoordsFromCoordClass($tile)
 		if (pos? and scope.place?) then scope.place(pos.x, pos.y)
@@ -207,10 +207,13 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 			null
 	service =
 		loadChunk: (chunk) ->
+			chunks.push(chunk)
 			$chunk = pool.pop()
 			addChunkToDom(chunk, $chunk)
 		unloadChunk: (cx, cy) ->
-			$domChunk = $('.'+cx+'_'+cy).filter('.chunk').detach()
+			chunks = _(chunks).reject({cx:cx, cy:cy}).value()
+			$domChunk = $('.'+cx+'_'+cy).filter('.chunk')
+			$domChunk.css('display', 'none')
 			if ($domChunk.size() > 0)
 				removeCoordClass($domChunk)
 				$domChunk.find('.tile').each () -> removeCoordClass($(this))
@@ -221,6 +224,8 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 			scope.$on 'tileChange', (something, x, y, tile) ->
 				$tile = $('.'+x+'_'+y).filter('.tile')
 				if $tile.size() > 0 then updateTile(tile, $tile)
+		chunkAt: (cx, cy) ->
+			_(chunks).find({cx:cx, cy:cy})
 ]
 
 services.factory "tileRender", [ () ->
