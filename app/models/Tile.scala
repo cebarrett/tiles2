@@ -1,6 +1,8 @@
 package models
 
-case class Tile (val tx:Int, val ty:Int, var terrain:Terrain, var entity:Option[Entity] = None)
+case class Tile (val tx:Int, val ty:Int, var terrain:Terrain, var entity:Option[Entity] = None) {
+	def removeItem:Option[Entity] = {val e=entity ; entity=None ; e}
+}
 
 object Tile {
 	def coord(worldCoord:Int) = {

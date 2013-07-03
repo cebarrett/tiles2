@@ -34,10 +34,11 @@ object Application extends Controller {
 	
 	private var hitCounter:Int = 0
 
-	def index = Action {
+	def index = Action { request =>
 		hitCounter = hitCounter + 1
+		val playerName = request.session get "playerName" getOrElse s"player $hitCounter"
 		Ok(views.html.index("tiles2")).withSession(
-			"playerName" -> s"player $hitCounter"
+			"playerName" -> playerName
 		)
 	}
 

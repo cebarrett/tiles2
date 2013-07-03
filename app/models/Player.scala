@@ -4,6 +4,8 @@ import scala.collection.Seq
 
 case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventory = new Inventory) {
 
+	def pos = WorldCoordinates(x, y)
+	
 	def isItemSelected:Boolean = {
 		return (
 			inventory.selected.isDefined &&
@@ -47,6 +49,4 @@ case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventor
 			clazz cast _.item
 		})
 	}
-	
-	def pos:WorldCoordinates = WorldCoordinates(x, y)
 }

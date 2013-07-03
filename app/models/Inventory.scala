@@ -71,12 +71,14 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 			} else {
 				// subtract
 				items = items.filter({_ != item})
+				this.selected = None
 			}
 			Some(other)
 		}).headOption.getOrElse({
 			// handle stacks with no count
 			if (other.count.isEmpty && items.contains(other)) {
 				items = items.patch(items.indexOf(other), Seq(), 1)
+				this.selected = None
 				Some(other)
 			} else {
 				None

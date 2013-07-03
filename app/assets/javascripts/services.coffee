@@ -294,4 +294,14 @@ services.factory "tileRender", [ () ->
 		food:
 			text: "❤"
 			color: "#C22"
+		axe:
+			text: "/"
+		hammer:
+			text: "/"
+		pick:
+			text: "/"
+		sword:
+			text: "/"
+		armor:
+			text: "/"
 ]

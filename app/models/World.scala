@@ -109,16 +109,20 @@ class World {
 	
 	def connectPlayer(playerName:String):Player = {
 		Logger debug s"connect: $playerName"
-		// create a player object and hold a reference
-		val player = new Player(playerName, 0, 0)
-		players = players + (playerName -> player)
-		player
+		players get playerName getOrElse {
+			// create a player object and hold a reference
+			val player = new Player(playerName, 0, 0)
+			players = players + (playerName -> player)
+			player
+		}
 	}
 
 	def spawnPlayer(playerName:String):Unit = {
 		Logger debug s"spawn: $playerName"
 		val player = players get playerName get
-		val spawnPos = findRandomPositionNearSpawn()
+		val spawnPos = findRandomPositionNearSpawn() getOrElse {
+			throw new RuntimeException("Could not find a vacant spawn position")
+		}
 		val spawnTile = tileAt(spawnPos)
 		// spawn a player entity and update the player object
 		val playerEntity = (spawnTile.entity = Some(new EntityPlayer(player)))
@@ -128,32 +132,19 @@ class World {
 		broadcastTileEvent(spawnPos)
 	}
 	
-	def findRandomPositionNearSpawn():WorldCoordinates = {
+	def findRandomPositionNearSpawn():Option[WorldCoordinates] = {
 		// FIXME: for debugging
 		val spawn = WorldCoordinates(0,0)
-		while (true) {
+		var tries = 0
+		while (tries < 500) {
 			val c = spawn.randomCoordsInRadius(10)
-			if (tileAt(c).entity.isEmpty) return c
+			if (tileAt(c).entity.isEmpty) {
+				return Some(c)
+			} else {
+				tries = tries + 1
+			}
 		}
-		spawn // never get here
-	}
-
-	def despawnPlayer(playerName:String):Unit = {
-		players.get(playerName) match {
-			case Some(player) =>
-				val (x, y) = (player.x, player.y)
-				val tile = tileAt(x, y)
-				// remove the player entity
-				tile.entity = None
-				// null out reference to the player object
-				players = players - playerName
-				// broadcast entity despawn
-				this.eventChannel.push(WorldEvent("playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
-			case None =>
-				// FIXME: there is a bug where this happens if i open around 50
-				// browser tabs w/ the game open then close them all at the same time.
-				Logger.warn(s"Tried to despawn player who is not logged in: $playerName")
-		}
+		None
 	}
 
 	/** Remove the entity from a tile and broadcast the event. */
@@ -184,11 +175,7 @@ class World {
 			}
 		}
 	}
-
-	def killPlayer(player:Player):Unit = {
-		despawnPlayer(player.name)
-	}
-
+	
 	/**
 	 * Move an entity from oldCoords to newCoords and handle updating other
 	 * world state and firing events accordingly.
@@ -226,16 +213,29 @@ class World {
 		}
 	}
 
-	def doPlayerCrafting(playerName:String, kind:String, index:Int):Unit = {
-		players get playerName map { player:Player =>
-			doPlayerCrafting(player, Recipe.kind(kind)(index))
+	def doPlayerCrafting(playerName:String, kind:String, index:Int):Unit =
+		players get playerName map {doPlayerCrafting(_, Recipe.kind(kind)(index))}
+
+	def doPlayerCrafting(player:Player, recipe:Recipe):Unit =
+		if (recipe craft player.inventory)
+			this.broadcastTileEvent(WorldCoordinates(player.x, player.y))
+	
+	/** Despawn a player entity. */
+	def despawnPlayer(playerName:String):Option[EntityPlayer] = {
+		players get playerName map { player =>
+			despawnEntity(player.pos) map { e =>
+				e.asInstanceOf[EntityPlayer]
+			} getOrElse null
 		}
 	}
-
-	def doPlayerCrafting(player:Player, recipe:Recipe):Unit = {
-		if (recipe craft player.inventory) {
-			this.broadcastTileEvent(WorldCoordinates(player.x, player.y))
-		}
+	
+	def despawnPlayer(player:Player):Unit = {
+		val (x, y) = (player.x, player.y)
+		val tile = tileAt(x, y)
+		// remove the player entity
+		despawnEntity(WorldCoordinates(x, y))
+		// broadcast entity despawn. frontend looks for an event with this message name.
+		this.eventChannel.push(WorldEvent("playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
 	}
 
 	/**
@@ -258,7 +258,7 @@ class World {
 						despawnEntity(targetCoords)
 					}
 					if (target.isInstanceOf[EntityPlayer]) {
-						killPlayer(target.asInstanceOf[EntityPlayer].player)
+						despawnPlayer(target.asInstanceOf[EntityPlayer].player)
 					}
 					// give player a dead mob's drops
 					if (attackerEntity.isInstanceOf[EntityPlayer]) {
@@ -297,10 +297,8 @@ class World {
 				}
 				case (target:EntityBlock) => {
 					if (player isHoldingItem "pick") {
-						val material = player.getSelectedItem.get.item
-								.asInstanceOf[ItemWithMaterial].material
-						val toolStrength = ((material.hardness*0.8) + (material.weight*0.2)) *
-								(target.material.hardness*0.5+0.5)
+						val material = player.getSelectedItem.get.item.asInstanceOf[ItemWithMaterial].material
+						val toolStrength = ((material.hardness*0.8) + (material.weight*0.2)) * (target.material.hardness*0.75+0.25)
 						if (Math.random < toolStrength) {
 							despawnEntity(targetCoords) map {
 								player.inventory add ItemStack(_, Some(1))
@@ -312,6 +310,11 @@ class World {
 					despawnEntity(targetCoords)
 					attackerEntity.hitPoints = 1 + attackerEntity.hitPoints
 					
+				}
+				case tool:Tool => {
+					player.inventory add ItemStack(targetTile.removeItem.get) 
+					broadcastTileEvent(targetCoords)
+					broadcastPlayer(player)
 				}
 				case (_) => Unit
 			}
@@ -343,7 +346,7 @@ class World {
 										broadcastPlayer(player)
 										true
 									}
-									case _:Floor | _:Door => {
+									case terrain:Terrain => {
 										player.inventory.subtractOneOf(stack)
 										targetTile.terrain = stack.item.asInstanceOf[Terrain]
 										broadcastTileEvent(target)
@@ -369,7 +372,7 @@ class World {
 			this.eventChannel.push(WorldEvent("playerSelect", Some(player.x), Some(player.y), Some(tileAt(player.x,player.y)), Some(player)))
 		}
 	}
-
+	
 	def broadcastTileEvent(pos:WorldCoordinates):Unit = {
 		val tile:Tile = tileAt(pos)
 

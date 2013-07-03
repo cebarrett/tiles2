@@ -5,9 +5,7 @@ package models
  * and thus held in a player's inventory.
  */
 trait Item {
-	def kind:String = {
-		this.getClass().getSimpleName().replaceAll("^(?:Item|Entity)", "").toLowerCase()
-	}
+	def kind = this.getClass().getSimpleName().replaceAll("^(?:Item|Entity)|\\$*$", "").toLowerCase()
 }
 
 /**
@@ -30,25 +28,13 @@ abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithM
 case class Floor(override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
 case class Door (override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
 
-case class Pick(override val material:Material) extends AbstractItemWithMaterial(material) {
-	
-}
-
-case class Hammer(override val material:Material) extends AbstractItemWithMaterial(material) {
-	
-}
-
-case class Axe(override val material:Material) extends AbstractItemWithMaterial(material) {
-	
-}
-
-case class Sword(override val material:Material) extends AbstractItemWithMaterial(material) {
+abstract class Tool(override val material:Material) extends AbstractItemWithMaterial(material) with Entity
+case class Pick(override val material:Material) extends Tool(material)
+case class Hammer(override val material:Material) extends Tool(material)
+case class Axe(override val material:Material) extends Tool(material)
+case class Sword(override val material:Material) extends Tool(material) {
 	def attackStrength:Double = 1 + 1 * ((0.25*material.weight) + (0.75*material.hardness))
 }
-
-/**
- * TODO: item that protects against damage when worn
- */
-case class Armor(override val material:Material) extends AbstractItemWithMaterial(material) {
+case class Armor(override val material:Material) extends AbstractItemWithMaterial(material) with Entity  {
 	def defense = ((0.66*material.weight) + (0.33*material.hardness))
 }
