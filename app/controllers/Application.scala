@@ -36,9 +36,13 @@ object Application extends Controller {
 
 	def index = Action { request =>
 		hitCounter = hitCounter + 1
-		val playerName = request.session get "playerName" getOrElse s"player $hitCounter"
+		// use player name in the url, the session, or generate one
 		Ok(views.html.index("tiles2")).withSession(
-			"playerName" -> playerName
+			"playerName" -> request.queryString.get("player").getOrElse(Seq.empty).headOption.getOrElse {
+				request.session get "playerName" getOrElse {
+					s"player $hitCounter"
+				}
+			}
 		)
 	}
 
