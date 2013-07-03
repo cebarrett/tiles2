@@ -8,11 +8,6 @@ trait Item {
 	def kind = this.getClass().getSimpleName().replaceAll("^(?:Item|Entity)|\\$*$", "").toLowerCase()
 }
 
-/**
- * An ItemWithMaterial is an item made out of a Material,
- * whose color (and in the future other properties) are
- * determined by that material.
- */
 trait ItemWithMaterial extends Item {
 	def material:Material
 	def copyWithMaterial(material:Material):ItemWithMaterial
@@ -35,6 +30,6 @@ case class Axe(override val material:Material) extends Tool(material)
 case class Sword(override val material:Material) extends Tool(material) {
 	def attackStrength:Double = 1 + 1 * ((0.25*material.weight) + (0.75*material.hardness))
 }
-case class Armor(override val material:Material) extends AbstractItemWithMaterial(material) with Entity  {
+case class Armor(override val material:Material) extends Tool(material) {
 	def defense = ((0.66*material.weight) + (0.33*material.hardness))
 }

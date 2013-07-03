@@ -373,6 +373,13 @@ class World {
 		}
 	}
 	
+	def doDeselectItem(playerName:String):Unit = {
+		players get playerName map { player =>
+			player.inventory.selected = None
+			broadcastPlayer(player)
+		}
+	}
+	
 	def broadcastTileEvent(pos:WorldCoordinates):Unit = {
 		val tile:Tile = tileAt(pos)
 
@@ -386,10 +393,9 @@ class World {
 		this.eventChannel.push(event)
 	}
 	
-	def broadcastPlayer(player:Player):Unit = {
+	def broadcastPlayer(player:Player, kind:String = "player"):Unit = {
 		val tile:Option[Tile] = Option(tileAt(player.x, player.y))
-		val event:WorldEvent = WorldEvent(
-				"player", Some(player.x), Some(player.y), tile, Some(player)) 
+		val event:WorldEvent = WorldEvent(kind, Some(player.x), Some(player.y), tile, Some(player))
 		this.eventChannel.push(event)
 	}
 }

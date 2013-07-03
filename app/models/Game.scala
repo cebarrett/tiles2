@@ -29,7 +29,7 @@ import models.JsonFormatters._
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = false
+	def DEV:Boolean = true
 }
 
 /**
@@ -154,8 +154,12 @@ class Game extends Actor {
 					world.doPlayerCrafting(playerName, craft, index)
 				}
 				case "selectItem" =>
-					val index:Int = (message \ "index").as[Int]
-					world.doSelectItem(playerName, index)
+					message.\\("index").headOption.map({ index =>
+						index match {
+							case index:JsNumber => world.doSelectItem(playerName, index.value.toInt)
+							case _ => Unit
+						}
+					}).getOrElse(world doDeselectItem playerName)
 				case "place" => {
 					val x:Int = (message \ "x").as[Int]
 					val y:Int = (message \ "y").as[Int]

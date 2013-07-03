@@ -16,7 +16,7 @@ directives.directive "appControls", [ () ->
 		movesPerSecond = 5
 		
 		$(document).on "keydown", (e) ->
-			if _([87, 38, 83, 40, 65, 37, 68, 39]).contains(e.keyCode)
+			if _([87, 38, 83, 40, 65, 37, 68, 39]).contains(e.keyCode) # WASD and arrows
 				# first check that user isn't typing in an input
 				return if $("input:focus, textarea:focus").size() > 0
 				# now record which direction was pressed
@@ -35,9 +35,26 @@ directives.directive "appControls", [ () ->
 				if (!moveTime?)
 					moveTime = new Date().getTime()
 					moveCount = 0
-			if e.keyCode is 27
+			if e.keyCode is 27 # esc
 				scope.closeGui()
 				scope.$apply()
+			if _([81, 69, 32]).contains(e.keyCode) # Q E space
+				# first check that user isn't typing in an input
+				return if $("input:focus, textarea:focus").size() > 0
+				len = scope.player.inventory.items.length
+				sel = scope.player.inventory.selected
+				if e.keyCode == 81
+					if sel?
+						scope.selectItem (sel-1+len)%len
+					else
+						scope.selectItem len-1
+				if e.keyCode == 69
+					if sel?
+						scope.selectItem (sel+1)%len
+					else
+						scope.selectItem 0
+				if e.keyCode == 32
+					scope.selectItem()
 		
 		$(document).on "keyup", (e) ->
 			if e.keyCode is 87 or e.keyCode is 38
