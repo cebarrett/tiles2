@@ -224,7 +224,13 @@ class World {
 	def despawnPlayer(playerName:String):Option[EntityPlayer] = {
 		players get playerName map { player =>
 			despawnEntity(player.pos) map { e =>
-				e.asInstanceOf[EntityPlayer]
+				e match {
+					case e:EntityPlayer => e
+					case _ => {
+						Logger warn "despawnPlayer despawned something that wasn't a player"
+						null
+					}
+				}
 			} getOrElse null
 		}
 	}
@@ -244,8 +250,15 @@ class World {
 	def doEntityInteraction(attackerCoords:WorldCoordinates, targetCoords:WorldCoordinates):Unit = {
 
 		val (attackerTile:Tile, targetTile:Tile) = (tileAt(attackerCoords), tileAt(targetCoords))
-		val attackerEntity:EntityLiving = attackerTile.entity.get.asInstanceOf[EntityLiving]
-		val targetEntity:Entity = entity(targetCoords).head
+		val attackerEntity:EntityLiving = {
+			attackerTile.entity map {
+				_ match {
+					case entity:EntityLiving => entity
+					case _ => return
+				}
+			} getOrElse { return }
+		}
+		val targetEntity:Entity = entity(targetCoords).getOrElse({return})
 		val roll:Double = Random.nextDouble
 
 		// any living entity can target a living entity

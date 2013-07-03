@@ -64,7 +64,7 @@ case class EntityPlayer(val player:Player) extends EntityLiving {
 abstract class EntityMob extends EntityLiving {
 	def ai:AI
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
-		ai.tick(world, coords)
+		if (!dead) ai.tick(world, coords)
 	}
 }
 

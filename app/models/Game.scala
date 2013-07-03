@@ -3,7 +3,6 @@ package models
 import scala.math.BigDecimal.int2bigDecimal
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
 import java.util.concurrent.TimeUnit
-
 import akka.actor.Actor
 import akka.actor.Props
 import scala.concurrent.duration._
@@ -25,6 +24,8 @@ import play.api.libs.json.Writes
 import play.api.libs.json.Writes.arrayWrites
 import play.api.libs.json.Writes.traversableWrites
 import models.JsonFormatters._
+import java.util.Timer
+import java.util.TimerTask
 
 object Game {
 	/** set some stuff to help debug/test the game.
@@ -73,17 +74,6 @@ class Game extends Actor {
 	/** Broadcast JSON messages to all players. */
 	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
-	// FIXME: if the actor crashes and is restarted, the game loop is scheduled again.
-	// multiple ticks are run every turn which makes monsters move too quickly.
-	private val gameLoop = {
-		Akka.system.scheduler.schedule(
-			.25 seconds,
-			.25 seconds,
-			self,
-			Loop()
-		)
-	}
-
 	def sendChunks(player:Player, prevPos:Option[WorldCoordinates]):Unit = {
 		val playerChunkRadius = 1
 		val nextPos = WorldCoordinates(player.x, player.y)
@@ -119,10 +109,16 @@ class Game extends Actor {
 
 	def receive = {
 		case Join(playerName:String) => {
-			world.connectPlayer(playerName)
-			val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
-			playerChannels = playerChannels + (playerName -> playerChannel)
-			sender ! Connected(jsonWorldEventEnumerator >- chatEnumerator >- playerEnumerator)
+			// XXX: commented out because it doesn't work
+			// needs to iterate over player channels and check if it exists and is open (?)
+//			world.players get playerName map { p =>
+//				sender ! CannotConnect("player is already logged in")
+//			} getOrElse {
+				world.connectPlayer(playerName)
+				val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
+				playerChannels = playerChannels + (playerName -> playerChannel)
+				sender ! Connected(jsonWorldEventEnumerator >- chatEnumerator >- playerEnumerator)
+//			}
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
