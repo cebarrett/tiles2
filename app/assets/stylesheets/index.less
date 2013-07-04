@@ -2,7 +2,7 @@
 @tileSize: 30px;  /* also defined in script */
 @chunkLength: 16; /* also defined in script */
 @sidebarWidth: 150px;
-@playerInfoHeight: 5.5em;
+@playerInfoHeight: 3.75em;
 
 html, body, div[ng-app], div[ng-view] {
 	height: 100%;
@@ -24,8 +24,9 @@ body {
 	position: absolute;
 	overflow: hidden;
 	left: 0;
-	right: @sidebarWidth;
-	height: 100%;
+	right: 0;
+	top: 0;
+	bottom: 0;
 
 	background-color: black;
 	color: white;
@@ -35,8 +36,7 @@ body {
 	z-index: 1;
 	position: absolute;
 	width: @sidebarWidth;
-	background-color: #222;
-	bottom: 0;
+	background-color: rgba(30, 30, 30, 0.9);
 	top: 0;
 }
 
@@ -64,7 +64,6 @@ body {
 
 #right {
 	.sidebar;
-	right: 0;
 }
 
 .reset-list-styles {
@@ -75,12 +74,11 @@ body {
 
 .sidebar-button {
 	display: block;
-	background-color: #121212;
-	color: white;
-	font-size: 0.75em;
+	background-color: rgba(18, 18, 18, 0.79);
+	color: #ddd;
+	font-size: 1em;
 	appearance: none;
 	-webkit-appearance: none;
-	cursor: hand;
 	border: none;
 }
 
@@ -93,7 +91,6 @@ body {
 	.reset-list-styles;
 	overflow-y: auto;
 	position: absolute;
-	bottom: 0;
 	top: @playerInfoHeight;
 	left: 0;
 	right: 0;

@@ -9,16 +9,14 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 
 	// starting inventory for dev testing
 	items = if (Game.DEV) Seq(
-		ItemStack(EntityWorkbench(Gold)),
-		ItemStack(Axe(Gold)),
-		ItemStack(Pick(Gold)),
-		ItemStack(Hammer(Gold)),
-		ItemStack(EntityBlock(Wood), Some(250)),
-		ItemStack(EntityBlock(Iron), Some(250)),
-		ItemStack(EntityBlock(Obsidian), Some(2500)),
-		ItemStack(EntityBlock(Diamond), Some(250)),
-		ItemStack(Armor(Basalt), Some(1)),
-		ItemStack(Food(), Some(250))
+		ItemStack(EntityBlock(Obsidian), Some(1000)),
+		ItemStack(Food(), Some(1000)),
+		ItemStack(EntityWorkbench(Diamond)),
+		ItemStack(Armor(Diamond)),
+		ItemStack(Sword(Diamond)),
+		ItemStack(Axe(Diamond)),
+		ItemStack(Pick(Diamond)),
+		ItemStack(Hammer(Diamond))
 	) else Seq(
 		ItemStack(Axe(Wood)),
 		ItemStack(EntityWorkbench(Wood))
