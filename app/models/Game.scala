@@ -137,15 +137,14 @@ class Game extends Actor {
 			kind match {
 				case "spawn" => {
 					playerChannels get playerName map { channel =>
+						world.spawnPlayer(playerName)
 						world.players get playerName map { player =>
-							world.spawnPlayer(playerName)
 							sendChunks(player, None)
 							val response:JsValue = JsObject(Seq(
 								"kind" -> JsString("spawn"),
 								"player" -> Json.toJson(player),
 								"crafts" -> Json.toJson(Recipe.all)))
-						} getOrElse {
-							Logger warn s"Tried to spawn nonexistent player $playerName"
+							channel push response
 						}
 					} getOrElse {
 						Logger warn s"Tried to spawn $playerName but couldn't find their Channel"
