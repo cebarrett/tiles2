@@ -30,7 +30,7 @@ import java.util.TimerTask
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = true
+	def DEV:Boolean = false
 }
 
 /**
@@ -136,14 +136,20 @@ class Game extends Actor {
 			val kind:String = (message \ "kind").as[String]
 			kind match {
 				case "spawn" => {
-					world.spawnPlayer(playerName)
-					val player:Player = (world.players get playerName).get
-					sendChunks(player, None)
-					val response:JsValue = JsObject(Seq(
-						"kind" -> JsString("spawn"),
-						"player" -> Json.toJson(player),
-						"crafts" -> Json.toJson(Recipe.all)))
-					playerChannels.get(playerName).get.push(response)
+					playerChannels get playerName map { channel =>
+						world.players get playerName map { player =>
+							world.spawnPlayer(playerName)
+							sendChunks(player, None)
+							val response:JsValue = JsObject(Seq(
+								"kind" -> JsString("spawn"),
+								"player" -> Json.toJson(player),
+								"crafts" -> Json.toJson(Recipe.all)))
+						} getOrElse {
+							Logger warn s"Tried to spawn nonexistent player $playerName"
+						}
+					} getOrElse {
+						Logger warn s"Tried to spawn $playerName but couldn't find their Channel"
+					}
 				}
 				// FIXME: players can move while a gui is open.
 				// need to set a flag on the Player and unset when they select something.
@@ -185,7 +191,11 @@ class Game extends Actor {
 		}
 
 		case Loop() => {
-			world.tick
+			try {
+				world.tick
+			} catch {
+				case t:Throwable => Logger error ("world.tick threw exception", t)
+			}
 		}
 	}
 
