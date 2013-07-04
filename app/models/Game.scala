@@ -51,8 +51,12 @@ class Game extends Actor {
 		w
 	}
 
-	/** Translates WorldEvents into JSON that can be broadcast to players,
-	    and also listens for and handles certain WorldEvents. */
+	/**
+	 * Translates WorldEvents into JSON that can be broadcast to players,
+	 * and also listens for and handles certain WorldEvents.
+	 * 
+	 * FIXME: stop broadcasting messages with x,y defined and instead send to only nearby players
+	 */
 	val jsonWorldEventEnumerator:Enumerator[JsValue] = world.eventEnumerator.map[JsValue] { worldEvent =>
 		(worldEvent.kind, worldEvent.player.isDefined) match {
 			case ("entityMove", true) => {
@@ -174,7 +178,11 @@ class Game extends Actor {
 		}
 
 		case Loop() => {
-			world.tick()
+			try {
+				world.tick()
+			} catch {
+				case t:Throwable => Logger error ("tick", t)
+			}
 		}
 	}
 

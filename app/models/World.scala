@@ -359,11 +359,13 @@ class World {
 										true
 									}
 									case terrain:Terrain => {
-										player.inventory.subtractOneOf(stack)
-										targetTile.terrain = stack.item.asInstanceOf[Terrain]
-										broadcastTileEvent(target)
-										broadcastPlayer(player)
-										true
+										if (!(targetTile.terrain.getClass.isInstance(terrain))) {
+											player.inventory.subtractOneOf(stack)
+											targetTile.terrain = stack.item.asInstanceOf[Terrain]
+											broadcastTileEvent(target)
+											broadcastPlayer(player)
+											true
+										} else false
 									}
 									case _ => false
 								}
