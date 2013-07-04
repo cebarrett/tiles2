@@ -13,6 +13,7 @@ import models.Join
 import models.Quit
 import models.Talk
 import models.Loop
+import play.api.Logger
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -75,7 +76,8 @@ object Application extends Controller {
 					game ! Quit(playerName)
 				}
 				(iteratee, enumerator)
-			case CannotConnect(error) => 
+			case CannotConnect(error) =>
+				Logger warn s"Could not connect player ${playerName}: $error"
 				val iteratee = Done[JsValue,Unit]((),Input.EOF)
 				val enumerator = Enumerator[JsValue](JsNull).andThen(Enumerator.enumInput(Input.EOF))
 				(iteratee,enumerator)

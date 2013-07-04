@@ -2,7 +2,7 @@
 @tileSize: 30px;  /* also defined in script */
 @chunkLength: 16; /* also defined in script */
 @sidebarWidth: 150px;
-@playerInfoHeight: 3.75em;
+@playerInfoHeight: 1.5*3em+0.2em;
 
 html, body, div[ng-app], div[ng-view] {
 	height: 100%;
@@ -36,7 +36,6 @@ body {
 	z-index: 1;
 	position: absolute;
 	width: @sidebarWidth;
-	background-color: rgba(30, 30, 30, 0.9);
 	top: 0;
 }
 
@@ -74,9 +73,9 @@ body {
 
 .sidebar-button {
 	display: block;
-	background-color: rgba(18, 18, 18, 0.79);
+	background-color: rgba(118, 118, 118, 0.31);
 	color: #ddd;
-	font-size: 1em;
+	font-size: 1.25em;
 	appearance: none;
 	-webkit-appearance: none;
 	border: none;
