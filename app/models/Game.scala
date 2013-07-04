@@ -46,8 +46,6 @@ class Game extends Actor {
 
 	/** The game world */
 	val world = new World
-	
-	// XXX: possible performance issues & spams browser with all events
 	world.loadAllChunks
 
 	/**
