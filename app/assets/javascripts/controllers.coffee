@@ -62,6 +62,7 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net
 	# open a crafting gui for the tile dx,dy from the player.
 	# return true if one was opened, false otherwise.
 	$scope.openGui = (dx, dy) ->
+		if !scope.player? then return false
 		tile = $scope.tileAt($scope.player.x+dx, $scope.player.y+dy)
 		if (!tile?)
 			console.warn "no tile at "+($scope.player.x+dx)+" "+ ($scope.player.y+dy)

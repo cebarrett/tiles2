@@ -66,7 +66,6 @@ class World {
 
 	/** Run 1 tick of the game loop. */
 	def tick():Unit = {
-		// TODO: this builds an array of ~500k entities every 1s... too slow
 		var allEntityCoords = Seq.empty[(Entity, WorldCoordinates)]
 		forEachTile { (t, pos) =>
 			t.entity map { e =>
@@ -83,12 +82,12 @@ class World {
 		Logger trace s"entities to tick: ${allEntityCoords.length}"
 		allEntityCoords foreach { entry =>
 			val (e, pos) = entry
-			// XXX: precondition: the entity has not moved since the previous loop
 			val tile = (this tileAt pos)
 			if (tile.entity.isEmpty || tile.entity.get != e) {
-				Logger error "entity moved before its turn"
+				Logger warn "entity not found where it was expected"
+			} else {
+				e.tick(this, pos)
 			}
-			e.tick(this, pos)
 		}
 		ticks = ticks + 1;
 	}
