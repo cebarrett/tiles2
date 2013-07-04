@@ -78,7 +78,7 @@ abstract class EntityMonster extends EntityMob {
 }
 
 case class EntityLlama() extends EntityAnimal {
-	override def drop = Seq(ItemStack(EntityBlock(Wool)), ItemStack(Food()))
+	override def drop = Seq(ItemStack(Food()))
 }
 
 case class EntityGoblin() extends EntityMonster {
@@ -86,9 +86,9 @@ case class EntityGoblin() extends EntityMonster {
 	override def drop = Seq(ItemStack(Food(), Some(Random nextInt 5 + 1)))
 }
 
-case class EntityWizard() extends EntityMonster {
-	hitPoints = 100
-	override def drop = Seq(ItemStack(EntityBlock(Diamond), Some(Random nextInt 30 + 1)))
+case class EntityDragon() extends EntityMonster {
+	hitPoints = 250
+	override def drop = Seq(ItemStack(EntityBlock(Diamond), Some(Random nextInt 10 + 10)))
 }
 
 case class EntitySapling() extends Entity {

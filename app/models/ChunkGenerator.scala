@@ -5,13 +5,13 @@ import scala.util.Random
 
 object ChunkGenerator {
 	
-	private var terrainGen = new GridNoise(2)
+	private var terrainGen = new GridNoise(2.2)
 
 	private val biomeGen = new GridRandom[Biome](
 		Seq(ForestBiome, ForestBiome, DesertBiome, DirtBiome),
 		1.0)
 
-	private val structureGenList:Seq[StructureGen] = Seq(StructureSpawn, StructureWizard)
+	private val structureGen:Seq[StructureGen] = Seq(StructureSpawn, StructureBoss)
 
 	def generate(coords:ChunkCoordinates):Chunk = {
 		val chunk = new Chunk(coords.cx, coords.cy)
@@ -25,9 +25,12 @@ object ChunkGenerator {
 	}
 
 	private def generate(coords:WorldCoordinates):Tile = {
+		// grab the tile to generate
 		val tc:TileCoordinates = coords.toTileCoordinates()
 		val tile:Tile = Tile(tc.tx, tc.ty, TerrainDirt)
 		
+		// use terrain noise to pick initial terrain
+		// if flat land, then decorate with a biome
 		val terrainNoise = terrainGen noiseAt (coords.x, coords.y)
 		if (terrainNoise < 0.00) {
 			tile.terrain = TerrainWater
@@ -35,7 +38,6 @@ object ChunkGenerator {
 			tile.terrain = TerrainSand
 		} else if (terrainNoise < 0.33) {
 			biomeGen pick (coords.x, coords.y) map {_ decorate (tile, coords)}
-			structureGenList map {_ decorate (tile, coords)}
 		} else if (terrainNoise < 0.90) {
 			StoneBiome decorate (tile, coords)
 		} else if (terrainNoise < 0.91) {
@@ -45,6 +47,10 @@ object ChunkGenerator {
 			tile.terrain = TerrainLava
 		}
 		
-		tile
+		// generate structures
+		structureGen map {_ decorate (tile, coords)}
+		
+		// done
+		return tile
 	}
 }

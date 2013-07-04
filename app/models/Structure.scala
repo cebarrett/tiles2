@@ -12,11 +12,11 @@ case object StructureSpawn extends StructureGen {
 	}
 }
 
-case object StructureWizard extends StructureGen {
+case object StructureBoss extends StructureGen {
 	def decorate(tile:Tile, pos:WorldCoordinates) = {
-		val P = if (Game.DEV) 0.05 else 0.0019
-		if (tile.terrain == TerrainLava && tile.entity.isEmpty && Math.random < P) {
-			tile.entity = Some(EntityWizard())
+		val P = if (Game.DEV) 0.5 else 0.0019
+		if ("lava".equals(tile.terrain.id) && tile.entity.isEmpty && Math.random < P) {
+			tile.entity = Some(EntityDragon())
 		}
 	}
 }

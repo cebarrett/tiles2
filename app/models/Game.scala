@@ -30,7 +30,7 @@ import java.util.TimerTask
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = false
+	def DEV:Boolean = true
 }
 
 /**
@@ -44,23 +44,21 @@ object Game {
  */
 class Game extends Actor {
 
-	/** The world */
-	val world = {
-		val w = new World()
-		w.loadAllChunks		// XXX: possible performance issues & spams browser with all events
-		w
-	}
+	/** The game world */
+	val world = new World
+	
+	// XXX: possible performance issues & spams browser with all events
+	world.loadAllChunks
 
 	/**
 	 * Translates WorldEvents into JSON that can be broadcast to players,
 	 * and also listens for and handles certain WorldEvents.
-	 * 
-	 * FIXME: stop broadcasting messages with x,y defined and instead send to only nearby players
 	 */
-	val jsonWorldEventEnumerator:Enumerator[JsValue] = world.eventEnumerator.map[JsValue] { worldEvent =>
+	world.eventEnumerator |>>> Iteratee.foreach[WorldEvent] { worldEvent =>
+		val json = Json.toJson(worldEvent)
+		// check if a player moved and do chunk un/loading for that player
 		(worldEvent.kind, worldEvent.player.isDefined) match {
 			case ("entityMove", true) => {
-				// a player moved so do chunk un/loading
 				var oldPos = WorldCoordinates(worldEvent.prevX.get, worldEvent.prevY.get)
 				var newPos = WorldCoordinates(worldEvent.x.get, worldEvent.y.get)
 				if (oldPos.inSameChunk(newPos) == false) {
@@ -69,14 +67,25 @@ class Game extends Actor {
 			}
 			case (_, _) => Unit
 		}
-		Json.toJson(worldEvent)
+		// send the event to all players within D meters
+		// if the event has no position, send to everyone
+		val D = 50.0
+		playerChannels foreach { entry =>
+			val (playerName, channel) = entry
+			world.players get playerName map { player =>
+				worldEvent.pos map { pos =>
+					if ((pos distanceTo player.pos) < D) {
+						playerChannels.get(playerName).get.push(json)
+					}
+				} getOrElse {
+					playerChannels.get(playerName).get.push(json)
+				}
+			}
+		}
 	}
 
 	/** Broadcast JSON messages to individual players. */
 	private var playerChannels = Map.empty[String, Channel[JsValue]]
-
-	/** Broadcast JSON messages to all players. */
-	private val (chatEnumerator, chatChannel) = Concurrent.broadcast[JsValue]
 
 	def sendChunks(player:Player, prevPos:Option[WorldCoordinates]):Unit = {
 		val playerChunkRadius = 1
@@ -113,16 +122,14 @@ class Game extends Actor {
 
 	def receive = {
 		case Join(playerName:String) => {
-			// XXX: commented out because it doesn't work
-			// needs to iterate over player channels and check if it exists and is open (?)
-//			world.players get playerName map { p =>
-//				sender ! CannotConnect("player is already logged in")
-//			} getOrElse {
+			playerChannels get playerName map { p =>
+				sender ! CannotConnect("player is already logged in")
+			} getOrElse {
 				world.connectPlayer(playerName)
 				val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
 				playerChannels = playerChannels + (playerName -> playerChannel)
-				sender ! Connected(jsonWorldEventEnumerator >- chatEnumerator >- playerEnumerator)
-//			}
+				sender ! Connected(playerEnumerator)
+			}
 		}
 
 		case Talk(playerName:String, message:JsValue) => {
@@ -178,11 +185,7 @@ class Game extends Actor {
 		}
 
 		case Loop() => {
-			try {
-				world.tick()
-			} catch {
-				case t:Throwable => Logger error ("tick", t)
-			}
+			world.tick
 		}
 	}
 

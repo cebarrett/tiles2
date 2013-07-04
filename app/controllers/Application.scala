@@ -31,7 +31,7 @@ object Application extends Controller {
 	private implicit val akkaTimeout = akka.util.Timeout(1 second)
 	
 	private val game = Akka.system.actorOf(Props[Game])
-	// FIXME: should be done in game, and not using akka
+	// XXX: should be done in game and not using akka
 	private val loop = {
 		Akka.system.scheduler.schedule(
 			.25 seconds,

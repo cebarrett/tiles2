@@ -236,9 +236,9 @@ services.factory "tileRender", [ () ->
 		goblin:
 			text: "g"
 			color: "#874"
-		wizard:
-			text: "W"
-			color: "cyan"
+		dragon:
+			text: "D"
+			color: "#E11"
 		tree:
 			text: "♣"
 			color: "#00BB00"
@@ -293,7 +293,7 @@ services.factory "tileRender", [ () ->
 			text: "≈"
 			color: "#E31"
 		food:
-			text: "♥"
+			text: "❤"
 			color: "#C22"
 		axe:
 			text: "/"

@@ -30,10 +30,7 @@ class World {
 	/** Grid of all the chunks in the world */
 	val chunkGrid = new ChunkGrid
 
-	/**
-	 * Emits WorldEvent to notify listeners when things happen in the world.
-	 * Note: World should not send messages to specific players.
-	 */
+	/** Emits WorldEvent when things happen in the world. */
 	val (eventEnumerator, eventChannel) = Concurrent.broadcast[WorldEvent]
 
 	/** List of all players in the world, keyed by name */
@@ -383,7 +380,7 @@ class World {
 			// invalid index
 		} else {
 			player.inventory.selected = Some(inventoryIndex)
-			this.eventChannel.push(WorldEvent("playerSelect", Some(player.x), Some(player.y), Some(tileAt(player.x,player.y)), Some(player)))
+			broadcastPlayer(player)
 		}
 	}
 	
@@ -422,4 +419,9 @@ case class WorldEvent(
 	val player:Option[Player] = None,
 	val prevX:Option[Int] = None,
 	val prevY:Option[Int] = None
-)
+) {
+	def pos:Option[WorldCoordinates] = {
+		if (x.isDefined && y.isDefined) Some(WorldCoordinates(x.get,y.get))
+		else None
+	}
+}
