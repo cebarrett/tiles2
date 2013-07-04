@@ -88,7 +88,7 @@ class Game extends Actor {
 	private var playerChannels = Map.empty[String, Channel[JsValue]]
 
 	def sendChunks(player:Player, prevPos:Option[WorldCoordinates]):Unit = {
-		val playerChunkRadius = 1
+		val playerChunkRadius = 2
 		val nextPos = WorldCoordinates(player.x, player.y)
 		val nextCc  = nextPos.toChunkCoordinates
 		val nextRad:Set[ChunkCoordinates] = Chunk.radius(nextCc, playerChunkRadius)

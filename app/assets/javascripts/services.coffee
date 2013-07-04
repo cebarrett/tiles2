@@ -153,7 +153,7 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 				$tile.on 'click mouseover', (e) ->
 					if e.which==1 then place $(this)
 		$chunk
-	while (pool.length < 16)
+	while (pool.length < 32)
 		pool.push newDomChunk()
 	addChunkToDom = (chunk, $chunk) ->
 		addCoordClass($chunk, chunk.cx, chunk.cy)
