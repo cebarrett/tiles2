@@ -41,6 +41,7 @@ services.factory "sub", ["socket", (socket) ->
 	# FIXME: spaghetti code
 	scope = null
 	socket.setMessageCallback (message) ->
+		console.log "m"
 		if (message == null)
 			scope.connected = false
 			scope.$apply()
@@ -62,14 +63,14 @@ services.factory "sub", ["socket", (socket) ->
 #				scope.$apply()
 			scope.$broadcast('tileChange', message.x, message.y, message.tile)
 
-		switch message.kind
-			when "error" then do ->
+		switch message.kind 
+			when "error"
 				console.error("Error " + message.code + ": " + message.description)
-			when "spawn" then do ->
+			when "spawn"
 				scope.player = message.player
 				scope.crafts = message.crafts
 				scope.$apply()
-			when "entityMove" then do ->
+			when "entityMove"
 				if (message.prevX? && message.prevY?)
 					oldchunk = scope.chunkAt(message.prevX, message.prevY)
 					if oldchunk?
@@ -78,13 +79,13 @@ services.factory "sub", ["socket", (socket) ->
 						prevTile = scope.tileAt(message.prevX, message.prevY)
 						delete prevTile.entity
 						# broadcast the event so the chunk directive can re-render the tile
-						scope.$apply()
 						scope.$broadcast('tileChange', message.prevX, message.prevY, prevTile)
-			when "chunk" then do ->
+						scope.$apply()
+			when "chunk"
 				scope.loadChunk(message.chunk)
-			when "chunkUnload" then do ->
+			when "chunkUnload"
 				scope.unloadChunk(message.cx, message.cy)
-			when "playerDespawn" then do ->
+			when "playerDespawn"
 				# FIXME: hack to log out dead players.
 				# needs to be fixed on the server side too,
 				# despawned players sending commands will cause server errors.
@@ -292,7 +293,7 @@ services.factory "tileRender", [ () ->
 			text: "≈"
 			color: "#E31"
 		food:
-			text: "❤"
+			text: "♥"
 			color: "#C22"
 		axe:
 			text: "/"

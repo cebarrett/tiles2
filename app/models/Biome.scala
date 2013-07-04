@@ -47,7 +47,7 @@ case object StoneBiome extends Biome {
 			Cassiterite, Cassiterite, Cassiterite, Hematite,
 			Hematite, Hematite, Hematite, Hematite,
 			Silver, Silver, Gold, Copper
-		), 0.10)
+		), 0.09)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainBedrock

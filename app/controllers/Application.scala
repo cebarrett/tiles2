@@ -47,7 +47,7 @@ object Application extends Controller {
 		hitCounter = hitCounter + 1
 		// use player name in the url, the session, or generate one
 		Ok(views.html.index("tiles2")).withSession(
-			"playerName" -> request.queryString.get("player").getOrElse(Seq.empty).headOption.getOrElse {
+			"playerName" -> request.queryString.get("player").getOrElse(Seq.empty).map({_.trim}).filter({!_.isEmpty}).headOption.getOrElse {
 				request.session get "playerName" getOrElse {
 					s"player $hitCounter"
 				}
