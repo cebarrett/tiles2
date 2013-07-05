@@ -28,7 +28,7 @@ case object Basalt      extends Stone(1.00, 0.60, "#414140")
 case object Obsidian    extends Stone(1.00, 0.70, "#1C1A1E")
 
 abstract class Ore(override val weight:Double, override val hardness:Double, override val color:String) extends Material
-case object Malachite   extends Ore(1.00, 0.50, "rgb(71, 99, 88)")
+case object Malachite   extends Ore(1.00, 0.50, "rgb(53, 71, 64)")
 case object Hematite    extends Ore(1.00, 0.50, "rgb(78, 53, 47)")
 case object Cassiterite extends Ore(1.00, 0.50, "rgb(66, 61, 42)")
 
