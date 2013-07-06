@@ -64,6 +64,7 @@ class World {
 	/** Run 1 tick of the game loop. */
 	def tick():Unit = {
 		val T0 = System.nanoTime
+		var allEntities = Seq.empty[(Entity, WorldCoordinates)]
 		// XXX: most of the time in a tick is looping over every tile in the game
 		// instead keep a cache of all entities that need ticking
 		forEachTile { (t, pos) =>
@@ -72,15 +73,17 @@ class World {
 				// kind of a hack, entities that move need a subclass.
 				e match {
 					case _:EntityBlock | _:EntityTree => Unit
-					case _ => {
-						val tile = (this tileAt pos)
-						if (tile.entity.isEmpty || tile.entity.get != e) {
-							Logger warn "entity not found where it was expected"
-						} else {
-							e.tick(this, pos)
-						}
-					}
+					case _ => allEntities = (e, pos) +: allEntities
 				}
+			}
+		}
+		allEntities foreach { entry =>
+			val (entity, pos) = entry
+			val tile = (this tileAt pos)
+			if (tile.entity.isEmpty || tile.entity.get != entity) {
+				Logger warn "entity not found where it was expected"
+			} else {
+				entity.tick(this, pos)
 			}
 		}
 		val T1 = System.nanoTime
