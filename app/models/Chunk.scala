@@ -34,5 +34,3 @@ object Chunk {
 		return chunksInRadius
 	}
 }
-
-case class ChunkCoordinates(val cx:Int, val cy:Int)

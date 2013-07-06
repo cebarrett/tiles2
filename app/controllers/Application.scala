@@ -27,6 +27,10 @@ import play.api.mvc.Action
 import play.api.mvc.Controller
 import play.api.mvc.WebSocket
 
+object DeleteMe {
+	Logger warn s"test"
+}
+
 object Application extends Controller {
 	
 	private implicit val akkaTimeout = akka.util.Timeout(1 second)

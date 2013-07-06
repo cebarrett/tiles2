@@ -42,14 +42,14 @@ case object StoneBiome extends Biome {
 			Malachite, Malachite, Malachite, Malachite,
 			Cassiterite, Cassiterite, Cassiterite, Hematite,
 			Hematite, Hematite, Hematite, Hematite,
-			Silver, Silver, Gold, Copper), 0.09)
-	private val oreGenNoise = new GridNoise(0.05)
+			Silver, Silver, Gold, Copper), 0.33)
+	private val oreGenNoise = new GridNoise(0.11)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainBedrock
-		val oreThreshold = 0.93;
+		val oreThreshold = 0.87 // between 0 and 1
 		tile.entity = Some({
-			if (oreGenNoise.noiseAt(pos.x, pos.y) > oreThreshold)
+			if (Math.abs(oreGenNoise.noiseAt(pos.x, pos.y)) > oreThreshold)
 				new EntityBlock(oreNoise.pick(pos.x, pos.y).get)
 			else
 				new EntityBlock(stoneNoise.pick(pos.x, pos.y).get)

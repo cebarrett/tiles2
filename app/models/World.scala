@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def radius:Int = 32;
+	def radius:Int = 64; // NOTE: also hardcoded in controllers.coffee
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
@@ -53,9 +53,15 @@ class World {
 	def forEachTile[B](fn:((Tile, WorldCoordinates) => B)):Unit = {
 		chunkGrid.foreach { entry =>
 			val (chunkCoords, chunk) = entry
-			chunk.tiles foreach { tcol =>
-				tcol foreach { t =>
-					fn(t, TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords))
+			val hasPlayersNearby = players.values map { player =>
+				(Chunk.length * 6) > chunk.pos.toWorldCoordinates.distanceTo(WorldCoordinates(player.x,player.y))
+			} exists {_ == true};
+			if (hasPlayersNearby) {
+				chunk.tiles foreach { tcol =>
+					tcol foreach { t =>
+						val pos = TileCoordinates(t.tx, t.ty).toWorldCoordinates(chunkCoords)
+						fn(t, pos)
+					}
 				}
 			}
 		}
@@ -63,7 +69,6 @@ class World {
 
 	/** Run 1 tick of the game loop. */
 	def tick():Unit = {
-		val T0 = System.nanoTime
 		var allEntities = Seq.empty[(Entity, WorldCoordinates)]
 		// XXX: most of the time in a tick is looping over every tile in the game
 		// instead keep a cache of all entities that need ticking
@@ -86,8 +91,6 @@ class World {
 				entity.tick(this, pos)
 			}
 		}
-		val T1 = System.nanoTime
-		Logger debug s"Tick took ${(T1-T0)/1e6} ms"
 		ticks = ticks + 1;
 	}
 	
