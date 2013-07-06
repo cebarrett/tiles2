@@ -10,9 +10,9 @@ case object ForestBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainGrass
 		if (Math.random < 0.125) {
-			tile.entity = Some(EntityTree())
+			tile.entity = Some(new EntityTree())
 		} else if (Math.random < 0.005) {
-			tile.entity = Some(EntityPig())
+			tile.entity = Some(new EntityPig())
 		}
 	}
 }
@@ -21,7 +21,7 @@ case object DesertBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainSand
 		if (Math.random < 0.03) {
-			tile.entity = Some(EntitySpider())
+			tile.entity = Some(new EntitySpider())
 		}
 	}
 }
@@ -30,7 +30,7 @@ case object DirtBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainDirt
 		if (Math.random < 0.01) {
-			tile.entity = Some(EntityGoblin())
+			tile.entity = Some(new EntityGoblin())
 		}
 	}
 }
@@ -50,9 +50,9 @@ case object StoneBiome extends Biome {
 		val oreThreshold = 0.93;
 		tile.entity = Some({
 			if (oreGenNoise.noiseAt(pos.x, pos.y) > oreThreshold)
-				EntityBlock(oreNoise.pick(pos.x, pos.y).get)
+				new EntityBlock(oreNoise.pick(pos.x, pos.y).get)
 			else
-				EntityBlock(stoneNoise.pick(pos.x, pos.y).get)
+				new EntityBlock(stoneNoise.pick(pos.x, pos.y).get)
 		})
 	}
 }

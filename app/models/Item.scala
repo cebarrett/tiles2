@@ -20,16 +20,16 @@ abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithM
 	}
 }
 
-case class Floor(override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
-case class Door (override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
+class Floor(override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
+class Door (override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
 
 abstract class Tool(override val material:Material) extends AbstractItemWithMaterial(material) with Entity
-case class Pick(override val material:Material) extends Tool(material)
-case class Hammer(override val material:Material) extends Tool(material)
-case class Axe(override val material:Material) extends Tool(material)
-case class Sword(override val material:Material) extends Tool(material) {
+class Pick(override val material:Material) extends Tool(material)
+class Hammer(override val material:Material) extends Tool(material)
+class Axe(override val material:Material) extends Tool(material)
+class Sword(override val material:Material) extends Tool(material) {
 	def attackStrength:Double = 1 + 1 * ((0.25*material.weight) + (0.75*material.hardness))
 }
-case class Armor(override val material:Material) extends Tool(material) {
+class Armor(override val material:Material) extends Tool(material) {
 	def defense = ((0.66*material.weight) + (0.33*material.hardness))
 }

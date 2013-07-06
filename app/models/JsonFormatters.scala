@@ -110,7 +110,4 @@ object JsonFormatters {
 	
 	// event
 	implicit val writesWorldEvent = Json.writes[WorldEvent]
-	
-	// misc entities
-	implicit val writesBlockEntity:Writes[EntityBlock] = Json.writes[EntityBlock]
 }

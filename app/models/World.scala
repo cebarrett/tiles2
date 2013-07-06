@@ -64,7 +64,6 @@ class World {
 	/** Run 1 tick of the game loop. */
 	def tick():Unit = {
 		val T0 = System.nanoTime
-		var allEntityCoords = Seq.empty[(Entity, WorldCoordinates)]
 		// XXX: most of the time in a tick is looping over every tile in the game
 		// instead keep a cache of all entities that need ticking
 		forEachTile { (t, pos) =>
@@ -74,23 +73,18 @@ class World {
 				e match {
 					case _:EntityBlock | _:EntityTree => Unit
 					case _ => {
-						allEntityCoords = (e, pos) +: allEntityCoords
+						val tile = (this tileAt pos)
+						if (tile.entity.isEmpty || tile.entity.get != e) {
+							Logger warn "entity not found where it was expected"
+						} else {
+							e.tick(this, pos)
+						}
 					}
 				}
 			}
 		}
-		Logger trace s"entities to tick: ${allEntityCoords.length}"
-		allEntityCoords foreach { entry =>
-			val (e, pos) = entry
-			val tile = (this tileAt pos)
-			if (tile.entity.isEmpty || tile.entity.get != e) {
-				Logger warn "entity not found where it was expected"
-			} else {
-				e.tick(this, pos)
-			}
-		}
 		val T1 = System.nanoTime
-		Logger trace s"Tick took ${(T1-T0)/1e6} ms"
+		Logger debug s"Tick took ${(T1-T0)/1e6} ms"
 		ticks = ticks + 1;
 	}
 	
@@ -295,8 +289,8 @@ class World {
 				// XXX: this behavior belongs in the entity subclass
 				case (target:EntityTree) => {
 					if (player isHoldingItem "axe") {
-						player.inventory add ItemStack(EntityBlock(Wood), Some(1))
-						player.inventory add ItemStack(EntitySapling(), Some(Random.nextInt(2)+1))
+						player.inventory add ItemStack(new EntityBlock(Wood), Some(1))
+						player.inventory add ItemStack(new EntitySapling(), Some(Random.nextInt(2)+1))
 						despawnEntity(targetCoords)
 					}
 				}

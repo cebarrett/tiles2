@@ -42,7 +42,7 @@ object ChunkGenerator {
 			StoneBiome decorate (tile, coords)
 		} else if (terrainNoise < 0.91) {
 			tile.terrain = TerrainBedrock
-			tile.entity = Some(EntityBlock(Obsidian))
+			tile.entity = Some(new EntityBlock(Obsidian))
 		} else {
 			tile.terrain = TerrainLava
 		}
