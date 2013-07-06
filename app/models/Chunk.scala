@@ -5,6 +5,8 @@ import play.api.Logger
 
 case class Chunk (val cx:Int, val cy:Int, val tiles:Array[Array[Tile]] = Array.ofDim[Tile](Chunk.length, Chunk.length)) {
 
+	def pos = ChunkCoordinates(cx, cy)
+	
 	def tileAt(x:Int, y:Int, tile:Tile = null):Tile = {
 		if (tile != null) {
 			tiles(Tile.coord(x))(Tile.coord(y)) = tile

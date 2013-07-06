@@ -4,7 +4,7 @@ import play.api.Logger
 import scala.collection.Set
 import scala.util.control.Breaks._
 
-case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack]) {
+class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack]) {
 
 	// starting inventory for dev testing
 	items = if (Game.DEV) Seq(
