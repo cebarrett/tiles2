@@ -232,7 +232,7 @@ services.factory "tileRender", [ () ->
 			color: "white"
 		pig:
 			text: "p"
-			color: "rgb(200, 150, 200)"
+			color: "rgb(221, 164, 193)"
 		spider:
 			text: "s"
 			color: "#737370"
