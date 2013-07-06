@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def radius:Int = 50;
+	def radius:Int = 32;
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
@@ -63,13 +63,16 @@ class World {
 
 	/** Run 1 tick of the game loop. */
 	def tick():Unit = {
+		val T0 = System.nanoTime
 		var allEntityCoords = Seq.empty[(Entity, WorldCoordinates)]
+		// XXX: most of the time in a tick is looping over every tile in the game
+		// instead keep a cache of all entities that need ticking
 		forEachTile { (t, pos) =>
 			t.entity map { e =>
-				// XXX: don't tick EntityBlock for now - too many of them.
+				// XXX: don't tick these entities for now - too many of them.
 				// kind of a hack, entities that move need a subclass.
 				e match {
-					case _:EntityBlock => Unit
+					case _:EntityBlock | _:EntityTree => Unit
 					case _ => {
 						allEntityCoords = (e, pos) +: allEntityCoords
 					}
@@ -86,6 +89,8 @@ class World {
 				e.tick(this, pos)
 			}
 		}
+		val T1 = System.nanoTime
+		Logger trace s"Tick took ${(T1-T0)/1e6} ms"
 		ticks = ticks + 1;
 	}
 	
