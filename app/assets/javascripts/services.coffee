@@ -38,38 +38,32 @@ services.factory "pub", ["socket", (socket) ->
 # controller's scope.
 #
 services.factory "sub", ["socket", (socket) ->
-	# XXX: spaghetti code
-	# XXX: should only call scope.$apply once per message
 	scope = null
+	
 	socket.setMessageCallback (message) ->
+		apply = false # whether to call scope.$apply when done
+		scope.connected = true
 		if (message == null)
+			# null message means we were disconnected
 			scope.connected = false
 			scope.$apply()
 			return
-
-		scope.connected = true
-		chunk = null
-		tile = null
-		newChunk = null
-
 		if (message.player? and scope.player? and message.player.name == scope.player.name) then do ->
 			scope.player = message.player
 			# optimization
-			if (message.kind != "entityMove") then scope.$apply()
-
+			if (message.kind != "entityMove") then apply = true
 		if message.tile? then do ->
 			if (message.tile.entity? and scope.player? and (message.tile.entity.name == scope.player.name))
 				scope.playerEntity = message.tile.entity
-#				scope.$apply()
+				apply = true
 			scope.$broadcast('tileChange', message.x, message.y, message.tile)
-
 		switch message.kind 
 			when "error"
 				console.error("Error " + message.code + ": " + message.description)
 			when "spawn"
 				scope.player = message.player
 				scope.crafts = message.crafts
-				scope.$apply()
+				apply = true
 			when "entityMove"
 				if (message.prevX? && message.prevY?)
 					oldchunk = scope.chunkAt(message.prevX, message.prevY)
@@ -80,7 +74,7 @@ services.factory "sub", ["socket", (socket) ->
 						delete prevTile.entity
 						# broadcast the event so the chunk directive can re-render the tile
 						scope.$broadcast('tileChange', message.prevX, message.prevY, prevTile)
-						scope.$apply()
+						apply = true
 			when "chunk"
 				scope.loadChunk(message.chunk)
 			when "chunkUnload"
@@ -92,7 +86,8 @@ services.factory "sub", ["socket", (socket) ->
 				if (message.player.name == scope.player.name)
 					window.location.replace(window.location.href)
 			else null # other message types are just model syncing
-
+		if apply == true then scope.$apply()
+	
 	return (sc) -> scope = sc
 ]
 
