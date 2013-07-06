@@ -230,15 +230,18 @@ services.factory "tileRender", [ () ->
 		player:
 			text: "@"
 			color: "white"
-		llama:
-			text: "L"
-			color: "#BBBB99"
+		pig:
+			text: "p"
+			color: "rgb(200, 150, 200)"
+		spider:
+			text: "s"
+			color: "#737370"
 		goblin:
 			text: "g"
-			color: "#874"
+			color: "rgb(167, 132, 81)"
 		dragon:
 			text: "D"
-			color: "#E11"
+			color: "#D11"
 		tree:
 			text: "♣"
 			color: "#00BB00"

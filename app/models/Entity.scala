@@ -15,7 +15,7 @@ trait Entity extends Item {
 case class Food() extends Entity
 
 abstract class EntityLiving extends Entity {
-	var hitPoints:Int = 1
+	var hitPoints:Int = 10
 	def dead:Boolean = (hitPoints <= 0)
 	def defense:Double = 0.0
 	def damage:Boolean = {
@@ -56,7 +56,6 @@ abstract class EntityLiving extends Entity {
 }
 
 case class EntityPlayer(val player:Player) extends EntityLiving {
-	hitPoints = 10
 	override def defense = player.armor.map {_.defense} getOrElse 0.0
 	override def attackStrength:Double = player.sword map {_.attackStrength} getOrElse 1.0
 }
@@ -69,21 +68,26 @@ abstract class EntityMob extends EntityLiving {
 }
 
 abstract class EntityAnimal extends EntityMob {
+	hitPoints = 5
 	def ai:AI = new AIAnimal
 }
 
 abstract class EntityMonster extends EntityMob {
-	hitPoints = 10
 	def ai:AI = new AIMonster
 }
 
-case class EntityLlama() extends EntityAnimal {
-	override def drop = Seq(ItemStack(Food()))
+case class EntityPig() extends EntityAnimal {
+	override def drop = Seq(ItemStack(Food(), Some(Random nextInt 1 + 1)))
+}
+
+case class EntitySpider() extends EntityMonster {
+	hitPoints = 1
+	override def defense = 0.5
+	override def drop = Seq(ItemStack(Food(), Some(Random nextInt 2 + 2)))
 }
 
 case class EntityGoblin() extends EntityMonster {
-	override def defense = 0.33
-	override def drop = Seq(ItemStack(Food(), Some(Random nextInt 5 + 1)))
+	override def drop = Seq(ItemStack(Food(), Some(Random nextInt 3 + 3)))
 }
 
 case class EntityDragon() extends EntityMonster {

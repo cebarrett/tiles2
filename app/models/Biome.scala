@@ -12,7 +12,7 @@ case object ForestBiome extends Biome {
 		if (Math.random < 0.125) {
 			tile.entity = Some(EntityTree())
 		} else if (Math.random < 0.005) {
-			tile.entity = Some(EntityLlama())
+			tile.entity = Some(EntityPig())
 		}
 	}
 }
@@ -20,8 +20,8 @@ case object ForestBiome extends Biome {
 case object DesertBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainSand
-		if (Math.random < 0.02) {
-			tile.entity = Some(EntityGoblin())
+		if (Math.random < 0.03) {
+			tile.entity = Some(EntitySpider())
 		}
 	}
 }
@@ -29,7 +29,7 @@ case object DesertBiome extends Biome {
 case object DirtBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainDirt
-		if (Math.random < 0.02) {
+		if (Math.random < 0.01) {
 			tile.entity = Some(EntityGoblin())
 		}
 	}
@@ -37,28 +37,22 @@ case object DirtBiome extends Biome {
 
 case object StoneBiome extends Biome {
 	private val stoneNoise = new GridRandom(
-		Seq(
-			Limestone, Granite, Sandstone, Basalt
-		), 5)
-	// FIXME: make the ore clump together like MC, currently mining is tedious and takes too long
-	private val oreNoise   = new GridRandom(
-		Seq(
+		Seq(Limestone, Granite, Sandstone, Basalt), 5)
+	private val oreNoise = new GridRandom(Seq(
 			Malachite, Malachite, Malachite, Malachite,
 			Cassiterite, Cassiterite, Cassiterite, Hematite,
 			Hematite, Hematite, Hematite, Hematite,
-			Silver, Silver, Gold, Copper
-		), 0.09)
+			Silver, Silver, Gold, Copper), 0.09)
+	private val oreGenNoise = new GridNoise(0.05)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainBedrock
-		
-		var chanceOfOre = 0.03;
-
+		val oreThreshold = 0.93;
 		tile.entity = Some({
-			if (Math.random < chanceOfOre)
+			if (oreGenNoise.noiseAt(pos.x, pos.y) > oreThreshold)
 				EntityBlock(oreNoise.pick(pos.x, pos.y).get)
 			else
 				EntityBlock(stoneNoise.pick(pos.x, pos.y).get)
-		});
+		})
 	}
 }
