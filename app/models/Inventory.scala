@@ -4,8 +4,7 @@ import play.api.Logger
 import scala.collection.Set
 import scala.util.control.Breaks._
 
-// FIXME: selected should be a property of the player
-case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var selected:Option[Int] = None) {
+case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack]) {
 
 	// starting inventory for dev testing
 	items = if (Game.DEV) Seq(
@@ -69,14 +68,12 @@ case class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack], var select
 			} else {
 				// subtract
 				items = items.filter({_ != item})
-				this.selected = None
 			}
 			Some(other)
 		}).headOption.getOrElse({
 			// handle stacks with no count
 			if (other.count.isEmpty && items.contains(other)) {
 				items = items.patch(items.indexOf(other), Seq(), 1)
-				this.selected = None
 				Some(other)
 			} else {
 				None

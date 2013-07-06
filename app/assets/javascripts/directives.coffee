@@ -41,8 +41,8 @@ directives.directive "appControls", [ () ->
 			if _([81, 69, 32]).contains(e.keyCode) # Q E space
 				# first check that user isn't typing in an input
 				return if $("input:focus, textarea:focus").size() > 0
-				len = scope.player.inventory.items.length
-				sel = scope.player.inventory.selected
+				len = scope.player.inventory.length
+				sel = scope.player.selected
 				if e.keyCode == 81
 					if sel?
 						scope.selectItem (sel-1+len)%len

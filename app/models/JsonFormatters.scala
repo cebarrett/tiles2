@@ -58,10 +58,7 @@ object JsonFormatters {
 	// inventory
 	implicit val writesItemStack = Json.writes[ItemStack]
 	implicit val writesInventory = new Writes[Inventory] {
-		def writes(t:Inventory):JsValue = JsObject(Seq(
-			"items" -> JsArray(t.items.map({Json.toJson(_)})),
-			"selected" -> Json.toJson(t.selected)
-		))
+		def writes(t:Inventory):JsValue = JsArray(t.items.map({Json.toJson(_)}))
 	}
 	
 	// crafting

@@ -347,7 +347,7 @@ class World {
 			if (player.pos.distanceTo(target) > 10) {
 				return false
 			} else {
-				player.inventory.selected map { itemIndex =>
+				player.selected map { itemIndex =>
 					if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
 						val targetTile = tileAt(target)
 						targetTile.entity map {_ => true} getOrElse {
@@ -384,14 +384,14 @@ class World {
 		if (inventoryIndex < 0 || inventoryIndex >= player.inventory.items.size) {
 			// invalid index
 		} else {
-			player.inventory.selected = Some(inventoryIndex)
+			player.selected = Some(inventoryIndex)
 			broadcastPlayer(player)
 		}
 	}
 	
 	def doDeselectItem(playerName:String):Unit = {
 		players get playerName map { player =>
-			player.inventory.selected = None
+			player.selected = None
 			broadcastPlayer(player)
 		}
 	}

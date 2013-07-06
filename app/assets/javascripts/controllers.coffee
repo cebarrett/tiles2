@@ -84,6 +84,6 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net
 		delete $scope.gui
 
 	$scope.item = ()->
-		index = $scope.player.inventory.selected
-		if (index?) then $scope.player.inventory.items[index]
+		index = $scope.player.selected
+		if (index?) then $scope.player.inventory[index]
 ];

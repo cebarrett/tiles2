@@ -38,10 +38,10 @@ services.factory "pub", ["socket", (socket) ->
 # controller's scope.
 #
 services.factory "sub", ["socket", (socket) ->
-	# FIXME: spaghetti code
+	# XXX: spaghetti code
+	# XXX: should only call scope.$apply once per message
 	scope = null
 	socket.setMessageCallback (message) ->
-		console.log "m"
 		if (message == null)
 			scope.connected = false
 			scope.$apply()

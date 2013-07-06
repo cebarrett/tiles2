@@ -2,20 +2,20 @@ package models
 
 import scala.collection.Seq
 
-case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventory = new Inventory) {
+case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventory = new Inventory, var selected:Option[Int] = None) {
 
 	def pos = WorldCoordinates(x, y)
 	
 	def isItemSelected:Boolean = {
 		return (
-			inventory.selected.isDefined &&
-			inventory.selected.get >= 0 &&
-			inventory.selected.get < inventory.items.size
+			selected.isDefined &&
+			selected.get >= 0 &&
+			selected.get < inventory.items.size
 		)
 	}
 
 	def getSelectedItem():Option[ItemStack] = {
-		return inventory.selected.map({ index:Int =>
+		return selected.map({ index:Int =>
 			if (index >= 0 && index < inventory.items.length) {
 				Some(inventory.items(index))
 			} else {
@@ -24,9 +24,8 @@ case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventor
 		}).getOrElse[Option[ItemStack]](None)
 	}
 
-	def isHoldingItem(kind:String):Boolean = {
-		return getSelectedItem map {_.item.kind == kind} getOrElse false
-	}
+	def isHoldingItem(kind:String):Boolean =
+		getSelectedItem map {_.item.kind == kind} getOrElse false
 	
 	/** Get currently equipped armor (currently always the best armor) */
 	def armor:Option[Armor] = inventory.items.filter({
@@ -35,7 +34,7 @@ case class Player (val name:String, var x:Int, var y:Int, var inventory:Inventor
 		(1.0 / (stack.item.asInstanceOf[Armor].defense))
 	}).map({_.item.asInstanceOf[Armor]}).headOption;
 	
-	/** Get currently equipped armor (currently always the best armor) */
+	/** Get currently equipped sword (currently always the best sword) */
 	def sword:Option[Sword] = inventory.items.filter({
 		_.item.isInstanceOf[Sword]
 	}).sortBy({ stack =>
