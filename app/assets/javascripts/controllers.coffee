@@ -1,33 +1,34 @@
 controllers = angular.module "app.controllers", ["app.services", "app.directives"]
 
-controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", ($scope, net, chunkManager) ->
-
-	# XXX: put this init stuff somewhere else?
-	# XXX: should send the server side ones in init
+controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", "chunkQueue", ($scope, net, chunkManager, chunkQueue) ->
+	
 	window.scope = $scope
+	
 	$('body').on('selectstart', () -> false)
 	$('body').on('select', () -> false)
+	
+	# XXX: should send the server side ones in init
 	$scope.tileSizePx = 30;	# also defined in LESS
 	$scope.chunkLen = 16;	# also defined in server side and in LESS
 	$scope.worldLen = 32;	# also defined in server side
 
+	$scope.loadChunk = (chunk)  ->
+		chunkQueue.loadChunk(chunk)
+		
+	$scope.unloadChunk = (cx, cy) ->
+		chunkQueue.unloadChunk(cx, cy)
+
 	# initialize the chunk dom element pool
 	chunkManager.init $scope
-	
-	$scope.loadChunk = (chunk)  ->
-		chunkManager.loadChunk(chunk)
-	$scope.unloadChunk = (cx, cy) ->
-		chunkManager.unloadChunk(cx, cy)
 
 	# connect to the server
 	net.connect $scope
 
-	# view callbacks
 	$scope.north = -> $scope.openGui(0,1)  || net.north()
 	$scope.east  = -> $scope.openGui(1,0)  || net.east()
 	$scope.south = -> $scope.openGui(0,-1) || net.south()
 	$scope.west  = -> $scope.openGui(-1,0) || net.west()
-
+		
 	$scope.chunkOffset = (n) ->
 		Math.floor(n / $scope.chunkLen)
 

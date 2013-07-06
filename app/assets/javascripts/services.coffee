@@ -233,6 +233,21 @@ services.factory "renderLoop", [ () ->
 			callbacks = callbacks.without(fn)
 ]
 
+services.factory "chunkQueue", [ "renderLoop", "chunkManager", (renderLoop, chunkManager) ->
+	queue = []
+	renderLoop.addCallback () ->
+		if queue.length > 0
+			task = queue[0]
+			queue = queue.splice 1
+			if task.tiles? then chunkManager.loadChunk task
+			else chunkManager.unloadChunk task.cx, task.cy
+	service =
+		loadChunk: (chunk) ->
+			queue.push(chunk)
+		unloadChunk: (cx, cy) ->
+			queue.push(cx: cx, cy: cy)
+]
+
 services.factory "tileRender", [ () ->
 	tileRender =
 		player:
