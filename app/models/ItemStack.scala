@@ -29,11 +29,12 @@ case class ItemStack(val item:Item, val count:Option[Int] = Some(1)) {
 		}
 	}
 	
+	// XXX: name is misleading
 	def stacksWith(other:ItemStack):Boolean = {
 		return (
 			count.isDefined &&
 			other.count.isDefined &&
-			item == other.item
+			item.kind == other.item.kind
 		)
 	}
 	
@@ -43,6 +44,7 @@ case class ItemStack(val item:Item, val count:Option[Int] = Some(1)) {
 	 * the same kind, and, if they have materials, the materials
 	 * are the same kind.
 	 */
+	// XXX: name is dumb
 	def subtractableFrom(other:ItemStack):Boolean = {
 		count.isDefined &&
 		other.count.isDefined && 
