@@ -225,6 +225,19 @@ services.factory "chunkManager", [ "tileRender", (tileRender) ->
 			_(chunks).find({cx:cx, cy:cy})
 ]
 
+services.factory "renderLoop", [ () ->
+	callbacks = _([])
+	step = () ->
+		callbacks.each (cb) -> cb()
+		requestAnimationFrame(step)
+	step()
+	service =
+		addCallback: (fn) ->
+			callbacks.push(fn)
+		removeCallback: (fn) ->
+			callbacks = callbacks.without(fn)
+]
+
 services.factory "tileRender", [ () ->
 	tileRender =
 		player:

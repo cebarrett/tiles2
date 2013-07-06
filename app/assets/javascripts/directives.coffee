@@ -1,7 +1,7 @@
 directives = angular.module "app.directives", []
 
-directives.directive "appControls", [ () ->
-
+directives.directive "appControls", [ "renderLoop", (renderLoop) ->
+	
 	# TODO: hold shift to place blocks
 	# TODO: Q and E to cycle items
 	# TODO: shift-Q and shift-E to rearrange items
@@ -73,7 +73,7 @@ directives.directive "appControls", [ () ->
 				moveTime = null
 				moveCount = null
 		
-		step = () ->
+		renderLoop.addCallback () ->
 			# if any movement key is selected and the total number of moves
 			# since started moving is less than the total moves allowed
 			# since started moving, move in the most recently selected direction.
@@ -88,8 +88,6 @@ directives.directive "appControls", [ () ->
 					scope[newestDir]()
 					dirMoveCounts[newestDir]++
 					moveCount++;
-			window.requestAnimationFrame(step)
-		step()
 ];
 
 # currently unused
