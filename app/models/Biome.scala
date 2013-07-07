@@ -48,7 +48,7 @@ case object StoneBiome extends Biome {
 			Galena, Galena, Galena, Galena,
 			Silver, Silver, Gold, Platinum,
 			Malachite, Malachite, Hematite, Hematite
-	), 0.28)
+	), 0.15)
 	private val oreGenNoise = new GridNoise(0.08)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
