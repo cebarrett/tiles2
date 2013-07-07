@@ -49,7 +49,7 @@ services.factory "sub", ["socket", (socket) ->
 			scope.$apply()
 			return
 		if message.time?
-			scope.time = parseInt(message.time, 10)
+			scope.timeStr = message.time
 		if (message.player? and scope.player? and message.player.name == scope.player.name) then do ->
 			scope.player = message.player
 			# optimization

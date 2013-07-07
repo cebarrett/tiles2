@@ -26,29 +26,28 @@
 				</div>
 			</div>
 			<div id="hud" ng-show="connected">
-				<div class="player-info">
-					<div>{{player.name}}</div>
-					<div>
-						<span style="display: inline-block; width: 50px;">
-							<small>X</small>
-							<span>{{player.x}}</span>
-						</span>
-						<span>
-							<small>Y</small>
-							<span>{{player.y}}</span>
-						</span>
-					</div>
-					<div>
-						<span>HP</span>
-						<span>{{playerEntity.hitPoints}}</span>
-					</div>
+				<div class="hud-row">
+					{{player.name}}
 				</div>
-				<ul class="item-list">
-					<li class="item-stack item-stack-{{$index == player.selected}}" ng-repeat="stack in player.inventory" ng-click="selectItem($index)">
-						<span>{{stack.count}}</span>
-						<span>{{stack.item.material.kind}} {{stack.item.kind}}</span>
-					</li>
-				</ul>
+				<div class="hud-row">
+					<small>X</small>
+					<span>{{player.x}}</span>
+				</div>
+				<div class="hud-row">
+					<small>Y</small>
+					<span>{{player.y}}</span>
+				</div>
+				<div class="hud-row">
+					<small>HP</small>
+					<span>{{playerEntity.hitPoints}}</span>
+				</div>
+				<div class="hud-row">
+					<small>{{timeStr}}</small>
+				</div>
+				<div class="hud-row item-selected-{{$index == player.selected}}" ng-repeat="stack in player.inventory" ng-click="selectItem($index)">
+					<small>{{stack.count}}</small>
+					<span>{{stack.item.material.kind}} {{stack.item.kind}}</span>
+				</div>
 			</div>
 		</div>
 		<script src="@routes.Assets.at("javascripts/raf.js")" type="text/javascript"></script>

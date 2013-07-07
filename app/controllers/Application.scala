@@ -2,7 +2,6 @@ package controllers
 
 import scala.Option.option2Iterable
 import scala.concurrent.duration._
-
 import akka.actor.Props
 import akka.actor.actorRef2Scala
 import akka.pattern.ask
@@ -26,26 +25,24 @@ import play.api.libs.json.JsValue
 import play.api.mvc.Action
 import play.api.mvc.Controller
 import play.api.mvc.WebSocket
+import akka.actor.ActorRef
 
 object Application extends Controller {
 	
 	private implicit val akkaTimeout = akka.util.Timeout(1 second)
-	
-	private val game = Akka.system.actorOf(Props[Game])
-	// XXX: should be done in game and not using akka
-	private val loop = {
-		Akka.system.scheduler.schedule(
-			.25 seconds,
-			.25 seconds,
-			game,
-			Loop()
-		)
-	}
+
+	private var game:ActorRef = null
 	
 	private var hitCounter:Int = 0
 
 	def index = Action { request =>
 		hitCounter = hitCounter + 1
+		if (game == null) {
+			game = Akka.system.actorOf(Props[Game])
+			// XXX: game loop should be done in game and not using akka
+			val gameLoopInterval = (.25 seconds)
+			Akka.system.scheduler.schedule(gameLoopInterval, gameLoopInterval, game, Loop())
+		}
 		// use player name in the url, the session, or generate one
 		Ok(views.html.index("tiles2")).withSession(
 			"playerName" -> request.queryString.get("player").getOrElse(Seq.empty).map({_.trim}).filter({!_.isEmpty}).headOption.getOrElse {

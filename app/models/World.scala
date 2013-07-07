@@ -12,6 +12,7 @@ object World {
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
+	def ticksPerDay:Long = 3600
 }
 
 /**
@@ -33,8 +34,20 @@ class World {
 	/** Emits WorldEvent when things happen in the world. */
 	val (eventEnumerator, eventChannel) = Concurrent.broadcast[WorldEvent]
 
-	/** List of all players in the world, keyed by name */
+	/** List of all players in the world, keyed by name. */
 	var players = Map.empty[String,Player]
+	
+	/** Gets the time of day in hours, a value from 0 to 24. */
+	def time = 24 * ((ticks % World.ticksPerDay).toDouble/World.ticksPerDay.toDouble)
+	
+	/** Get just the hours part of the time, an int from 0 to 24. */
+	def hours = time.toInt
+	
+	/** Get just the minutes part of the time, an int from 0 to 60. */
+	def minutes = (60 * (time - hours)).toInt
+	
+	/** Gets the time of day as a string HH:MM */
+	def timeStr = "%2d:%2d".format(hours, minutes).replaceAll(" ", "0")
 
 	def chunkAt(cx:Int, cy:Int):Chunk = chunkAt(ChunkCoordinates(cx,cy))
 
@@ -218,11 +231,11 @@ class World {
 				val player = players.get(playerEntity.player.name).get
 				player.x = newCoords.x
 				player.y = newCoords.y
-				val event = WorldEvent(ticks, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), Some(oldCoords.x), Some(oldCoords.y))
+				val event = WorldEvent(timeStr, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), Some(oldCoords.x), Some(oldCoords.y))
 				eventChannel.push(event)
 			}
 			case _:Any => {
-				val event = WorldEvent(ticks, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, Some(oldCoords.x), Some(oldCoords.y))
+				val event = WorldEvent(timeStr, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, Some(oldCoords.x), Some(oldCoords.y))
 				eventChannel.push(event)
 			}
 		}
@@ -256,7 +269,7 @@ class World {
 		// remove the player entity
 		despawnEntity(WorldCoordinates(x, y))
 		// broadcast entity despawn. frontend looks for an event with this message name.
-		this.eventChannel.push(WorldEvent(ticks, "playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
+		this.eventChannel.push(WorldEvent(timeStr, "playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
 	}
 
 	/**
@@ -361,8 +374,8 @@ class World {
 	 */
 	def doPlaceItem(playerName:String, target:WorldCoordinates):Boolean = {
 		players.get(playerName).map { player =>
-			if (player.pos.distanceTo(target) > 5) {
-				// can only place items within 5 blocks
+			if (player.pos.distanceTo(target) > Chunk.length) {
+				// players can only place blocks nearby
 				false
 			} else {
 				player.selected map { itemIndex =>
@@ -445,27 +458,25 @@ class World {
 	
 	def broadcastTileEvent(pos:WorldCoordinates):Unit = {
 		val tile:Tile = tileAt(pos)
-
 		val player:Option[Player] = tileAt(pos).entity match {
 			case Some(entity:EntityPlayer) => (players get entity.player.name)
 			case _ => None
 		}
-
-		val event:WorldEvent = WorldEvent(ticks, "tile", Some(pos.x), Some(pos.y), Some(tile), player)
-
+		val event:WorldEvent = WorldEvent(timeStr, "tile", Some(pos.x), Some(pos.y), Some(tile), player)
 		this.eventChannel.push(event)
 	}
 	
 	def broadcastPlayer(player:Player, kind:String = "player"):Unit = {
 		val tile:Option[Tile] = Option(tileAt(player.x, player.y))
-		val event:WorldEvent = WorldEvent(ticks, kind, Some(player.x), Some(player.y), tile, Some(player))
+		val event:WorldEvent = WorldEvent(timeStr, kind, Some(player.x), Some(player.y), tile, Some(player))
 		this.eventChannel.push(event)
 	}
 }
 
+// XXX: should be several subclasses, not this monstrosity
 case class WorldEvent(
-	val time:Long,
-	val kind:String,
+	val time:String,
+	val kind:String, // TODO: deprecate, then remove
 	val x:Option[Int] = None,
 	val y:Option[Int] = None,
 	val tile:Option[Tile] = None,
