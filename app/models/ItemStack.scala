@@ -11,14 +11,15 @@ case class ItemStack(val item:Item, val count:Option[Int] = Some(1)) {
 			None
 		}
 	}
-	
-	def canAddTo(other:ItemStack):Boolean = {
-		return (
-			count.isDefined &&
-			other.count.isDefined &&
-			item.kind == other.item.kind
-		)
-	}
+
+	def canAddTo(other:ItemStack):Boolean = canSubtractFrom(other)
+	// def canAddTo(other:ItemStack):Boolean = {
+	// 	return (
+	// 		count.isDefined &&
+	// 		other.count.isDefined &&
+	// 		item.kind == other.item.kind
+	// 	)
+	// }
 	
 	def -(other:ItemStack):Option[ItemStack] = {
 		if (canSubtractFrom(other)) {
