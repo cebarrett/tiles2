@@ -83,6 +83,10 @@ object Recipe {
 			Recipe(ItemStack(new EntityBlock(Copper), Some(1)),  Seq(IngredientMaterial(Malachite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
 			Recipe(ItemStack(new EntityBlock(Iron), Some(1)),  Seq(IngredientMaterial(Hematite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
 			Recipe(ItemStack(new EntityBlock(Tin), Some(1)),  Seq(IngredientMaterial(Cassiterite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
+			Recipe(ItemStack(new EntityBlock(Zinc), Some(1)),  Seq(IngredientMaterial(Sphalerite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
+			Recipe(ItemStack(new EntityBlock(Titanium), Some(1)),  Seq(IngredientMaterial(Ilmenite.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
+			Recipe(ItemStack(new EntityBlock(Lead), Some(1)),  Seq(IngredientMaterial(Galena.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
+			Recipe(ItemStack(new EntityBlock(Brass), Some(2)),  Seq(IngredientMaterial(Copper.getClass, 1), IngredientMaterial(Zinc.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
 			Recipe(ItemStack(new EntityBlock(Bronze), Some(2)),  Seq(IngredientMaterial(Copper.getClass, 1), IngredientMaterial(Tin.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
 			Recipe(ItemStack(new EntityBlock(Electrum), Some(2)),  Seq(IngredientMaterial(Gold.getClass, 1), IngredientMaterial(Silver.getClass, 1), IngredientMaterial(Charcoal.getClass, 1)))
 		),

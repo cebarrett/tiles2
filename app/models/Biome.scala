@@ -37,17 +37,23 @@ case object DirtBiome extends Biome {
 
 case object StoneBiome extends Biome {
 	private val stoneNoise = new GridRandom(
-		Seq(Limestone, Granite, Sandstone, Basalt), 5)
+		Seq(Limestone, Granite, Sandstone, Basalt
+	), 5)
 	private val oreNoise = new GridRandom(Seq(
 			Malachite, Malachite, Malachite, Malachite,
-			Cassiterite, Cassiterite, Cassiterite, Hematite,
+			Cassiterite, Cassiterite, Cassiterite, Cassiterite,
 			Hematite, Hematite, Hematite, Hematite,
-			Silver, Silver, Gold, Copper), 0.33)
-	private val oreGenNoise = new GridNoise(0.11)
+			Sphalerite, Sphalerite, Sphalerite, Sphalerite,
+			Ilmenite, Ilmenite, Ilmenite, Ilmenite,
+			Galena, Galena, Galena, Galena,
+			Silver, Silver, Gold, Platinum,
+			Malachite, Malachite, Hematite, Hematite
+	), 0.28)
+	private val oreGenNoise = new GridNoise(0.08)
 
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainBedrock
-		val oreThreshold = 0.87 // between 0 and 1
+		val oreThreshold = 0.89 // between 0 and 1
 		tile.entity = Some({
 			if (Math.abs(oreGenNoise.noiseAt(pos.x, pos.y)) > oreThreshold)
 				new EntityBlock(oreNoise.pick(pos.x, pos.y).get)

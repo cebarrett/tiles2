@@ -143,6 +143,7 @@ class Game extends Actor {
 								"player" -> Json.toJson(player),
 								"crafts" -> Json.toJson(Recipe.all)))
 							channel push response
+							world.broadcastPlayer(player)
 						}
 					} getOrElse {
 						Logger warn s"Tried to spawn $playerName but couldn't find their Channel"
