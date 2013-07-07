@@ -430,6 +430,19 @@ class World {
 		}
 	}
 	
+	def doSwapItems(playerName:String, i0:Int, i1:Int):Unit = {
+		players get playerName map { player =>
+			val validate = { n:Double => n > 0.0 && n < player.inventory.items.length }
+			if (( validate(i0) && validate(i1) )) {
+				val item0 = player.inventory.items(i0)
+				val item1 = player.inventory.items(i0)
+				player.inventory.items.updated(i0, item1)
+				player.inventory.items.updated(i1, item0)
+				broadcastPlayer(player)
+			}
+		}
+	}
+	
 	def broadcastTileEvent(pos:WorldCoordinates):Unit = {
 		val tile:Tile = tileAt(pos)
 

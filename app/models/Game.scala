@@ -170,6 +170,17 @@ class Game extends Actor {
 							case _ => Unit
 						}
 					}).getOrElse(world doDeselectItem playerName)
+				case "swap" =>
+					(message \\ "from").headOption map { from =>
+						(message \\ "to").headOption map { to =>
+							(from, to) match {
+								case (JsNumber(i0), JsNumber(i1)) => {
+									world.doSwapItems(playerName, i0.toInt, i1.toInt)
+								}
+								case _ => Unit
+							}
+						}
+					}
 				case "place" => {
 					val x:Int = (message \ "x").as[Int]
 					val y:Int = (message \ "y").as[Int]
