@@ -28,8 +28,8 @@ class Pick(override val material:Material) extends Tool(material)
 class Hammer(override val material:Material) extends Tool(material)
 class Axe(override val material:Material) extends Tool(material)
 class Sword(override val material:Material) extends Tool(material) {
-	def attackStrength:Double = 1 + 1 * ((0.25*material.weight) + (0.75*material.hardness))
+	def attackStrength:Double = material.weight + material.hardness
 }
 class Armor(override val material:Material) extends Tool(material) {
-	def defense = ((0.66*material.weight) + (0.33*material.hardness))
+	def defense = material.hardness
 }

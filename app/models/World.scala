@@ -325,9 +325,12 @@ class World {
 				}
 				case (target:EntityBlock) => {
 					if (player isHoldingItem "pick") {
-						val material = player.getSelectedItem.get.item.asInstanceOf[ItemWithMaterial].material
-						val toolStrength = ((material.hardness*0.8) + (material.weight*0.2)) * (target.material.hardness*0.75+0.25)
-						if (Math.random < toolStrength) {
+						val toolMaterial = player.getSelectedItem.get.item.asInstanceOf[ItemWithMaterial].material
+						val toolStrength = toolMaterial.hardness
+						val blockResistance = 0.7 + (1.0 * target.material.hardness)
+						val save = blockResistance - toolStrength
+						val roll = Math.random
+						if (roll > save) {
 							despawnEntity(targetCoords) map {
 								player.inventory add ItemStack(_, Some(1))
 							}
