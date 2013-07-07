@@ -96,7 +96,7 @@ class World {
 	
 	/** Pre-load all of the chunks in the world. */
 	def loadAllChunks():World = {
-		Logger.debug("Loading all chunks")
+		Logger.info("Loading all chunks")
 		var chunkCount:Int = 0
 		for (cx <- (-World.radius) until World.radius) {
 			for (cy <- (-World.radius) until World.radius) {
@@ -104,7 +104,7 @@ class World {
 				chunkCount = chunkCount + 1
 			}
 		}
-		Logger.debug(s"Done, loaded $chunkCount chunks")
+		Logger.info(s"Done, loaded $chunkCount chunks")
 		this
 	}
 	
@@ -218,11 +218,11 @@ class World {
 				val player = players.get(playerEntity.player.name).get
 				player.x = newCoords.x
 				player.y = newCoords.y
-				val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), Some(oldCoords.x), Some(oldCoords.y))
+				val event = WorldEvent(ticks, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), Some(oldCoords.x), Some(oldCoords.y))
 				eventChannel.push(event)
 			}
 			case _:Any => {
-				val event = WorldEvent("entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, Some(oldCoords.x), Some(oldCoords.y))
+				val event = WorldEvent(ticks, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, Some(oldCoords.x), Some(oldCoords.y))
 				eventChannel.push(event)
 			}
 		}
@@ -256,7 +256,7 @@ class World {
 		// remove the player entity
 		despawnEntity(WorldCoordinates(x, y))
 		// broadcast entity despawn. frontend looks for an event with this message name.
-		this.eventChannel.push(WorldEvent("playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
+		this.eventChannel.push(WorldEvent(ticks, "playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
 	}
 
 	/**
@@ -451,19 +451,20 @@ class World {
 			case _ => None
 		}
 
-		val event:WorldEvent = WorldEvent("tile", Some(pos.x), Some(pos.y), Some(tile), player)
+		val event:WorldEvent = WorldEvent(ticks, "tile", Some(pos.x), Some(pos.y), Some(tile), player)
 
 		this.eventChannel.push(event)
 	}
 	
 	def broadcastPlayer(player:Player, kind:String = "player"):Unit = {
 		val tile:Option[Tile] = Option(tileAt(player.x, player.y))
-		val event:WorldEvent = WorldEvent(kind, Some(player.x), Some(player.y), tile, Some(player))
+		val event:WorldEvent = WorldEvent(ticks, kind, Some(player.x), Some(player.y), tile, Some(player))
 		this.eventChannel.push(event)
 	}
 }
 
 case class WorldEvent(
+	val time:Long,
 	val kind:String,
 	val x:Option[Int] = None,
 	val y:Option[Int] = None,
