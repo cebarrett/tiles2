@@ -6,21 +6,6 @@ import scala.util.control.Breaks._
 
 class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack]) {
 
-	// starting inventory for dev testing
-	items = if (Game.DEV) Seq(
-		new ItemStack(new EntityBlock(Obsidian), Some(1000)),
-		new ItemStack(new Food(), Some(1000)),
-		new ItemStack(new EntityWorkbench(Diamond)),
-		new ItemStack(new Armor(Diamond)),
-		new ItemStack(new Sword(Diamond)),
-		new ItemStack(new Axe(Diamond)),
-		new ItemStack(new Pick(Diamond)),
-		new ItemStack(new Hammer(Diamond))
-	) else Seq(
-		new ItemStack(new Axe(Wood)),
-		new ItemStack(new EntityWorkbench(Wood))
-	)
-
 	/** Returns true if user has the given item (at least as many for item stacks) */
 	def has(other:ItemStack):Boolean = {
 		val item:ItemStack = items.filter({_.canSubtractFrom(other)}).headOption.getOrElse(null)

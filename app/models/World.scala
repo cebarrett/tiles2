@@ -113,6 +113,20 @@ class World {
 		players get playerName getOrElse {
 			// create a player object and hold a reference
 			val player = new Player(playerName, 0, 0)
+			// starting inventory for dev testing
+			player.inventory.items = if (Game.DEV) Seq(
+				new ItemStack(new EntityBlock(Obsidian), Some(1000)),
+				new ItemStack(new Food(), Some(1000)),
+				new ItemStack(new EntityWorkbench(Diamond)),
+				new ItemStack(new Armor(Diamond)),
+				new ItemStack(new Sword(Diamond)),
+				new ItemStack(new Axe(Diamond)),
+				new ItemStack(new Pick(Diamond)),
+				new ItemStack(new Hammer(Diamond))
+			) else Seq(
+				new ItemStack(new Axe(Wood)),
+				new ItemStack(new EntityWorkbench(Wood))
+			)
 			players = players + (playerName -> player)
 			player
 		}
@@ -344,39 +358,56 @@ class World {
 	 */
 	def doPlaceItem(playerName:String, target:WorldCoordinates):Boolean = {
 		players.get(playerName).map { player =>
-			if (player.pos.distanceTo(target) > 10) {
-				return false
+			if (player.pos.distanceTo(target) > 5) {
+				// can only place items within 5 blocks
+				false
 			} else {
 				player.selected map { itemIndex =>
 					if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
 						val targetTile = tileAt(target)
 						targetTile.entity map {_ => true} getOrElse {
 							player getSelectedItem() map { stack =>
-								stack.item match {
+								val placed = stack.item match {
 									case entity:Entity => {
-										player.inventory.subtractOneOf(stack)
 										targetTile.entity = Some(entity)
-										broadcastTileEvent(target)
-										broadcastPlayer(player)
 										true
 									}
 									case terrain:Terrain => {
 										if (!(targetTile.terrain.getClass.isInstance(terrain))) {
-											player.inventory.subtractOneOf(stack)
 											targetTile.terrain = stack.item.asInstanceOf[Terrain]
-											broadcastTileEvent(target)
-											broadcastPlayer(player)
 											true
 										} else false
 									}
 									case _ => false
 								}
-							} getOrElse false
+								if (placed) {
+									// subtract from player's inventory
+									val l0 = player.inventory.items.length
+									player.inventory.subtractOneOf(stack)
+									val l1 = player.inventory.items.length
+									if (l1-l0 != 0) player.selected = None
+									broadcastTileEvent(target)
+									broadcastPlayer(player)
+								}
+								placed
+							} getOrElse {
+								// player has no selected item (redundant)
+								false
+							}
 						}
-					} else false
-				} getOrElse false
+					} else {
+						// selected item index is out of range (how would this occur?)
+						false
+					}
+				} getOrElse {
+					// player has no item selected to place
+					false
+				}
 			}
-		} getOrElse false
+		} getOrElse {
+			Logger warn "Nonexistent player tried to place item: $playerName"
+			false
+		}
 	}
 
 	def doSelectItem(playerName:String, inventoryIndex:Int) = {
