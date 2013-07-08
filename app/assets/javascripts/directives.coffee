@@ -129,7 +129,7 @@ directives.directive "sky", [ () ->
 		luminosity: 95
 	night = 
 		hue: 250
-		luminosity: 66
+		luminosity: 44
 	hue = (time) ->
 		# hue goes down during sunset and up during sunrise
 		if (time >= sunrise.end && time < sunset.start)

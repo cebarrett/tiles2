@@ -48,7 +48,7 @@ case object Germanium extends Metal(0.40, 0.20, "#CDCDCD")
 case object Steel     extends Metal(0.40, 0.90, "#B9B9B7")
 case object Titanium  extends Metal(0.30, 0.90, "#A8A7A6")
 case object Zinc      extends Metal(0.50, 0.40, "#949390")
-case object Brass     extends Metal(0.50, 0.40, "#A81")
+case object Brass     extends Metal(0.50, 0.40, "#A72")
 case object Platinum  extends Metal(0.95, 0.35, "#C2C2C4")
 
 abstract class Gem(override val weight:Double, override val hardness:Double, override val color:String) extends Material
