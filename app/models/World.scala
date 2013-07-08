@@ -12,7 +12,7 @@ object World {
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
-	def ticksPerDay:Long = 3600 / (if (Game.DEV) 18 else 1)
+	def ticksPerDay:Long = 3600 / (if (Game.DEV) 8 else 1)
 }
 
 /**
@@ -128,9 +128,15 @@ class World {
 			val player = new Player(playerName, 0, 0)
 			// starting inventory for dev testing
 			player.inventory.items = if (Game.DEV) Seq(
+				new ItemStack(new EntityBlock(Wood), Some(1000)),
 				new ItemStack(new EntityBlock(Obsidian), Some(1000)),
-				new ItemStack(new Food(), Some(1000)),
-				new ItemStack(new EntityWorkbench(Diamond)),
+				new ItemStack(new EntityBlock(Diamond), Some(1000)),
+				new ItemStack(new EntityWorkbench(Diamond), Some(100)),
+				new ItemStack(new Food(), Some(100)),
+				new ItemStack(new Armor(Wood)),
+				new ItemStack(new Axe(Wood)),
+				new ItemStack(new Pick(Wood)),
+				new ItemStack(new Hammer(Wood)),
 				new ItemStack(new Armor(Diamond)),
 				new ItemStack(new Sword(Diamond)),
 				new ItemStack(new Axe(Diamond)),
@@ -161,7 +167,6 @@ class World {
 	}
 	
 	def findRandomPositionNearSpawn():Option[WorldCoordinates] = {
-		// FIXME: for debugging
 		val spawn = WorldCoordinates(0,0)
 		var tries = 0
 		while (tries < 500) {
@@ -282,11 +287,20 @@ class World {
 			attackerTile.entity map {
 				_ match {
 					case entity:EntityLiving => entity
-					case _ => return
+					case _ => {
+						Logger warn "doEntityInteraction: non-living entity tried to attack"
+						return
+					}
 				}
-			} getOrElse { return }
+			} getOrElse {
+				Logger warn "doEntityInteraction: no entity found at given attacker coords"
+				return
+			}
 		}
-		val targetEntity:Entity = entity(targetCoords).getOrElse({return})
+		val targetEntity:Entity = entity(targetCoords).getOrElse({
+			Logger warn "doEntityInteraction: no entity found at given target coords"
+			return
+		})
 		val roll:Double = Random.nextDouble
 
 		// any living entity can target a living entity
@@ -305,64 +319,40 @@ class World {
 					if (attackerEntity.isInstanceOf[EntityPlayer]) {
 						// give player the dead entity's drops
 						val pe = attackerEntity.asInstanceOf[EntityPlayer]
-						target.drop map {pe.player.inventory add _}
+						pe.player.give(target.drops)
 					}
 				}
 				// broadcast an update for both tiles
 				broadcastTileEvent(attackerCoords)
 				broadcastTileEvent(targetCoords)
 			}
-		}
-
-		// only players can target a non-living entity
-		else {
-			/* FIXME: caused a ClassCastException because attackerEntity was a goblin */
-			val player:Player = players.get(attackerEntity.asInstanceOf[EntityPlayer].player.name).getOrElse(null)
-			targetEntity match {
-				// XXX: this behavior belongs in the entity subclass
-				case (target:EntityTree) => {
-					if (player isHoldingItem "axe") {
-						player.inventory add ItemStack(new EntityBlock(Wood), Some(1))
-						player.inventory add ItemStack(new EntitySapling(), Some(Random.nextInt(2)+1))
-						despawnEntity(targetCoords)
-					}
-				}
-				case _:EntityWorkbench | _:EntityKiln | _:EntitySmelter |
-						_:EntitySawmill | _:EntityStonecutter | _:EntityAnvil |
-						_:Gemcutter => {
-					if (player isHoldingItem "hammer") {
-						despawnEntity(targetCoords) map {
-							player.inventory add ItemStack(_, Some(1))
-						}
-					}
-				}
-				case (target:EntityBlock) => {
-					if (player isHoldingItem "pick") {
-						val toolMaterial = player.getSelectedItem.get.item.asInstanceOf[ItemWithMaterial].material
-						val toolStrength = toolMaterial.hardness
-						val blockResistance = 0.7 + (1.0 * target.material.hardness)
-						val save = blockResistance - toolStrength
-						val roll = Math.random
-						if (roll > save) {
-							despawnEntity(targetCoords) map {
-								player.inventory add ItemStack(_, Some(1))
+		} else {
+			// only players can target a non-living entity for now
+			// because only players have inventories
+			attackerEntity match {
+				case entityPlayer:EntityPlayer => {
+					val player = entityPlayer.player
+					val tool:Option[Tool] = player.getSelectedTool
+					if (targetEntity canBeBrokenBy tool) {
+						// if entity can be broken by nothing, always succeeds,
+						// otherwise have the tool roll to check whether it succeeds
+						if (tool map {_.tryToBreak(targetEntity)} getOrElse {true}) {
+							despawnEntity(targetCoords) map { entity =>
+								val drops = entity.drops
+								if (drops.nonEmpty) {
+									player.give(drops)
+								}
+								// XXX: hack
+								if (entity.isInstanceOf[Food]) {
+									entityPlayer.hitPoints += 1
+								}
 							}
+							broadcastPlayer(player)
 						}
 					}
 				}
-				case (target:Food) => {
-					despawnEntity(targetCoords)
-					attackerEntity.hitPoints = 1 + attackerEntity.hitPoints
-					
-				}
-				case tool:Tool => {
-					player.inventory add ItemStack(targetTile.removeItem.get) 
-					broadcastTileEvent(targetCoords)
-					broadcastPlayer(player)
-				}
-				case (_) => Unit
+				case _ => Logger warn s"Non-player entity tried to attack a non-living entity"
 			}
-			broadcastPlayer(player)
 		}
 	}
 	

@@ -25,7 +25,7 @@ case object Sandstone   extends Stone(0.30, 0.30, "rgb(105, 98, 83)")
 case object Limestone   extends Stone(0.30, 0.40, "#5c5c55")
 case object Granite     extends Stone(0.40, 0.40, "#5c5555")
 case object Basalt      extends Stone(0.40, 0.50, "#414140")
-case object Obsidian    extends Stone(0.30, 0.99, "#1C1A1E")
+case object Obsidian    extends Stone(0.30, 0.60, "#1C1A1E")
 
 abstract class Ore(override val weight:Double, override val hardness:Double, override val color:String) extends Material
 case object Malachite   extends Ore(0.40, 0.50, "rgb(53, 71, 64)")
@@ -52,4 +52,4 @@ case object Brass     extends Metal(0.50, 0.40, "#A81")
 case object Platinum  extends Metal(0.95, 0.35, "#C2C2C4")
 
 abstract class Gem(override val weight:Double, override val hardness:Double, override val color:String) extends Material
-case object Diamond extends Gem(1.00, 1.00, "rgba(130, 230, 230, 0.5)")
+case object Diamond extends Gem(1.00, 1.00, "rgba(180, 255, 255, 0.66)")

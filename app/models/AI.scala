@@ -10,7 +10,7 @@ sealed abstract class AI {
  * AI that slowly wanders around.
  */
 class AIAnimal() extends AI {
-	var chanceOfEntityMoving:Double = 0.1;
+	var chanceOfEntityMoving:Double = 0.03;
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		breakable {
 			if (Math.random() < chanceOfEntityMoving) {

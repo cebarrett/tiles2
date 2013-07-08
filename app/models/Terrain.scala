@@ -12,5 +12,6 @@ object TerrainDirt extends Terrain
 object TerrainGrass extends Terrain
 object TerrainSand extends Terrain
 object TerrainWater extends AbstractTerrain(passable = false)
+// XXX: make lava impassable and/or harmful
 object TerrainLava extends AbstractTerrain(passable = false)
 object TerrainDoor extends Terrain

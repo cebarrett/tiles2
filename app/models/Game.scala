@@ -46,7 +46,7 @@ class Game extends Actor {
 
 	/** The game world */
 	val world = new World
-	world.loadAllChunks
+	//world.loadAllChunks
 
 	/**
 	 * Translates WorldEvents into JSON that can be broadcast to players,

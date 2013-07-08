@@ -169,7 +169,6 @@ directives.directive "sky", [ () ->
 		if (scope.timeStr?)
 			time = scope.time()
 			bgcolor = "hsla("+hue(time)+","+saturation(time)+"%,"+luminosity(time)+"%,"+alpha(time)+")"
-			console.log bgcolor
 		elm.css "background-color", bgcolor
 	(scope, elm, attr) ->
 		scope.$watch "timeStr", () -> renderTimeOfDay(scope, elm)

@@ -1,11 +1,15 @@
 package models
 
+import play.api.Logger
+
+
 /**
  * An Item is anything that can be contained in an ItemStack,
  * and thus held in a player's inventory.
  */
 trait Item {
 	def kind = this.getClass().getSimpleName().replaceAll("^(?:Item|Entity)|\\$*$", "").toLowerCase()
+	def defense = 0.0
 }
 
 trait ItemWithMaterial extends Item {
@@ -13,7 +17,9 @@ trait ItemWithMaterial extends Item {
 	def copyWithMaterial(material:Material):ItemWithMaterial
 }
 
-abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithMaterial {
+abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithMaterial with Entity {
+	override def drops = Seq(ItemStack(this))
+	override def canBeBrokenBy(tool:Option[Tool]) = true
 	def copyWithMaterial(material:Material) = {
 		val copy = getClass getConstructor classOf[Material] newInstance(material)
 		copy.asInstanceOf[ItemWithMaterial]
@@ -21,15 +27,6 @@ abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithM
 }
 
 class Floor(override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
+// XXX: shouldn't be able to place entities on doors (or water, or lava...)
 class Door (override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
 
-abstract class Tool(override val material:Material) extends AbstractItemWithMaterial(material) with Entity
-class Pick(override val material:Material) extends Tool(material)
-class Hammer(override val material:Material) extends Tool(material)
-class Axe(override val material:Material) extends Tool(material)
-class Sword(override val material:Material) extends Tool(material) {
-	def attackStrength:Double = material.weight + material.hardness
-}
-class Armor(override val material:Material) extends Tool(material) {
-	def defense = material.hardness
-}
