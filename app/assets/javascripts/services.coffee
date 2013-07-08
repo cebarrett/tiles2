@@ -48,7 +48,7 @@ services.factory "sub", ["socket", (socket) ->
 			scope.connected = false
 			scope.$apply()
 			return
-		if message.time?
+		if (message.time? and message.time != scope.timeStr)
 			scope.timeStr = message.time
 		if (message.player? and scope.player? and message.player.name == scope.player.name) then do ->
 			scope.player = message.player

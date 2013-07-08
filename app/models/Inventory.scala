@@ -6,6 +6,8 @@ import scala.util.control.Breaks._
 
 class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack]) {
 
+	def validate(n:Int) = (n >= 0 && n < items.length )
+
 	/** Returns true if user has the given item (at least as many for item stacks) */
 	def has(other:ItemStack):Boolean = {
 		val item:ItemStack = items.filter({_.canSubtractFrom(other)}).headOption.getOrElse(null)

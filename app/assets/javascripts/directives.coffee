@@ -115,3 +115,63 @@ directives.directive "world", [ "$window", ($window) ->
 		$window.addEventListener "resize", renderPlayerMove, false
 		renderPlayerMove()
 ];
+
+directives.directive "sky", [ () ->
+	duration = 0.1 # percentage of day taken by a sunrise or sunset
+	sunrise =
+		start:  6 - (24 * (duration / 2))
+		end:    6 + (24 * (duration / 2))
+	sunset =
+		start: 18 - (18 * (duration / 2))
+		end:   18 + (18 * (duration / 2))
+	day =
+		hue: 50
+		luminosity: 95
+	night = 
+		hue: 250
+		luminosity: 66
+	hue = (time) ->
+		# hue goes down during sunset and up during sunrise
+		if (time >= sunrise.end && time < sunset.start)
+			day.hue
+		else if (time >= sunset.start && time < sunset.end)
+			dist = (time - sunset.start) / (sunset.end - sunset.start)
+			n = day.hue - (dist * (day.hue + (360 - night.hue)))
+			(n+360)%360
+		else if (time >= sunset.end || time < sunrise.start)
+			night.hue
+		else if (time >= sunrise.start && time < sunrise.end)
+			dist = (time - sunrise.start) / (sunrise.end - sunrise.start)
+			n = night.hue + (dist * (day.hue + (360 - night.hue)))
+			(n+360)%360
+		else
+			console.error("Couldn't determine hue for time " + time)
+			day.hue
+	saturation = (time) -> 90
+	luminosity = (time) ->
+		# luminosity goes down during sunset and up during sunrise
+		if (time >= sunrise.end && time < sunset.start)
+			day.luminosity
+		else if (time >= sunset.start && time < sunset.end)
+			dist = (time - sunset.start) / (sunset.end - sunset.start)
+			day.luminosity - dist * (day.luminosity - night.luminosity)
+		else if (time >= sunset.end || time < sunrise.start)
+			night.luminosity
+		else if (time >= sunrise.start && time < sunrise.end)
+			dist = (time - sunrise.start) / (sunrise.end - sunrise.start)
+			night.luminosity + dist * (day.luminosity - night.luminosity)
+		else
+			console.error("Couldn't determine luminosity for time " + time)
+			day.luminosity
+	alpha = (time) -> 0.08
+	renderTimeOfDay = (scope, elm) ->
+		bgcolor = "black"
+		if (scope.timeStr?)
+			time = scope.time()
+			bgcolor = "hsla("+hue(time)+","+saturation(time)+"%,"+luminosity(time)+"%,"+alpha(time)+")"
+			console.log bgcolor
+		elm.css "background-color", bgcolor
+	(scope, elm, attr) ->
+		scope.$watch "timeStr", () -> renderTimeOfDay(scope, elm)
+]
+

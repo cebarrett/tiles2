@@ -12,7 +12,7 @@ object World {
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
-	def ticksPerDay:Long = 3600
+	def ticksPerDay:Long = 3600 / (if (Game.DEV) 18 else 1)
 }
 
 /**
@@ -445,8 +445,7 @@ class World {
 	
 	def doSwapItems(playerName:String, i0:Int, i1:Int):Unit = {
 		players get playerName map { player =>
-			val validate = { n:Double => n > 0.0 && n < player.inventory.items.length }
-			if (( validate(i0) && validate(i1) )) {
+			if (( player.inventory.validate(i0) && player.inventory.validate(i1) )) {
 				val item0 = player.inventory.items(i0)
 				val item1 = player.inventory.items(i0)
 				player.inventory.items.updated(i0, item1)

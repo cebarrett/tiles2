@@ -28,7 +28,15 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", "chunkQueue"
 	$scope.east  = -> $scope.openGui(1,0)  || net.east()
 	$scope.south = -> $scope.openGui(0,-1) || net.south()
 	$scope.west  = -> $scope.openGui(-1,0) || net.west()
-		
+	
+	$scope.time = () ->
+		if ($scope.timeStr?)
+			parts = $scope.timeStr.split ":"
+			hours = parseInt parts[0],10
+			minutes = parseInt parts[1],10
+			hours + (minutes/60)
+		else null
+	
 	$scope.chunkOffset = (n) ->
 		Math.floor(n / $scope.chunkLen)
 

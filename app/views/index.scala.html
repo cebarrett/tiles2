@@ -13,7 +13,7 @@
 	</head>
 	<body>
 		<div id="app" ng-controller="AppCtrl" app-controls>
-			<div id="content" ng-show="connected">
+			<div id="content" sky ng-show="connected">
 				<div world class="world"></div>
 				<div class="gui gui-{{gui == craft.kind}}" ng-repeat="craft in crafts">
 					<button type="button" tabIndex="1" ng-click="closeGui()" class="gui-close">&times;</button>
