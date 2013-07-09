@@ -10,6 +10,7 @@ import play.api.Logger
 trait Item {
 	def kind = this.getClass().getSimpleName().replaceAll("^(?:Item|Entity)|\\$*$", "").toLowerCase()
 	def defense = 0.0
+	def toItemStack = ItemStack(this)
 }
 
 trait ItemWithMaterial extends Item {

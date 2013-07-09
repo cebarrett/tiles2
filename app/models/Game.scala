@@ -72,7 +72,11 @@ class Game extends Actor {
 			val (playerName, channel) = entry
 			world.players get playerName map { player =>
 				worldEvent.pos map { pos =>
-					if ((pos distanceTo player.pos) < D) {
+					val sendEventToAll = (worldEvent.kind == "playerDespawn")
+					val playerIsInRange = world find player map { worldEntity =>
+						((pos distanceTo worldEntity.pos) < D)
+					} getOrElse false
+					if (sendEventToAll || playerIsInRange) {
 						playerChannels.get(playerName).get.push(json)
 					}
 				} getOrElse {
@@ -87,34 +91,39 @@ class Game extends Actor {
 
 	def sendChunks(player:Player, prevPos:Option[WorldCoordinates]):Unit = {
 		val playerChunkRadius = 2
-		val nextPos = WorldCoordinates(player.x, player.y)
-		val nextCc  = nextPos.toChunkCoordinates
-		val nextRad:Set[ChunkCoordinates] = Chunk.radius(nextCc, playerChunkRadius)
-		val prevRad:Set[ChunkCoordinates] = {
-			prevPos map { pp:WorldCoordinates =>
-				Chunk.radius(pp.toChunkCoordinates, playerChunkRadius)
+		world find player map { worldEntity =>
+			val nextCc  = worldEntity.pos.toChunkCoordinates
+			val nextRad:Set[ChunkCoordinates] = Chunk.radius(nextCc, playerChunkRadius)
+			val prevRad:Set[ChunkCoordinates] = {
+				prevPos map { pp:WorldCoordinates =>
+					Chunk.radius(pp.toChunkCoordinates, playerChunkRadius)
+				} getOrElse {
+					Set.empty[ChunkCoordinates]
+				}
+			}
+			val load:Set[ChunkCoordinates] = nextRad -- prevRad
+			val unload:Set[ChunkCoordinates] = prevRad -- nextRad
+	
+			playerChannels get player.name map { channel =>
+				// note: client expects the unload messages to come first
+				unload map { cc =>
+					channel.push(JsObject(Seq(
+						"kind" -> JsString("chunkUnload"),
+						"cx" -> JsNumber(cc.cx),
+						"cy" -> JsNumber(cc.cy)
+					)))
+				}
+				load map { cc =>
+					channel.push(JsObject(Seq(
+						"kind" -> JsString("chunk"),
+						"chunk" -> Json.toJson(world.chunkAt(cc.cx, cc.cy))
+					)))
+				}
 			} getOrElse {
-				Set.empty[ChunkCoordinates]
+				Logger warn s"Tried sending chunks to ${player.name} but couldn't find their channel"
 			}
-		}
-		val load:Set[ChunkCoordinates] = nextRad -- prevRad
-		val unload:Set[ChunkCoordinates] = prevRad -- nextRad
-
-		playerChannels get player.name map { channel =>
-			// note: client expects the unload messages to come first
-			unload map { cc =>
-				channel.push(JsObject(Seq(
-					"kind" -> JsString("chunkUnload"),
-					"cx" -> JsNumber(cc.cx),
-					"cy" -> JsNumber(cc.cy)
-				)))
-			}
-			load map { cc =>
-				channel.push(JsObject(Seq(
-					"kind" -> JsString("chunk"),
-					"chunk" -> Json.toJson(world.chunkAt(cc.cx, cc.cy))
-				)))
-			}
+		} getOrElse {
+			Logger warn s"Not sending chunks to ${player.name} because they are not spawned"
 		}
 	}
 
@@ -123,7 +132,6 @@ class Game extends Actor {
 			playerChannels get playerName map { p =>
 				sender ! CannotConnect("player is already logged in")
 			} getOrElse {
-				world.connectPlayer(playerName)
 				val (playerEnumerator, playerChannel) = Concurrent.broadcast[JsValue]
 				playerChannels = playerChannels + (playerName -> playerChannel)
 				sender ! Connected(playerEnumerator)
@@ -193,8 +201,10 @@ class Game extends Actor {
 		}
 
 		case Quit(playerName:String) => {
-			world.players get playerName map { _ =>
-				world.despawnPlayer(playerName)
+			world.players get playerName map { player =>
+				world find player map { worldEntity =>
+					world.despawnEntity(worldEntity.pos)
+				}
 			}
 			playerChannels = playerChannels - playerName
 		}

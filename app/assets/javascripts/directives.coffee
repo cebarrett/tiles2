@@ -117,7 +117,7 @@ directives.directive "world", [ "$window", ($window) ->
 ];
 
 directives.directive "sky", [ () ->
-	duration = 0.1 # percentage of day taken by a sunrise or sunset
+	duration = 0.15 # percentage of day taken by a sunrise or sunset
 	sunrise =
 		start:  6 - (24 * (duration / 2))
 		end:    6 + (24 * (duration / 2))
@@ -126,7 +126,7 @@ directives.directive "sky", [ () ->
 		end:   18 + (18 * (duration / 2))
 	day =
 		hue: 50
-		luminosity: 95
+		luminosity: 93
 	night = 
 		hue: 250
 		luminosity: 44
@@ -147,7 +147,7 @@ directives.directive "sky", [ () ->
 		else
 			console.error("Couldn't determine hue for time " + time)
 			day.hue
-	saturation = (time) -> 90
+	saturation = (time) -> 80
 	luminosity = (time) ->
 		# luminosity goes down during sunset and up during sunrise
 		if (time >= sunrise.end && time < sunset.start)

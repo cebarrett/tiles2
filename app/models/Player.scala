@@ -2,9 +2,7 @@ package models
 
 import scala.collection.Seq
 
-case class Player (val name:String, var x:Int, var y:Int, val inventory:Inventory = new Inventory, var selected:Option[Int] = None) {
-	
-	def pos = WorldCoordinates(x, y)
+case class Player (val name:String, val inventory:Inventory = new Inventory, var selected:Option[Int] = None) {
 	
 	def isItemSelected:Boolean = {
 		return (

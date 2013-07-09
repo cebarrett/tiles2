@@ -28,11 +28,13 @@ class AIAnimal() extends AI {
 
 class AIMonster extends AI {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
-		world.players.values.filter({ player:Player =>
-			val playerCoords = WorldCoordinates(player.x, player.y)
-			(playerCoords.distanceTo(coords) < Chunk.length)
+		val aggroRange = Chunk.length
+		world.players.filter({ player:Player =>
+			world find player map { worldEntity =>
+				(worldEntity.pos.distanceTo(coords) < aggroRange)
+			} getOrElse false
 		}).headOption map { player =>
-			val playerCoords = WorldCoordinates(player.x, player.y)
+			val playerCoords = world.find(player).get.pos
 			val dir:Direction = new Path(playerCoords).directionFrom(coords)
 			val nextPos = WorldCoordinates(coords.x + dir.x, coords.y + dir.y)
 			world.tileAt(nextPos).entity map { entity =>

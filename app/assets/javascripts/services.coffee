@@ -56,6 +56,8 @@ services.factory "sub", ["socket", (socket) ->
 			if (message.kind != "entityMove") then apply = true
 		if message.tile? then do ->
 			if (message.tile.entity? and scope.player? and (message.tile.entity.name == scope.player.name))
+				scope.player.x = message.x
+				scope.player.y = message.y
 				scope.playerEntity = message.tile.entity
 				apply = true
 			scope.$broadcast('tileChange', message.x, message.y, message.tile)

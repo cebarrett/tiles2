@@ -24,7 +24,7 @@ object World {
  * communicate with individual players.
  */
 class World {
-
+	
 	/** incremented once per tick */
 	var ticks:Long = 0;
 
@@ -34,8 +34,71 @@ class World {
 	/** Emits WorldEvent when things happen in the world. */
 	val (eventEnumerator, eventChannel) = Concurrent.broadcast[WorldEvent]
 
-	/** List of all players in the world, keyed by name. */
-	var players = Map.empty[String,Player]
+	/** Cache of positions of entities in the world. Does not contain all entities,
+	 *  just the ones to tick every turn. */
+	// XXX: Only use this for players for now.
+	private val entityCache = new WorldEntityCache
+	
+	/** All players in the world, logged in or not */
+	val players = new mutable.HashSet[Player] {
+		def get(name:String):Option[Player] = find {_.name == name}
+	}
+
+	/** Find an entity in the world. */
+	def find[T <: Entity](entity:T):Option[WorldEntity[T]] = {
+		entityCache.keys find {
+			_.entity == entity
+		} map {
+			_.asInstanceOf[WorldEntity[T]]
+		}
+	}
+	
+	def pos = { e:Entity => find(e).map(entityCache get _).get }
+	
+	/** Get or create the player with the given name */
+	def fetchPlayer(playerName:String):Player = {
+		players find {_.name == playerName} getOrElse {
+			val player = new Player(playerName)
+			giveNewPlayerItems(player)
+			players.add(player)
+			player
+		}
+	}
+	
+	def giveNewPlayerItems(player:Player):Unit = {
+		player.give(if (Game.DEV) Seq(
+			new ItemStack(new EntityBlock(Wood), Some(1000)),
+			new ItemStack(new EntityBlock(Obsidian), Some(1000)),
+			new ItemStack(new EntityBlock(Diamond), Some(1000)),
+			new ItemStack(new EntityWorkbench(Diamond), Some(100)),
+			new ItemStack(new Food(), Some(100)),
+			new ItemStack(new Armor(Wood)),
+			new ItemStack(new Axe(Wood)),
+			new ItemStack(new Pick(Wood)),
+			new ItemStack(new Hammer(Wood)),
+			new ItemStack(new Armor(Diamond)),
+			new ItemStack(new Sword(Diamond)),
+			new ItemStack(new Axe(Diamond)),
+			new ItemStack(new Pick(Diamond)),
+			new ItemStack(new Hammer(Diamond))
+		) else Seq(
+			new ItemStack(new Axe(Wood)),
+			new ItemStack(new EntityWorkbench(Wood))
+		))
+	}
+	
+	def find(player:Player):Option[WorldEntity[EntityPlayer]] = {
+		entityCache.keys map { worldEntity =>
+			worldEntity.entity match {
+				case entity:EntityPlayer => worldEntity.asInstanceOf[WorldEntity[EntityPlayer]]
+				case _ => null
+			}
+		} filter {
+			_ != null
+		} find {
+			_.entity.player == player
+		}
+	}
 	
 	/** Gets the time of day in hours, a value from 0 to 24. */
 	def time = 24 * ((ticks % World.ticksPerDay).toDouble/World.ticksPerDay.toDouble)
@@ -66,8 +129,10 @@ class World {
 	def forEachTile[B](fn:((Tile, WorldCoordinates) => B)):Unit = {
 		chunkGrid.foreach { entry =>
 			val (chunkCoords, chunk) = entry
-			val hasPlayersNearby = players.values map { player =>
-				(Chunk.length * 6) > chunk.pos.toWorldCoordinates.distanceTo(WorldCoordinates(player.x,player.y))
+			val hasPlayersNearby = players map { player =>
+				find(player) map { worldEntity =>
+					(Chunk.length * 6) > chunk.pos.toWorldCoordinates.distanceTo(worldEntity.pos)
+				} getOrElse false
 			} exists {_ == true};
 			if (hasPlayersNearby) {
 				chunk.tiles foreach { tcol =>
@@ -120,49 +185,19 @@ class World {
 		Logger.info(s"Done, loaded $chunkCount chunks")
 		this
 	}
-	
-	def connectPlayer(playerName:String):Player = {
-		Logger debug s"connect: $playerName"
-		players get playerName getOrElse {
-			// create a player object and hold a reference
-			val player = new Player(playerName, 0, 0)
-			// starting inventory for dev testing
-			player.inventory.items = if (Game.DEV) Seq(
-				new ItemStack(new EntityBlock(Wood), Some(1000)),
-				new ItemStack(new EntityBlock(Obsidian), Some(1000)),
-				new ItemStack(new EntityBlock(Diamond), Some(1000)),
-				new ItemStack(new EntityWorkbench(Diamond), Some(100)),
-				new ItemStack(new Food(), Some(100)),
-				new ItemStack(new Armor(Wood)),
-				new ItemStack(new Axe(Wood)),
-				new ItemStack(new Pick(Wood)),
-				new ItemStack(new Hammer(Wood)),
-				new ItemStack(new Armor(Diamond)),
-				new ItemStack(new Sword(Diamond)),
-				new ItemStack(new Axe(Diamond)),
-				new ItemStack(new Pick(Diamond)),
-				new ItemStack(new Hammer(Diamond))
-			) else Seq(
-				new ItemStack(new Axe(Wood)),
-				new ItemStack(new EntityWorkbench(Wood))
-			)
-			players = players + (playerName -> player)
-			player
-		}
-	}
 
+	/** Spawn a player. Handles updating other world state and broadcasting the event. */
 	def spawnPlayer(playerName:String):Unit = {
-		Logger debug s"spawn: $playerName"
-		val player = players get playerName get
+		val player = fetchPlayer(playerName)
 		val spawnPos = findRandomPositionNearSpawn() getOrElse {
-			throw new RuntimeException("Could not find a vacant spawn position")
+			Logger.error("Could not find a vacant spawn position")
+			return
 		}
 		val spawnTile = tileAt(spawnPos)
-		// spawn a player entity and update the player object
-		val playerEntity = (spawnTile.entity = Some(new EntityPlayer(player)))
-		player.x = spawnPos.x;
-		player.y = spawnPos.y;
-		// broadcast entity spawn
+		val playerEntity = new EntityPlayer(player)
+		spawnTile.entity = Some(playerEntity)
+		val worldEntity = new WorldEntity(playerEntity, this)
+		entityCache.put(worldEntity, spawnPos);
 		broadcastTileEvent(spawnPos)
 	}
 	
@@ -183,29 +218,39 @@ class World {
 	/** Remove the entity from a tile and broadcast the event. */
 	def despawnEntity(coords:WorldCoordinates):Option[Entity] = {
 		val tile = tileAt(coords)
-		val entity = tile.entity;
-		tile.entity = None;
-		broadcastTileEvent(coords)
-		return entity
+		tile.entity map { entity =>
+			tile.entity = None;
+			find(entity) map {entityCache.remove(_)}
+			broadcastTileEvent(coords)
+			entity
+		}
 	}
 
 	def movePlayer(playerName:String, dx:Int, dy:Int):Unit = {
 		players.get(playerName) map { player =>
-			val oldX:Int = player.x
-			val oldY:Int = player.y
-			val (newX, newY) = (oldX+dx, oldY+dy)
-			if (newX < -World.radiusTiles || newX >= World.radiusTiles || newY < -World.radiusTiles || newY >= World.radiusTiles) return
-			val oldTile = tileAt(oldX, oldY)
-			val newTile = tileAt(newX, newY)
-			(newTile.entity.isEmpty) match {
-				case true => {
-					// No entity occupying the tile so move there.
-					moveEntity(WorldCoordinates(oldX, oldY), WorldCoordinates(newX, newY))
-				} case false => {
-					// An entity is occupying this tile so interact with it.
-					doEntityInteraction(WorldCoordinates(oldX,oldY), WorldCoordinates(newX,newY))
+			find(player) map { worldEntity =>
+				val pos = worldEntity.pos
+				val (oldX, oldY) = (pos.x, pos.y)
+				val (newX, newY) = (oldX+dx, oldY+dy)
+				if (newX < -World.radiusTiles || newX >= World.radiusTiles || newY < -World.radiusTiles || newY >= World.radiusTiles) {
+					return
 				}
+				val oldTile = tileAt(oldX, oldY)
+				val newTile = tileAt(newX, newY)
+				(newTile.entity.isEmpty) match {
+					case true => {
+						// No entity occupying the tile so move there.
+						moveEntity(WorldCoordinates(oldX, oldY), WorldCoordinates(newX, newY))
+					} case false => {
+						// An entity is occupying this tile so interact with it.
+						doEntityInteraction(WorldCoordinates(oldX,oldY), WorldCoordinates(newX,newY))
+					}
+				}
+			} getOrElse {
+				Logger warn s"Tried to move player $playerName who is not spawned"
 			}
+		} getOrElse {
+			Logger warn s"Tried to move nonexistent player $playerName"
 		}
 	}
 	
@@ -234,10 +279,13 @@ class World {
 		newTile.entity.get match {
 			case playerEntity:EntityPlayer => {
 				val player = players.get(playerEntity.player.name).get
-				player.x = newCoords.x
-				player.y = newCoords.y
-				val event = WorldEvent(timeStr, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), Some(oldCoords.x), Some(oldCoords.y))
-				eventChannel.push(event)
+				find(playerEntity) map { worldEntity =>
+					entityCache.put(worldEntity, newCoords)
+					val event = WorldEvent(timeStr, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), Some(oldCoords.x), Some(oldCoords.y))
+					eventChannel.push(event)
+				} getOrElse {
+					Logger warn s"Moved player ${player.name} who is not in the position cache"
+				}
 			}
 			case _:Any => {
 				val event = WorldEvent(timeStr, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, Some(oldCoords.x), Some(oldCoords.y))
@@ -247,34 +295,50 @@ class World {
 	}
 
 	def doPlayerCrafting(playerName:String, kind:String, index:Int):Unit =
-		players get playerName map {doPlayerCrafting(_, Recipe.kind(kind)(index))}
+		doPlayerCrafting(fetchPlayer(playerName), Recipe.kind(kind)(index))
 
 	def doPlayerCrafting(player:Player, recipe:Recipe):Unit =
 		if (recipe craft player.inventory)
-			this.broadcastTileEvent(WorldCoordinates(player.x, player.y))
+			this.broadcastPlayer(player)
 	
 	/** Despawn a player entity. */
+	// FIXME: there are two despawnPlayer methods that do different things
 	def despawnPlayer(playerName:String):Option[EntityPlayer] = {
 		players get playerName map { player =>
-			despawnEntity(player.pos) map { e =>
-				e match {
-					case e:EntityPlayer => e
-					case _ => {
-						Logger warn "despawnPlayer despawned something that wasn't a player"
-						null
+			find(player) map { worldEntity =>
+				despawnEntity(worldEntity.pos) map {
+					_ match {
+						case e:EntityPlayer => {
+							e
+						}
+						case _ => {
+							Logger warn "despawnPlayer despawned something that wasn't a player"
+							null
+						}
 					}
 				}
-			} getOrElse null
+			} getOrElse {
+				Logger warn s"Tried to despawn player $playerName who is not spawned"
+				null
+			}
+		} getOrElse {
+			Logger warn s"Tried to despawn nonexistent player $playerName"
+			null
 		}
 	}
 	
+	// FIXME: there are two despawnPlayer methods that do different things
 	def despawnPlayer(player:Player):Unit = {
-		val (x, y) = (player.x, player.y)
-		val tile = tileAt(x, y)
-		// remove the player entity
-		despawnEntity(WorldCoordinates(x, y))
-		// broadcast entity despawn. frontend looks for an event with this message name.
-		this.eventChannel.push(WorldEvent(timeStr, "playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
+		find(player) map { worldEntity =>
+			val pos = worldEntity.pos
+			val (x, y) = (pos.x, pos.y)
+			val tile = tileAt(x, y)
+			// remove the player entity
+			despawnEntity(WorldCoordinates(x, y))
+			// broadcast entity despawn. frontend looks for an event with this message name.
+			this.eventChannel.push(WorldEvent(timeStr, "playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
+			
+		}
 	}
 
 	/**
@@ -364,51 +428,57 @@ class World {
 	 */
 	def doPlaceItem(playerName:String, target:WorldCoordinates):Boolean = {
 		players.get(playerName).map { player =>
-			if (player.pos.distanceTo(target) > Chunk.length) {
-				// players can only place blocks nearby
-				false
-			} else {
-				player.selected map { itemIndex =>
-					if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
-						val targetTile = tileAt(target)
-						targetTile.entity map {_ => true} getOrElse {
-							player getSelectedItem() map { stack =>
-								val placed = stack.item match {
-									case entity:Entity => {
-										targetTile.entity = Some(entity)
-										true
-									}
-									case terrain:Terrain => {
-										if (!(targetTile.terrain.getClass.isInstance(terrain))) {
-											targetTile.terrain = stack.item.asInstanceOf[Terrain]
+			find(player) map { worldEntity =>
+				val pos = worldEntity.pos
+				if (pos.distanceTo(target) > Chunk.length) {
+					// players can only place blocks nearby
+					false
+				} else {
+					player.selected map { itemIndex =>
+						if (itemIndex >= 0 && itemIndex < player.inventory.items.length) {
+							val targetTile = tileAt(target)
+							targetTile.entity map {_ => true} getOrElse {
+								player getSelectedItem() map { stack =>
+									val placed = stack.item match {
+										case entity:Entity => {
+											targetTile.entity = Some(entity)
 											true
-										} else false
+										}
+										case terrain:Terrain => {
+											if (!(targetTile.terrain.getClass.isInstance(terrain))) {
+												targetTile.terrain = stack.item.asInstanceOf[Terrain]
+												true
+											} else false
+										}
+										case _ => false
 									}
-									case _ => false
+									if (placed) {
+										// subtract from player's inventory
+										val l0 = player.inventory.items.length
+										player.inventory.subtractOneOf(stack)
+										val l1 = player.inventory.items.length
+										if (l1-l0 != 0) player.selected = None
+										broadcastTileEvent(target)
+										broadcastPlayer(player)
+									}
+									placed
+								} getOrElse {
+									// player has no selected item (redundant)
+									false
 								}
-								if (placed) {
-									// subtract from player's inventory
-									val l0 = player.inventory.items.length
-									player.inventory.subtractOneOf(stack)
-									val l1 = player.inventory.items.length
-									if (l1-l0 != 0) player.selected = None
-									broadcastTileEvent(target)
-									broadcastPlayer(player)
-								}
-								placed
-							} getOrElse {
-								// player has no selected item (redundant)
-								false
 							}
+						} else {
+							// selected item index is out of range (how would this occur?)
+							false
 						}
-					} else {
-						// selected item index is out of range (how would this occur?)
+					} getOrElse {
+						// player has no item selected to place
 						false
 					}
-				} getOrElse {
-					// player has no item selected to place
-					false
 				}
+			} getOrElse {
+				Logger warn s"$playerName tried to place an item, but is not spawned"
+				false
 			}
 		} getOrElse {
 			Logger warn "Nonexistent player tried to place item: $playerName"
@@ -448,7 +518,7 @@ class World {
 	def broadcastTileEvent(pos:WorldCoordinates):Unit = {
 		val tile:Tile = tileAt(pos)
 		val player:Option[Player] = tileAt(pos).entity match {
-			case Some(entity:EntityPlayer) => (players get entity.player.name)
+			case Some(entity:EntityPlayer) => (players find {_.name == entity.player.name})
 			case _ => None
 		}
 		val event:WorldEvent = WorldEvent(timeStr, "tile", Some(pos.x), Some(pos.y), Some(tile), player)
@@ -456,25 +526,9 @@ class World {
 	}
 	
 	def broadcastPlayer(player:Player, kind:String = "player"):Unit = {
-		val tile:Option[Tile] = Option(tileAt(player.x, player.y))
-		val event:WorldEvent = WorldEvent(timeStr, kind, Some(player.x), Some(player.y), tile, Some(player))
+		val pos = find(player).get.pos
+		val tile:Option[Tile] = Option(tileAt(pos))
+		val event:WorldEvent = WorldEvent(timeStr, kind, Some(pos.x), Some(pos.y), tile, Some(player))
 		this.eventChannel.push(event)
-	}
-}
-
-// XXX: should be several subclasses, not this monstrosity
-case class WorldEvent(
-	val time:String,
-	val kind:String, // TODO: deprecate, then remove
-	val x:Option[Int] = None,
-	val y:Option[Int] = None,
-	val tile:Option[Tile] = None,
-	val player:Option[Player] = None,
-	val prevX:Option[Int] = None,
-	val prevY:Option[Int] = None
-) {
-	def pos:Option[WorldCoordinates] = {
-		if (x.isDefined && y.isDefined) Some(WorldCoordinates(x.get,y.get))
-		else None
 	}
 }

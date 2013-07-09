@@ -65,6 +65,7 @@ object Application extends Controller {
 	def connectPlayer(playerName:String):scala.concurrent.Future[(Iteratee[JsValue,_],Enumerator[JsValue])] = {
 		(game ? Join(playerName)).map {
 			case Connected(enumerator) => 
+				Logger info s"Player joined: $playerName"
 				val iteratee = Iteratee.foreach[JsValue] { message =>
 					game ! Talk(playerName, message)
 				}.mapDone { _ =>
