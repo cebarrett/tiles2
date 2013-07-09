@@ -119,13 +119,19 @@ class World {
 		val chunk = chunkGrid.getOrGenerate(coords)
 		val lenAfter = chunkGrid.size
 		// if a chunk was generated, put its entities into the position cache
+		// (all entities except blocks)
 		if (lenAfter - lenBefore == 1) {
 			chunk.tiles foreach { tcol =>
 				tcol foreach { tile =>
 					tile.entity map { entity =>
-						val pos = tile.coords.pos(coords)
-						val worldEntity = new WorldEntity(entity, this)
-						entityCache.put(worldEntity, pos)
+						entity match {
+							case _:EntityBlock => Unit
+							case _ => {
+								val pos = tile.coords.pos(coords)
+								val worldEntity = new WorldEntity(entity, this)
+								entityCache.put(worldEntity, pos)
+							}
+						}
 					}
 				}
 			}
@@ -166,21 +172,8 @@ class World {
 
 	/** Run 1 tick of the game loop. */
 	def tick():Unit = {
-		var allEntities = Seq.empty[(Entity, WorldCoordinates)]
-		// XXX: most of the time in a tick is looping over every tile in the game
-		// instead keep a cache of all entities that need ticking
-		forEachTile { (t, pos) =>
-			t.entity map { e =>
-				// XXX: don't tick these entities for now - too many of them.
-				// kind of a hack, entities that move need a subclass.
-				e match {
-					case _:EntityBlock | _:EntityTree => Unit
-					case _ => allEntities = (e, pos) +: allEntities
-				}
-			}
-		}
-		allEntities foreach { entry =>
-			val (entity, pos) = entry
+		entityCache.keys foreach { worldEntity =>
+			val (entity, pos) = (worldEntity.entity, worldEntity.pos)
 			val tile = (this tileAt pos)
 			if (tile.entity.isEmpty || tile.entity.get != entity) {
 				Logger warn "entity not found where it was expected"
