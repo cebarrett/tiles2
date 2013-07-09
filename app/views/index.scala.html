@@ -27,10 +27,6 @@
 			</div>
 			<div id="hud" ng-show="connected">
 				<div class="hud-row">
-					<div class="item-swap-button" ng-click="">⬆</div>
-					<div class="item-swap-button" ng-click="">⬇</div>
-				</div>
-				<div class="hud-row">
 					{{player.name}}
 				</div>
 				<div class="hud-row">
@@ -47,6 +43,10 @@
 				</div>
 				<div class="hud-row">
 					<small>{{timeStr}}</small>
+				</div>
+				<div class="hud-row">
+					<div class="item-swap-button" ng-click="">⬆</div>
+					<div class="item-swap-button" ng-click="">⬇</div>
 				</div>
 				<div class="hud-row item-selected-{{$index == player.selected}}" ng-repeat="stack in player.inventory" ng-click="selectItem($index)">
 					<small>{{stack.count}}</small>

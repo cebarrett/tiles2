@@ -29,7 +29,7 @@ class World {
 	var ticks:Long = 0;
 
 	/** Grid of all the chunks in the world */
-	val chunkGrid = new ChunkGrid
+	private val chunkGrid = new ChunkGrid
 
 	/** Emits WorldEvent when things happen in the world. */
 	val (eventEnumerator, eventChannel) = Concurrent.broadcast[WorldEvent]
@@ -53,6 +53,7 @@ class World {
 		}
 	}
 	
+	/** Find an entity's position in the world. */
 	def pos = { e:Entity => find(e).map(entityCache get _).get }
 	
 	/** Get or create the player with the given name */
@@ -112,9 +113,27 @@ class World {
 	/** Gets the time of day as a string HH:MM */
 	def timeStr = "%2d:%2d".format(hours, minutes).replaceAll(" ", "0")
 
-	def chunkAt(cx:Int, cy:Int):Chunk = chunkAt(ChunkCoordinates(cx,cy))
+	/** Get or generate a chunk. */
+	def chunkAt(coords:ChunkCoordinates):Chunk = {
+		val lenBefore = chunkGrid.size
+		val chunk = chunkGrid.getOrGenerate(coords)
+		val lenAfter = chunkGrid.size
+		// if a chunk was generated, put its entities into the position cache
+		if (lenAfter - lenBefore == 1) {
+			chunk.tiles foreach { tcol =>
+				tcol foreach { tile =>
+					tile.entity map { entity =>
+						val pos = tile.coords.pos(coords)
+						val worldEntity = new WorldEntity(entity, this)
+						entityCache.put(worldEntity, pos)
+					}
+				}
+			}
+		}
+		chunk
+	}
 
-	def chunkAt(coords:ChunkCoordinates):Chunk = chunkGrid.getOrGenerate(coords)
+	def chunkAt(cx:Int, cy:Int):Chunk = chunkAt(ChunkCoordinates(cx,cy))
 
 	def tileAt(coords:WorldCoordinates):Tile = tileAt(coords.x, coords.y)
 
@@ -274,23 +293,20 @@ class World {
 			return
 		}
 
-		newTile.entity = oldEntity
+		val entity = oldEntity.get
+		
+		newTile.entity = Some(entity)
 		oldTile.entity = None
-		newTile.entity.get match {
-			case playerEntity:EntityPlayer => {
-				val player = players.get(playerEntity.player.name).get
-				find(playerEntity) map { worldEntity =>
-					entityCache.put(worldEntity, newCoords)
-					val event = WorldEvent(timeStr, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), Some(player), Some(oldCoords.x), Some(oldCoords.y))
-					eventChannel.push(event)
-				} getOrElse {
-					Logger warn s"Moved player ${player.name} who is not in the position cache"
-				}
-			}
-			case _:Any => {
-				val event = WorldEvent(timeStr, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), None, Some(oldCoords.x), Some(oldCoords.y))
-				eventChannel.push(event)
-			}
+		val player:Option[Player] = entity match {
+			case playerEntity:EntityPlayer => Some(playerEntity.player)
+			case _ => None
+		}
+		find(newTile.entity.get) map { worldEntity =>
+			entityCache.put(worldEntity, newCoords)
+			val event = WorldEvent(timeStr, "entityMove", Some(newCoords.x), Some(newCoords.y), Some(newTile), player, Some(oldCoords.x), Some(oldCoords.y))
+			eventChannel.push(event)
+		} getOrElse {
+			Logger warn s"Moved entity $entity that is not in the position cache"
 		}
 	}
 
