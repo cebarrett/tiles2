@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def radius:Int = 64; // NOTE: also hardcoded in controllers.coffee
+	def radius:Int = 32; // NOTE: also hardcoded in controllers.coffee
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
@@ -36,7 +36,6 @@ class World {
 
 	/** Cache of positions of entities in the world. Does not contain all entities,
 	 *  just the ones to tick every turn. */
-	// XXX: Only use this for players for now.
 	private val entityCache = new WorldEntityCache
 	
 	/** All players in the world, logged in or not */
@@ -54,7 +53,7 @@ class World {
 	}
 	
 	/** Find an entity's position in the world. */
-	def pos = { e:Entity => find(e).map(entityCache get _).get }
+	def pos(e:Entity):Option[WorldCoordinates] = (this find e).map(entityCache get _).getOrElse(None)
 	
 	/** Get or create the player with the given name */
 	def fetchPlayer(playerName:String):Player = {
@@ -66,7 +65,7 @@ class World {
 		}
 	}
 	
-	def giveNewPlayerItems(player:Player):Unit = {
+	def giveNewPlayerItems(player:Player):Unit =
 		player.give(if (Game.DEV) Seq(
 			new ItemStack(new EntityBlock(Wood), Some(1000)),
 			new ItemStack(new EntityBlock(Obsidian), Some(1000)),
@@ -86,7 +85,6 @@ class World {
 			new ItemStack(new Axe(Wood)),
 			new ItemStack(new EntityWorkbench(Wood))
 		))
-	}
 	
 	def find(player:Player):Option[WorldEntity[EntityPlayer]] = {
 		entityCache.keys map { worldEntity =>

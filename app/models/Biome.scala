@@ -36,18 +36,18 @@ case object DirtBiome extends Biome {
 }
 
 case object StoneBiome extends Biome {
-	private val stoneNoise = new GridRandom(
-		Seq(Limestone, Granite, Sandstone, Basalt
+	private val stoneNoise = new GridRandom(Seq(
+		Limestone, Granite, Sandstone, Basalt
 	), 5)
 	private val oreNoise = new GridRandom(Seq(
-			Malachite, Malachite, Malachite, Malachite,
-			Cassiterite, Cassiterite, Cassiterite, Cassiterite,
-			Hematite, Hematite, Hematite, Hematite,
-			Sphalerite, Sphalerite, Sphalerite, Sphalerite,
-			Ilmenite, Ilmenite, Ilmenite, Ilmenite,
-			Galena, Galena, Galena, Galena,
-			Silver, Silver, Gold, Platinum,
-			Malachite, Malachite, Hematite, Hematite
+		Cassiterite, Hematite, Malachite, Ilmenite, 
+		Malachite, Silver, Sphalerite, Galena, 
+		Cassiterite, Hematite, Galena, Sphalerite, 
+		Silver, Platinum, Malachite, Gold, 
+		Hematite, Galena, Cassiterite, Cassiterite, 
+		Malachite, Ilmenite, Malachite, Copper, 
+		Hematite, Malachite, Hematite, Ilmenite, 
+		Sphalerite, Sphalerite, Hematite, Galena
 	), 0.15)
 	private val oreGenNoise = new GridNoise(0.08)
 

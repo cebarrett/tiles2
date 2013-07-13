@@ -10,7 +10,6 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", "chunkQueue"
 	# XXX: should send the server side ones in init
 	$scope.tileSizePx = 30;	# also defined in LESS
 	$scope.chunkLen = 16;	# also defined in server side and in LESS
-	$scope.worldLen = 64;	# also defined in server side
 
 	$scope.loadChunk = (chunk)  ->
 		chunkQueue.loadChunk(chunk)

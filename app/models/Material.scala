@@ -31,12 +31,12 @@ abstract class Ore(override val weight:Double, override val hardness:Double, ove
 case object Malachite   extends Ore(0.40, 0.50, "rgb(53, 71, 64)")
 case object Hematite    extends Ore(0.40, 0.50, "rgb(78, 53, 47)")
 case object Cassiterite extends Ore(0.40, 0.50, "rgb(66, 61, 49)")
-case object Sphalerite  extends Ore(0.40, 0.50, "rgb(75, 75, 50)")
+case object Sphalerite  extends Ore(0.40, 0.50, "rgb(60, 75, 50)")
 case object Ilmenite    extends Ore(0.40, 0.50, "rgb(50, 40, 30)")
-case object Galena      extends Ore(0.40, 0.50, "#7C7C7C")
+case object Galena      extends Ore(0.40, 0.50, "#6F6F6F")
 
 abstract class Metal(override val weight:Double, override val hardness:Double, override val color:String) extends Material
-case object Copper    extends Metal(0.60, 0.60, "rgb(128, 53, 4)")
+case object Copper    extends Metal(0.60, 0.60, "rgb(120, 60, 35)")
 case object Iron      extends Metal(0.70, 0.80, "#B1B1B0")
 case object Silver    extends Metal(0.90, 0.30, "#BABBBB")
 case object Gold      extends Metal(1.00, 0.30, "rgb(207, 183, 0)")
