@@ -58,4 +58,22 @@ class Player (val name:String) {
 			clazz cast _.item
 		})
 	}
+	
+	def swapItems(i0:Int, i1:Int):Boolean = {
+		if (( inventory.validate(i0) && inventory.validate(i1) )) {
+			val item0 = inventory.items(i0)
+			val item1 = inventory.items(i1)
+			inventory.items = inventory.items.updated(i0, item1)
+			inventory.items = inventory.items.updated(i1, item0)
+			selected = selected match {
+				case Some(i) if (i == i0) => Some(i1)
+				case Some(i) if (i == i1) => Some(i0)
+				case Some(_) => selected
+				case None => None
+			}
+			true
+		} else {
+			false
+		}
+	}
 }

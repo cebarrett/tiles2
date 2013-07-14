@@ -526,11 +526,7 @@ class World {
 	
 	def doSwapItems(playerName:String, i0:Int, i1:Int):Unit = {
 		players get playerName map { player =>
-			if (( player.inventory.validate(i0) && player.inventory.validate(i1) )) {
-				val item0 = player.inventory.items(i0)
-				val item1 = player.inventory.items(i0)
-				player.inventory.items.updated(i0, item1)
-				player.inventory.items.updated(i1, item0)
+			if (player.swapItems(i0, i1)) {
 				broadcastPlayer(player)
 			}
 		}

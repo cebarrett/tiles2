@@ -43,14 +43,21 @@ directives.directive "appControls", [ "renderLoop", (renderLoop) ->
 				return if $("input:focus, textarea:focus").size() > 0
 				len = scope.player.inventory.length
 				sel = scope.player.selected
+				alt = e.shiftKey
 				if e.keyCode == 81
 					if sel?
-						scope.selectItem (sel-1+len)%len
+						if alt
+							scope.swapItemUp()
+						else
+							scope.selectItem (sel-1+len)%len
 					else
 						scope.selectItem len-1
 				if e.keyCode == 69
 					if sel?
-						scope.selectItem (sel+1)%len
+						if alt
+							scope.swapItemDown()
+						else
+							scope.selectItem (sel+1)%len
 					else
 						scope.selectItem 0
 				if e.keyCode == 32

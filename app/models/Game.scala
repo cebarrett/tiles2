@@ -180,9 +180,9 @@ class Game extends Actor {
 						}
 					}).getOrElse(world doDeselectItem playerName)
 				case "swap" =>
-					(message \\ "from").headOption map { from =>
-						(message \\ "to").headOption map { to =>
-							(from, to) match {
+					(message \\ "i0").headOption map { i0 =>
+						(message \\ "i1").headOption map { i1 =>
+							(i0, i1) match {
 								case (JsNumber(i0), JsNumber(i1)) => {
 									world.doSwapItems(playerName, i0.toInt, i1.toInt)
 								}

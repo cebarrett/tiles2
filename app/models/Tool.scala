@@ -30,18 +30,22 @@ class Pick(override val material:Material) extends Tool(material) {
 	override def attackModifier = (material.weight + material.hardness) / 3
 	override def toolStrength = material.hardness
 }
+
 class Hammer(override val material:Material) extends Tool(material) {
 	override def attackModifier = (material.weight * 2) / 3
 	override def toolStrength = material.weight
 }
+
 class Axe(override val material:Material) extends Tool(material) {
 	override def attackModifier = (material.weight + material.hardness) / 3
 }
+
 class Armor(override val material:Material) extends Tool(material) {
 	// note: this is both the player's defense and the
 	// entity's defense when placed on a tile.
 	override def defenseModifier = material.hardness
 }
+
 class Sword(override val material:Material) extends Tool(material) {
 	override def attackModifier = material.hardness
 }

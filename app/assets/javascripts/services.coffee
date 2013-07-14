@@ -19,10 +19,12 @@ services.factory "net", ["pub", "sub", (pub, sub) ->
 		west:  -> pub {kind: "west"}
 		craft: (craft, index) ->
 			pub {kind: "craft", craft: craft, index: index}
-		place: (x, y, index) ->
-			pub {kind: "place", x: x, y: y, index: index}
+		place: (x, y) ->
+			pub {kind: "place", x: x, y: y}
 		selectItem: (index) ->
 			pub {kind: "selectItem", index: index}
+		swap: (i0, i1) ->
+			pub {kind: "swap", i0: i0, i1: i1}
 ]
 
 #

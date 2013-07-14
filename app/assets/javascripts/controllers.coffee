@@ -61,11 +61,27 @@ controllers.controller "AppCtrl", ["$scope", "net", "chunkManager", "chunkQueue"
 
 	# tile click callback
 	$scope.place = (x, y) ->
-		net.place(x, y, $scope.selectedItemIndex)
+		net.place(x, y)
 
 	# select active item callback
 	$scope.selectItem = (index) ->
 		net.selectItem(index)
+		
+	$scope.swapItemUp = () ->
+		player = $scope.player
+		if player? and player.selected?
+			inventory = player.inventory
+			i0 = player.selected
+			i1 = (i0-1+inventory.length)%inventory.length
+			net.swap i0, i1
+		
+	$scope.swapItemDown = () ->
+		player = $scope.player
+		if player? and player.selected?
+			inventory = player.inventory
+			i0 = player.selected
+			i1 = (i0+1+inventory.length)%inventory.length
+			net.swap i0, i1
 
 	# open a crafting gui for the tile dx,dy from the player.
 	# return true if one was opened, false otherwise.
