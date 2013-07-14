@@ -8,7 +8,7 @@ object ChunkGenerator {
 	private var terrainGen = new GridNoise(2)
 
 	private val biomeGen = new GridRandom[Biome](
-		Seq(ForestBiome, ForestBiome, DesertBiome, DirtBiome),
+		Seq(ForestBiome, SnowBiome, DesertBiome, DirtBiome),
 		1.0)
 
 	private val structureGen:Seq[StructureGen] = Seq(StructureSpawn, StructureBoss)

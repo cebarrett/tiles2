@@ -26,6 +26,15 @@ case object DesertBiome extends Biome {
 	}
 }
 
+case object SnowBiome extends Biome {
+	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
+		tile.terrain = TerrainSnow
+		if (Math.random < 0.01) {
+			tile.entity = Some(new EntityTree())
+		}
+	}
+}
+
 case object DirtBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainDirt

@@ -289,6 +289,9 @@ services.factory "tileRender", [ () ->
 		grass:
 			text: "·"
 			color: "green"
+		snow:
+			text: "·"
+			color: "#eee"
 		floor:
 			text: "+"
 			color: "#68583E"
