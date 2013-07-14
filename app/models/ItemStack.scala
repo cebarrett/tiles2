@@ -5,24 +5,15 @@ import play.api.Logger
 case class ItemStack(val item:Item, val count:Option[Int] = Some(1)) {
 	
 	def +(other:ItemStack):Option[ItemStack] = {
-		if (canAddTo(other)) {
+		if (stacksWith(other)) {
 			Some(ItemStack(item, Some(count.head + other.count.head)))
 		} else {
 			None
 		}
 	}
-
-	def canAddTo(other:ItemStack):Boolean = canSubtractFrom(other)
-	// def canAddTo(other:ItemStack):Boolean = {
-	// 	return (
-	// 		count.isDefined &&
-	// 		other.count.isDefined &&
-	// 		item.kind == other.item.kind
-	// 	)
-	// }
 	
 	def -(other:ItemStack):Option[ItemStack] = {
-		if (canSubtractFrom(other)) {
+		if (stacksWith(other)) {
 			if (count.isEmpty) {
 				return Some(this.copy(count = Some(0)))
 			} else {
@@ -38,13 +29,7 @@ case class ItemStack(val item:Item, val count:Option[Int] = Some(1)) {
 		}
 	}
 	
-	/**
-	 * An ItemStack can be subtracted from another if both stacks
-	 * have counts defined, its count is not greater, they are
-	 * the same kind, and, if they have materials, the materials
-	 * are the same kind.
-	 */
-	def canSubtractFrom(other:ItemStack):Boolean = {
+	def stacksWith(other:ItemStack):Boolean = {
 		count.isDefined &&
 		other.count.isDefined && 
 		count.get >= other.count.get &&

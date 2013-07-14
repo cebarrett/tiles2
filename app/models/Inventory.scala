@@ -10,7 +10,7 @@ class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack]) {
 
 	/** Returns true if user has the given item (at least as many for item stacks) */
 	def has(other:ItemStack):Boolean = {
-		val item:ItemStack = items.filter({_.canSubtractFrom(other)}).headOption.getOrElse(null)
+		val item:ItemStack = items.filter({_.stacksWith(other)}).headOption.getOrElse(null)
 		if (item == null) {
 			return false
 		} else if (item.count.isDefined && other.count.isDefined) {
@@ -27,10 +27,10 @@ class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack]) {
 		other.count map { c:Int =>
 			if (c <= 0) return
 		}
-		if (other.count == None || items.filter({_.canAddTo(other)}).isEmpty) {
+		if (other.count == None || items.filter({_.stacksWith(other)}).isEmpty) {
 			items = items ++ Seq(other)
 		} else if (other.count.get > 0) {
-			val existing:ItemStack = items.filter({_.canAddTo(other)}).head
+			val existing:ItemStack = items.filter({_.stacksWith(other)}).head
 			val existingIndex:Int = items.indexOf(existing)
 			val updated:ItemStack = (existing + other).get
 			items = items.patch(existingIndex, Seq(updated), 1)
@@ -45,7 +45,7 @@ class Inventory(var items:Seq[ItemStack] = Seq.empty[ItemStack]) {
 		// subtract from the first item stack of the same kind.
 		items.filter({ item:ItemStack =>
 			// filter itemstacks from which other can be subtracted
-			item.canSubtractFrom(other)
+			item.stacksWith(other)
 		}).headOption.map({ item:ItemStack =>
 			// handle stacks with count
 			val updated:ItemStack = (item - other).head
