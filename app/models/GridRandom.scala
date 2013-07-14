@@ -1,9 +1,10 @@
 package models
 
+import play.api.{Logger => log}
+
 /**
  * Selects random elements from a list of N for each point
  * on a grid, using sqrt(N) GridNoise generators.
- * XXX: infinite loop when list length is not a power of 2
  */
 class GridRandom[T](val list:Seq[T], val scale:Double = 1.0) {
 
@@ -19,17 +20,16 @@ class GridRandom[T](val list:Seq[T], val scale:Double = 1.0) {
 			return None
 		}
 
-		var len = noiseGen.length
+		val len = noiseGen.length
 
 		var index:Int = 0
-		do {
-			(0 until noiseGen.length) map { i =>
-				val noise:Double = noiseGen(i).noiseAt(x, y)
-				if (noise > 0) {
-					index = index + Math.pow(2, i).toInt
-				}
+		(0 until noiseGen.length) map { i =>
+			val noise:Double = noiseGen(i).noiseAt(x, y)
+			if (noise > 0) {
+				index = index + Math.pow(2, i).toInt
 			}
-		} while (index >= list.length);
+		}
+		index = (index * 47 + 449) % list.length
 
 		return Some(list(index))
 	}
