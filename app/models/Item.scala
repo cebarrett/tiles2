@@ -15,19 +15,18 @@ trait Item {
 
 trait ItemWithMaterial extends Item {
 	def material:Material
-	def copyWithMaterial(material:Material):ItemWithMaterial
-}
-
-abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithMaterial with Entity {
-	override def drops = Seq(ItemStack(this))
-	override def canBeBrokenBy(tool:Option[Tool]) = true
 	def copyWithMaterial(material:Material) = {
 		val copy = getClass getConstructor classOf[Material] newInstance(material)
 		copy.asInstanceOf[ItemWithMaterial]
 	}
 }
 
-class Floor(override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
+abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithMaterial with Entity {
+	override def drops = Seq(ItemStack(this))
+	override def canBeBrokenBy(tool:Option[Tool]) = true
+}
+
+class Floor(override val material:Material) extends ItemWithMaterial with Terrain
 // XXX: shouldn't be able to place entities on doors (or water, or lava...)
-class Door (override val material:Material) extends AbstractItemWithMaterial(material) with Terrain
+class Door (override val material:Material) extends ItemWithMaterial with Terrain
 

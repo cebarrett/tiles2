@@ -468,6 +468,7 @@ class World {
 										case terrain:Terrain => {
 											if (!(targetTile.terrain.getClass.isInstance(terrain))) {
 												targetTile.terrain = stack.item.asInstanceOf[Terrain]
+												broadcastTileEvent(target)
 												true
 											} else false
 										}
