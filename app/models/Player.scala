@@ -2,7 +2,7 @@ package models
 
 import scala.collection.Seq
 
-case class Player (val name:String, val inventory:Inventory = new Inventory, var selected:Option[Int] = None) {
+class Player (val name:String, val inventory:Inventory = new Inventory, var selected:Option[Int] = None) {
 	
 	def isItemSelected:Boolean = {
 		return (

@@ -163,7 +163,7 @@ directives.directive "sky", [ () ->
 		else
 			console.error("Couldn't determine luminosity for time " + time)
 			day.luminosity
-	alpha = (time) -> 0.08
+	alpha = (time) -> 0.13
 	renderTimeOfDay = (scope, elm) ->
 		bgcolor = "black"
 		if (scope.timeStr?)

@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	def radius:Int = 32; // NOTE: also hardcoded in controllers.coffee
+	def radius:Int = 64; // NOTE: also hardcoded in controllers.coffee
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
 	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
@@ -43,14 +43,35 @@ class World {
 		def get(name:String):Option[Player] = find {_.name == name}
 	}
 
+	/** Run 1 tick of the game loop. */
+	def tick():Unit = {
+		entityCache.all foreach { obj =>
+			val worldEntity:WorldEntity[Entity] = obj.asInstanceOf[WorldEntity[Entity]]
+			val entity:Entity = worldEntity.entity.asInstanceOf[Entity]
+			entity match {
+				case _ => {
+					val pos:WorldCoordinates = entityCache.get(worldEntity).get
+					val tile = tileAt(pos)
+					if (tile.entity.isEmpty || tile.entity.get != entity) {
+						// XXX: also happens when a sapling changes into a tree
+						Logger warn "entity not found where it was expected"
+						entityCache remove worldEntity
+					} else {
+						entity.tick(this, pos)
+					}
+				}
+			}
+		}
+		ticks = ticks + 1;
+	}
+
 	/** Find an entity in the world. */
 	def find[T <: Entity](entity:T):Option[WorldEntity[T]] = {
-		entityCache.keys find {
-			_.entity == entity
-		} map {
-			_.asInstanceOf[WorldEntity[T]]
-		}
+		entityCache get entity map {_._1}
 	}
+	
+	/*  FIXME: getting called a lot during World.tick and too slow */
+	def find(player:Player):Option[WorldEntity[EntityPlayer]] = entityCache get player map {_._1}
 	
 	/** Find an entity's position in the world. */
 	def pos(e:Entity):Option[WorldCoordinates] = (this find e).map(entityCache get _).getOrElse(None)
@@ -85,20 +106,7 @@ class World {
 			new ItemStack(new Axe(Wood)),
 			new ItemStack(new EntityWorkbench(Wood))
 		))
-	
-	def find(player:Player):Option[WorldEntity[EntityPlayer]] = {
-		entityCache.keys map { worldEntity =>
-			worldEntity.entity match {
-				case entity:EntityPlayer => worldEntity.asInstanceOf[WorldEntity[EntityPlayer]]
-				case _ => null
-			}
-		} filter {
-			_ != null
-		} find {
-			_.entity.player == player
-		}
-	}
-	
+
 	/** Gets the time of day in hours, a value from 0 to 24. */
 	def time = 24 * ((ticks % World.ticksPerDay).toDouble/World.ticksPerDay.toDouble)
 	
@@ -119,22 +127,31 @@ class World {
 		// if a chunk was generated, put its entities into the position cache
 		// (all entities except blocks)
 		if (lenAfter - lenBefore == 1) {
-			chunk.tiles foreach { tcol =>
-				tcol foreach { tile =>
-					tile.entity map { entity =>
-						entity match {
-							case _:EntityBlock => Unit
-							case _ => {
-								val pos = tile.coords.pos(coords)
-								val worldEntity = new WorldEntity(entity, this)
-								entityCache.put(worldEntity, pos)
-							}
-						}
+			addEntitiesToCache(chunk)
+		}
+		chunk
+	}
+	
+	/** Add all entities in a chunk to the entity cache. */
+	private def addEntitiesToCache(chunk:Chunk):Unit = {
+		chunk.tiles foreach { tcol =>
+			tcol foreach { tile =>
+				tile.entity map { entity =>
+					if (shouldAddEntityToCache(entity)) {
+						val pos = tile.coords.pos(chunk.pos)
+						val worldEntity = new WorldEntity(entity, this)
+						entityCache.put(worldEntity, pos)
 					}
 				}
 			}
 		}
-		chunk
+	}
+	
+	private def shouldAddEntityToCache(entity:Entity):Boolean = {
+		entity match {
+			case _:EntityBlock | _:EntityTree => false
+			case _ => true
+		}
 	}
 
 	def chunkAt(cx:Int, cy:Int):Chunk = chunkAt(ChunkCoordinates(cx,cy))
@@ -167,20 +184,6 @@ class World {
 			}
 		}
 	}
-
-	/** Run 1 tick of the game loop. */
-	def tick():Unit = {
-		entityCache.keys foreach { worldEntity =>
-			val (entity, pos) = (worldEntity.entity, worldEntity.pos)
-			val tile = (this tileAt pos)
-			if (tile.entity.isEmpty || tile.entity.get != entity) {
-				Logger warn "entity not found where it was expected"
-			} else {
-				entity.tick(this, pos)
-			}
-		}
-		ticks = ticks + 1;
-	}
 	
 	/** Pre-load all of the chunks in the world. */
 	def loadAllChunks():World = {
@@ -188,7 +191,8 @@ class World {
 		var chunkCount:Int = 0
 		for (cx <- (-World.radius) until World.radius) {
 			for (cy <- (-World.radius) until World.radius) {
-				chunkGrid.getOrGenerate(ChunkCoordinates(cx, cy))
+				val chunk = chunkGrid.getOrGenerate(ChunkCoordinates(cx, cy))
+				addEntitiesToCache(chunk)
 				chunkCount = chunkCount + 1
 			}
 		}
@@ -223,6 +227,16 @@ class World {
 			}
 		}
 		None
+	}
+	
+	def spawnEntity(entity:Entity, pos:WorldCoordinates):Unit = {
+		val tile = tileAt(pos)
+		tile.entity = Some(entity)
+		if (shouldAddEntityToCache(entity)) {
+			val worldEntity = new WorldEntity(entity, this)
+			entityCache.put(worldEntity, pos)
+		}
+		broadcastTileEvent(pos)
 	}
 
 	/** Remove the entity from a tile and broadcast the event. */
@@ -448,7 +462,7 @@ class World {
 								player getSelectedItem() map { stack =>
 									val placed = stack.item match {
 										case entity:Entity => {
-											targetTile.entity = Some(entity)
+											spawnEntity(entity, target)
 											true
 										}
 										case terrain:Terrain => {
@@ -465,7 +479,6 @@ class World {
 										player.inventory.subtractOneOf(stack)
 										val l1 = player.inventory.items.length
 										if (l1-l0 != 0) player.selected = None
-										broadcastTileEvent(target)
 										broadcastPlayer(player)
 									}
 									placed

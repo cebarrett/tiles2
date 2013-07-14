@@ -96,7 +96,13 @@ object JsonFormatters {
 	}
 	
 	// player
-	implicit val writesPlayer = Json.writes[Player]
+	implicit val writesPlayer = new Writes[Player] {
+		def writes(player:Player):JsObject = JsObject(Seq(
+			"name" -> JsString(player.name),
+			"inventory" -> Json.toJson(player.inventory),
+			"selected" -> Json.toJson(player.selected)
+		))
+	}
 	
 	// world
 	implicit val writesTerrain = new Writes[Terrain] {
