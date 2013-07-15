@@ -77,7 +77,7 @@ class World {
 		
 		// If it's night and the world is below the monster cap then spawn monsters.
 		if (isNight && entityCache.monsters.size < World.monsterCap) {
-			for (i <- 0 until World.chunkCount / 100) {
+			for (i <- 0 until World.chunkCount / 200) {
 				val pos = World.randomCoordinates
 				val tile = tileAt(pos)
 				if (tile.terrain.spawnMonsters && tile.entity.isEmpty) {
