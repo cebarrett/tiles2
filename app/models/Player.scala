@@ -8,6 +8,8 @@ class Player (val name:String) {
 	val inventory:Inventory = new Inventory
 	var selected:Option[Int] = None
 	
+	override def toString = s"$getClass($name)"
+	
 	def isItemSelected:Boolean = {
 		return (
 			selected.isDefined &&

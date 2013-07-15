@@ -11,7 +11,7 @@ object ChunkGenerator {
 		Seq(ForestBiome, SnowBiome, DesertBiome, DirtBiome),
 		2)
 
-	private val structureGen:Seq[StructureGen] = Seq(StructureSpawn)
+	private val structureGen:Seq[StructureGen] = Seq(StructureSpawn, StructureBoss)
 
 	def generate(coords:ChunkCoordinates):Chunk = {
 		val chunk = new Chunk(coords.cx, coords.cy)
@@ -38,9 +38,9 @@ object ChunkGenerator {
 			tile.terrain = TerrainSand
 		} else if (terrainNoise < 0.33) {
 			biomeGen pick (coords.x, coords.y) map {_ decorate (tile, coords)}
-		} else if (terrainNoise < 0.90) {
-			StoneBiome decorate (tile, coords)
 		} else if (terrainNoise < 0.91) {
+			StoneBiome decorate (tile, coords)
+		} else if (terrainNoise < 0.92) {
 			tile.terrain = TerrainBedrock
 			tile.entity = Some(new EntityBlock(Obsidian))
 		} else {

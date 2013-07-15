@@ -26,8 +26,11 @@ abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithM
 	override def canBeBrokenBy(tool:Option[Tool]) = true
 }
 
-class Floor(override val material:Material) extends ItemWithMaterial with Terrain
+trait ToolTerrain extends ItemWithMaterial with Terrain {
+	override def spawnMonsters = false
+}
+class Floor(override val material:Material) extends ToolTerrain
 // XXX: shouldn't be able to place entities on doors (or water, or lava...)
-class Door (override val material:Material) extends ItemWithMaterial with Terrain
+class Door (override val material:Material) extends ToolTerrain
 
 class Mechanism(override val material:Material) extends AbstractItemWithMaterial(material)

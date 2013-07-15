@@ -5,6 +5,8 @@ import scala.util.Random
 
 case class WorldCoordinates(val x:Int, val y:Int) {
 	
+	override def toString = s"$getClass($x,$y)"
+	
 	def toChunkCoordinates():ChunkCoordinates = ChunkCoordinates(Chunk.coord(x), Chunk.coord(y))
 	
 	def toTileCoordinates():TileCoordinates   = TileCoordinates(Tile.coord(x), Tile.coord(y))

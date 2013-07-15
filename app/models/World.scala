@@ -8,11 +8,18 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
+	val monsterCap = World.tileCount / 150
 	def radius:Int = 64; // NOTE: also hardcoded in controllers.coffee
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
-	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1);
-	def ticksPerDay:Long = 3600 / (if (Game.DEV) 8 else 1)
+	def lengthChunks = radiusChunks * 2 + 1
+	def lengthTiles = radiusTiles * 2 + 1
+	def chunkCount = math.pow(lengthChunks, 2).toInt
+	def tileCount = math.pow(lengthTiles, 2).toInt
+	def clamp(n:Int):Int = Math.min(Math.max(-radiusTiles, n), radiusTiles-1)
+	def ticksPerDay:Long = 3600
+	def randomXorY = -radiusTiles + util.Random.nextInt(lengthTiles)
+	def randomCoordinates = WorldCoordinates(randomXorY, randomXorY)
 }
 
 /**
@@ -26,7 +33,7 @@ object World {
 class World {
 	
 	/** incremented once per tick */
-	var ticks:Long = 0;
+	var ticks = 0L
 
 	/** Grid of all the chunks in the world */
 	private val chunkGrid = new ChunkGrid
@@ -43,8 +50,13 @@ class World {
 		def get(name:String):Option[Player] = find {_.name == name}
 	}
 
-	/** Run 1 tick of the game loop. */
+	/**
+	 * Run 1 tick of the game loop.
+	 */
 	def tick():Unit = {
+		ticks = ticks + 1;
+		
+		// Run a tick for each entity in the entity cache.
 		entityCache.all foreach { obj =>
 			val worldEntity:WorldEntity[Entity] = obj.asInstanceOf[WorldEntity[Entity]]
 			val entity:Entity = worldEntity.entity.asInstanceOf[Entity]
@@ -62,7 +74,22 @@ class World {
 				}
 			}
 		}
-		ticks = ticks + 1;
+		
+		// If it's night and the world is below the monster cap then spawn monsters.
+		if (isNight && entityCache.monsters.size < World.monsterCap) {
+			for (i <- 0 until World.chunkCount / 100) {
+				val pos = World.randomCoordinates
+				val tile = tileAt(pos)
+				if (tile.terrain.spawnMonsters && tile.entity.isEmpty) {
+					val entity = Math.random match {
+						case i if i < 0.1 => new EntityOrc()
+						case i if i < 0.4 => new EntityGoblin()
+						case i => new EntitySpider()
+					}
+					spawnEntity(entity, pos)
+				}
+			}
+		}
 	}
 
 	/** Find an entity in the world. */
@@ -115,6 +142,8 @@ class World {
 	
 	/** Get just the minutes part of the time, an int from 0 to 60. */
 	def minutes = (60 * (time - hours)).toInt
+	
+	def isNight = (hours >= 18 || hours <= 6)
 	
 	/** Gets the time of day as a string HH:MM */
 	def timeStr = "%2d:%2d".format(hours, minutes).replaceAll(" ", "0")
@@ -231,6 +260,11 @@ class World {
 	
 	def spawnEntity(entity:Entity, pos:WorldCoordinates):Unit = {
 		val tile = tileAt(pos)
+		if (tile.entity.isDefined) {
+			// note: just having this if and log stmt present here
+			// fixes a bug where the client stops receiving events (wtf?)
+			Logger warn s"Spawning entity on top of another entity: ${tile.entity}"
+		}
 		tile.entity = Some(entity)
 		if (shouldAddEntityToCache(entity)) {
 			val worldEntity = new WorldEntity(entity, this)

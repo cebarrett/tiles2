@@ -268,6 +268,9 @@ services.factory "tileRender", [ () ->
 		goblin:
 			text: "g"
 			color: "rgb(167, 132, 81)"
+		orc:
+			text: "o"
+			color: "rgb(117, 82, 20)"
 		dragon:
 			text: "D"
 			color: "#D11"
