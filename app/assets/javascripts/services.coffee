@@ -325,14 +325,20 @@ services.factory "tileRender", [ () ->
 			text: "Θ"
 		gemcutter:
 			text: "ʘ"
-		windmill:
-			text: "¥"
 		bed:
 			text: "≅"
 		chest:
 			text: "⊟"
 		boat:
 			text: "Ъ"
+		mechanism:
+			text: "¤"
+		wire:
+			text: "⚡"
+		windmill:
+			text: "¥"
+		alternator:
+			text: "ʠ"
 		block:
 			text: "◼"
 		axe:

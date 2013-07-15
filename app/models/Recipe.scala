@@ -78,12 +78,12 @@ object Recipe {
 			Recipe(ItemStack(new EntityKiln(null)),        Seq(IngredientMaterial(classOf[Stone], 30)), true),
 			Recipe(ItemStack(new Furnace(null)),           Seq(IngredientMaterial(classOf[Stone], 30)), true),
 			Recipe(ItemStack(new EntitySmelter(null)),     Seq(IngredientMaterial(classOf[Stone], 30)), true),
-			Recipe(ItemStack(new EntitySawmill(null)),     Seq(IngredientMaterial(classOf[Stone], 30)), true),
-			Recipe(ItemStack(new Gemcutter(null)),         Seq(IngredientMaterial(classOf[Gem], 10)), true)
+			Recipe(ItemStack(new EntitySawmill(null)),     Seq(IngredientMaterial(classOf[Stone], 30), IngredientMaterial(classOf[Metal], 5)), true),
+			Recipe(ItemStack(new Gemcutter(null)),         Seq(IngredientMaterial(Diamond.getClass, 10)), true)
 		),
 		"kiln" -> Seq[Recipe](
 			Recipe(ItemStack(new EntityBlock(Charcoal), Some(1)), Seq(IngredientMaterial(Wood.getClass, 1))),
-			Recipe(ItemStack(new Anvil(null)), Seq(IngredientMaterial(classOf[Metal], 10)), true)
+			Recipe(ItemStack(new Anvil(null)), Seq(IngredientMaterial(Iron.getClass, 10)), true)
 		),
 		"furnace" -> Seq[Recipe](
 			Recipe(ItemStack(new EntityBlock(Lead), Some(1)),  Seq(IngredientMaterial(Galena.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
@@ -104,7 +104,7 @@ object Recipe {
 			Recipe(ItemStack(new Door(Wood), Some(1)),  Seq(IngredientMaterial(Wood.getClass, 5)), true),
 			Recipe(ItemStack(new EntityWorkbench(null)),    Seq(IngredientMaterial(Wood.getClass, 10)), true),
 			Recipe(ItemStack(new Bed(null)),    Seq(IngredientMaterial(Wood.getClass, 10)), true),
-			Recipe(ItemStack(new Chest(null)),    Seq(IngredientMaterial(Wood.getClass, 10)), true),
+			Recipe(ItemStack(new Chest(null)),    Seq(IngredientMaterial(Wood.getClass, 5), IngredientMaterial(classOf[Metal], 2)), true),
 			Recipe(ItemStack(new Boat(null)),    Seq(IngredientMaterial(Wood.getClass, 10)), true)
 		),
 		"stonecutter" -> Seq[Recipe](
