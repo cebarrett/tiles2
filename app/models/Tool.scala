@@ -7,7 +7,7 @@ extends AbstractItemWithMaterial(material) with Entity
 {
 	def attackModifier = 0.0
 	def defenseModifier = 0.0
-	def toolStrength = (material.weight + material.hardness) / 2
+	def toolStrength = 0.0
 	
 	def tryToBreak(entity:Entity):Boolean = {
 		entity match {
@@ -31,12 +31,13 @@ class Pick(override val material:Material) extends Tool(material) {
 }
 
 class Hammer(override val material:Material) extends Tool(material) {
-	override def attackModifier = (material.weight * 2) / 3
+	override def attackModifier = material.weight * 2 / 3
 	override def toolStrength = material.weight
 }
 
 class Axe(override val material:Material) extends Tool(material) {
 	override def attackModifier = (material.weight + material.hardness) / 3
+	override def toolStrength = material.hardness
 }
 
 class Armor(override val material:Material) extends Tool(material) {

@@ -9,7 +9,7 @@ object ChunkGenerator {
 
 	private val biomeGen = new GridRandom[Biome](
 		Seq(ForestBiome, SnowBiome, DesertBiome, DirtBiome),
-		1.0)
+		2)
 
 	private val structureGen:Seq[StructureGen] = Seq(StructureSpawn, StructureBoss)
 

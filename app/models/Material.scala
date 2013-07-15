@@ -41,7 +41,7 @@ case object Cassiterite extends Ore(0.40, 0.50, "rgb(66, 61, 49)")
 case object Sphalerite  extends Ore(0.40, 0.50, "rgb(60, 75, 50)")
 case object Ilmenite    extends Ore(0.40, 0.50, "rgb(50, 45, 40)")
 case object Galena      extends Ore(0.40, 0.50, "rgb(60, 60, 65)")
-case object Germanium   extends Ore(0.40, 0.20, "#CDCDCD")
+case object Germanium   extends Ore(0.40, 0.20, "#AAABAD")
 
 abstract class Metal(override val weight:Double, override val hardness:Double, override val color:String) extends Material
 case object Copper    extends Metal(0.60, 0.60, "rgb(120, 60, 35)")

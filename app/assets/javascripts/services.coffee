@@ -311,8 +311,8 @@ services.factory "tileRender", [ () ->
 			text: "π"
 		workshop:
 			text: "Π"
-		forge:
-			text: "Ƌ"
+		anvil:
+			text: "д"
 		kiln:
 			text: "Ω"
 		furnace:
@@ -327,6 +327,12 @@ services.factory "tileRender", [ () ->
 			text: "ʘ"
 		windmill:
 			text: "¥"
+		bed:
+			text: "≅"
+		chest:
+			text: "⊟"
+		boat:
+			text: "Ъ"
 		block:
 			text: "◼"
 		axe:
