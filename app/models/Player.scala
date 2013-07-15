@@ -1,6 +1,7 @@
 package models
 
 import scala.collection.Seq
+import play.api.{Logger => log}
 
 class Player (val name:String) {
 	
@@ -45,11 +46,15 @@ class Player (val name:String) {
 	}).map({_.item.asInstanceOf[Armor]}).headOption;
 	
 	/** Get currently equipped sword (currently always the best sword) */
-	def weapon:Option[Tool] = inventory.items.filter({
-		_.item.isInstanceOf[Tool]
-	}).sortBy({ stack =>
-		(1.0 / (stack.item.asInstanceOf[Tool].attackModifier))
-	}).map({_.item.asInstanceOf[Tool]}).headOption;
+	def weapon:Option[Tool] = {
+		val sword = inventory.items.filter({
+				_.item.isInstanceOf[Tool]
+			}).sortBy({ stack =>
+				(1.0 / (stack.item.asInstanceOf[Tool].attackModifier))
+			}).map({_.item.asInstanceOf[Tool]}).headOption;
+		log debug s"best sword: $sword"
+		sword
+	}
 	
 	def headItem[T <: Item](clazz:Class[T]):Option[T] = {
 		inventory.items.filter({

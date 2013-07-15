@@ -29,4 +29,3 @@ abstract class AbstractItemWithMaterial(val material:Material) extends ItemWithM
 class Floor(override val material:Material) extends ItemWithMaterial with Terrain
 // XXX: shouldn't be able to place entities on doors (or water, or lava...)
 class Door (override val material:Material) extends ItemWithMaterial with Terrain
-

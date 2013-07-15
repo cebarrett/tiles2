@@ -24,7 +24,7 @@ trait Entity extends Item {
 class EntityBlock(override val material:Material)
 extends AbstractItemWithMaterial(material) with Entity
 {
-	override def defense = (material.hardness + material.weight) / 2
+	override def defense = material.hardness
 	override def canBeBrokenBy(tool:Option[Tool]):Boolean =
 		tool map { _.isInstanceOf[Pick] } getOrElse false
 }

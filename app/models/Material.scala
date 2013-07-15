@@ -16,20 +16,21 @@ trait Material {
  */
 abstract class AbstractMaterial(val weight:Double, val hardness:Double, val color:String) extends Material
 
-case object Wood     extends AbstractMaterial(0.20, 0.20, "#A5753E")
+case object Wood     extends AbstractMaterial(0.23, 0.23, "#A5753E")
 case object Wool     extends AbstractMaterial(0.01, 0.01, "#DEDFDE")
 case object Charcoal extends AbstractMaterial(0.10, 0.10, "#282725")
 
 abstract class Stone(override val weight:Double, override val hardness:Double, override val color:String) extends Material
+abstract class Flux(override val weight:Double, override val hardness:Double, override val color:String) extends Stone(weight, hardness, color)
 case object Sandstone extends Stone(0.30, 0.30, "rgb(105, 98, 83)")
 case object Mudstone  extends Stone(0.30, 0.30, "#52503F")
-case object Limestone extends Stone(0.30, 0.35, "#5c5c55")
-case object Phyllite  extends Stone(0.40, 0.35, "#606060")
+case object Limestone extends  Flux(0.30, 0.35, "#5c5c55")
+case object Shale     extends Stone(0.40, 0.35, "#606060")
 case object Slate     extends Stone(0.40, 0.35, "#606063")
 case object Granite   extends Stone(0.40, 0.40, "#5c5555")
-case object Quartzite extends Stone(0.30, 0.40, "#7C7472")
-case object Basalt    extends Stone(0.40, 0.45, "#414140")
+case object Marble    extends  Flux(0.30, 0.40, "#908D87")
 case object Gabbro    extends Stone(0.40, 0.45, "#505050")
+case object Basalt    extends Stone(0.40, 0.45, "#414140")
 case object Diorite   extends Stone(0.40, 0.50, "#888888")
 case object Obsidian  extends Stone(0.30, 0.50, "#1C1A1E")
 

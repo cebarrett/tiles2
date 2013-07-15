@@ -90,7 +90,7 @@ class World {
 		player.give(if (Game.DEV) Seq(
 			new ItemStack(new EntityBlock(Wood), Some(1000)),
 			new ItemStack(new EntityBlock(Obsidian), Some(1000)),
-			new ItemStack(new EntityBlock(Diamond), Some(1000)),
+			new ItemStack(new EntityBlock(Germanium), Some(1000)),
 			new ItemStack(new EntityWorkbench(Diamond), Some(100)),
 			new ItemStack(new Food(), Some(100)),
 			new ItemStack(new Armor(Wood)),

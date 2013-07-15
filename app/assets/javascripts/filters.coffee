@@ -1,7 +1,11 @@
 filters = angular.module "app.filters", []
 
+filters.filter "itemFilter", [ () ->
+	(itemKind) -> if itemKind == "block" then "" else itemKind
+]
+
 filters.filter "recipeFilter", [ () ->
-	itemFilter = (ingredient) ->
+	ingredientFilter = (ingredient) ->
 		string = (if ingredient.count? then ingredient.count+" " else "a ")
 		if (ingredient.kind?)
 			string += ingredient.kind
@@ -12,11 +16,11 @@ filters.filter "recipeFilter", [ () ->
 
 
 	(recipe) ->
-		string = "Craft " + itemFilter(recipe.result) + " from";
+		string = "Craft " + ingredientFilter(recipe.result) + " from";
 		_(recipe.ingredients).each((item, i) -> 
 			string = string +
 					" " +
-					itemFilter(item) +
+					ingredientFilter(item) +
 					(if (i==recipe.ingredients.length-1) then "" else ",")
 		);
 		string

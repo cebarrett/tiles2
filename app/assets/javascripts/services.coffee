@@ -298,29 +298,6 @@ services.factory "tileRender", [ () ->
 		door:
 			text: "÷"
 			color: "#68583E"
-		workbench:
-			text: "π"
-			color: "#555555"
-		anvil:
-			text: "Π"
-			color: "#555555"
-		kiln:
-			text: "Ω"
-			color: "#555555"
-		smelter:
-			text: "ʭ"
-			color: "#555555"
-		sawmill:
-			text: "Ø"
-			color: "#555555"
-		stonecutter:
-			text: "Θ"
-			color: "#555555"
-		gemcutter:
-			text: "Θ"
-		block:
-			text: "◼"
-			color: "white"
 		water:
 			text: "≈"
 			color: "#13E"
@@ -330,14 +307,34 @@ services.factory "tileRender", [ () ->
 		food:
 			text: "❤"
 			color: "#C22"
+		workbench:
+			text: "π"
+		workshop:
+			text: "Π"
+		forge:
+			text: "Ƌ"
+		kiln:
+			text: "Ω"
+		furnace:
+			text: "ʬ"
+		smelter:
+			text: "ʭ"
+		sawmill:
+			text: "Ø"
+		stonecutter:
+			text: "Θ"
+		gemcutter:
+			text: "ʘ"
+		block:
+			text: "◼"
 		axe:
-			text: "/"
+			text: "}"
 		hammer:
-			text: "/"
+			text: "}"
 		pick:
-			text: "/"
+			text: "}"
 		sword:
 			text: "/"
 		armor:
-			text: "/"
+			text: "]"
 ]

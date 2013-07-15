@@ -9,9 +9,11 @@ extends AbstractItemWithMaterial(material) with Entity
 }
 
 class EntityWorkbench(override val material:Material) extends Building(material)
+class Workshop(override val material:Material) extends Building(material)
 class EntityKiln(override val material:Material) extends Building(material)
+class Furnace(override val material:Material) extends Building(material)
 class EntitySmelter(override val material:Material) extends Building(material)
 class EntitySawmill(override val material:Material) extends Building(material)
 class EntityStonecutter(override val material:Material) extends Building(material)
-class EntityAnvil(override val material:Material) extends Building(material)
+class Forge(override val material:Material) extends Building(material)
 class Gemcutter(override val material:Material) extends Building(material)

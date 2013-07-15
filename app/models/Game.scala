@@ -30,7 +30,7 @@ import java.util.TimerTask
 object Game {
 	/** set some stuff to help debug/test the game.
 	    changes gameplay, so must be false for production. */
-	def DEV:Boolean = false
+	def DEV:Boolean = true
 }
 
 /**
@@ -46,7 +46,7 @@ class Game extends Actor {
 
 	/** The game world */
 	val world = new World
-	world.loadAllChunks
+	if (!Game.DEV) world.loadAllChunks
 
 	/**
 	 * Translates WorldEvents into JSON that can be broadcast to players,
