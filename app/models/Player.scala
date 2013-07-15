@@ -47,13 +47,19 @@ class Player (val name:String) {
 	
 	/** Get currently equipped sword (currently always the best sword) */
 	def weapon:Option[Tool] = {
-		val sword = inventory.items.filter({
-				_.item.isInstanceOf[Tool]
-			}).sortBy({ stack =>
-				(1.0 / (stack.item.asInstanceOf[Tool].attackModifier))
-			}).map({_.item.asInstanceOf[Tool]}).headOption;
-		log debug s"best sword: $sword"
-		sword
+		inventory.items.filter({
+			_.item.isInstanceOf[Tool]
+		}).sortBy({ stack =>
+			(1.0 / (stack.item.asInstanceOf[Tool].attackModifier))
+		}).map({
+			_.item.asInstanceOf[Tool]
+		}).headOption.map({ weapon =>
+			log debug s"best weapon: ${weapon.material.kind} ${weapon.kind}"
+			Some(weapon)
+		}).getOrElse({
+			log debug "best weapon: none"
+			None
+		})
 	}
 	
 	def headItem[T <: Item](clazz:Class[T]):Option[T] = {
