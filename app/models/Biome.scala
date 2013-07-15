@@ -20,6 +20,9 @@ case object ForestBiome extends Biome {
 case object DesertBiome extends Biome {
 	def decorate(tile:Tile, pos:WorldCoordinates):Unit = {
 		tile.terrain = TerrainSand
+		if (Math.random < 0.03) {
+			tile.entity = Some(new EntitySpider())
+		}
 	}
 }
 
@@ -38,21 +41,26 @@ case object DirtBiome extends Biome {
 		if (Math.random < 0.01) {
 			tile.entity = Some(new EntityTree())
 		}
+		if (Math.random < 0.01) {
+			tile.entity = Some(new EntityGoblin())
+		}
 	}
 }
 
 case object StoneBiome extends Biome {
 	private val stoneNoise = new GridRandom(Seq(
-		Sandstone, Diorite, Mudstone, Gabbro, Limestone, Basalt, Shale, Marble, Slate, Granite
+		Sandstone, Diorite, Mudstone, Gabbro,
+		Limestone, Basalt, Shale, Marble,
+		Slate, Granite
 	), 4)
 	private val oreNoise = new GridRandom(Seq(
-		Cassiterite, Hematite, Malachite, Ilmenite, 
-		Malachite, Silver, Sphalerite, Germanium, 
-		Cassiterite, Hematite, Galena, Germanium, 
-		Silver, Platinum, Copper, Gold, 
-		Hematite, Galena, Cassiterite, Cassiterite, 
-		Malachite, Ilmenite, Malachite, Electrum, 
-		Hematite, Malachite, Hematite, Ilmenite, 
+		Cassiterite, Hematite, Malachite, Ilmenite,
+		Malachite, Silver, Sphalerite, Germanium,
+		Cassiterite, Hematite, Galena, Germanium,
+		Silver, Platinum, Copper, Gold,
+		Hematite, Galena, Cassiterite, Cassiterite,
+		Malachite, Ilmenite, Malachite, Electrum,
+		Hematite, Malachite, Hematite, Ilmenite,
 		Sphalerite, Sphalerite, Hematite, Galena
 	), 0.2)
 	private val oreGenNoise = new GridNoise(0.20)

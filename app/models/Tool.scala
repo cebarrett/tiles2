@@ -15,7 +15,6 @@ extends AbstractItemWithMaterial(material) with Entity
 				if (nonliving.canBeBrokenBy(Some(this))) {
 					val save = (0.7 + nonliving.defense) - toolStrength
 					val retv = Math.random > save
-					log trace s"${this} vs ${nonliving}: toolStrength=$toolStrength, save = $save, retv = $retv"
 					retv
 				} else {
 					false

@@ -325,6 +325,8 @@ services.factory "tileRender", [ () ->
 			text: "Θ"
 		gemcutter:
 			text: "ʘ"
+		windmill:
+			text: "¥"
 		block:
 			text: "◼"
 		axe:
