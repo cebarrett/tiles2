@@ -8,16 +8,24 @@ class WorldEntityCache {
 	
 	// secondary maps to help quickly look up some keys
 	private val entityMap = new collection.mutable.HashMap[Entity, WorldEntity[_]]
+	private val monsterMap = new collection.mutable.HashMap[EntityMonster, WorldEntity[EntityMonster]]
 	private val playerMap = new collection.mutable.HashMap[Player, WorldEntity[EntityPlayer]]
 	
 	def all = mainMap.keys
+	def entities = entityMap.keys
+	def players = playerMap.keys
+	def monsters = monsterMap.keys
 	
 	def put[T <: Entity](worldEntity:WorldEntity[T], pos:WorldCoordinates):Unit = {
 		mainMap.put(worldEntity, pos)
 		entityMap.put(worldEntity.entity, worldEntity)
 		worldEntity.entity match {
-			case entity:EntityPlayer => playerMap.put(entity.player,
-					worldEntity.asInstanceOf[WorldEntity[EntityPlayer]])
+			case entity:EntityPlayer => {
+				playerMap.put(entity.player, worldEntity.asInstanceOf[WorldEntity[EntityPlayer]])
+			}
+			case entity:EntityMonster => {
+				monsterMap.put(entity, worldEntity.asInstanceOf[WorldEntity[EntityMonster]])
+			}
 			case _ => Unit
 		}
 	}
@@ -27,6 +35,7 @@ class WorldEntityCache {
 		entityMap.remove(worldEntity.entity)
 		worldEntity.entity match {
 			case entity:EntityPlayer => playerMap.remove(entity.player)
+			case entity:EntityMonster => monsterMap.remove(entity)
 			case _ => Unit
 		}
 	}

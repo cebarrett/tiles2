@@ -311,7 +311,7 @@ services.factory "tileRender", [ () ->
 			text: "π"
 		workshop:
 			text: "Π"
-		anvil:
+		forge:
 			text: "д"
 		kiln:
 			text: "Ω"

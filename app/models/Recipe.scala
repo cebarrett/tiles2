@@ -83,7 +83,7 @@ object Recipe {
 		),
 		"kiln" -> Seq[Recipe](
 			Recipe(ItemStack(new EntityBlock(Charcoal), Some(1)), Seq(IngredientMaterial(Wood.getClass, 1))),
-			Recipe(ItemStack(new Anvil(null)), Seq(IngredientMaterial(Iron.getClass, 10)), true)
+			Recipe(ItemStack(new Forge(null)), Seq(IngredientMaterial(Iron.getClass, 10)), true)
 		),
 		"furnace" -> Seq[Recipe](
 			Recipe(ItemStack(new EntityBlock(Lead), Some(1)),  Seq(IngredientMaterial(Galena.getClass, 1), IngredientMaterial(Charcoal.getClass, 1))),
@@ -113,7 +113,8 @@ object Recipe {
 			Recipe(ItemStack(new Pick(null)),      Seq(IngredientMaterial(classOf[Stone], 20)), true),
 			Recipe(ItemStack(new Sword(null)),     Seq(IngredientMaterial(classOf[Stone], 20)), true)
 		),
-		"anvil" -> Seq[Recipe](
+		"forge" -> Seq[Recipe](
+			Recipe(ItemStack(new Mechanism(null)), Seq(IngredientMaterial(classOf[Metal], 1)), true),
 			Recipe(ItemStack(new Axe(null)),    Seq(IngredientMaterial(classOf[Metal], 10)), true),
 			Recipe(ItemStack(new Hammer(null)), Seq(IngredientMaterial(classOf[Metal], 10)), true),
 			Recipe(ItemStack(new Pick(null)),   Seq(IngredientMaterial(classOf[Metal], 20)), true),

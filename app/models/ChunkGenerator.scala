@@ -11,7 +11,7 @@ object ChunkGenerator {
 		Seq(ForestBiome, SnowBiome, DesertBiome, DirtBiome),
 		2)
 
-	private val structureGen:Seq[StructureGen] = Seq(StructureSpawn, StructureBoss)
+	private val structureGen:Seq[StructureGen] = Seq(StructureSpawn)
 
 	def generate(coords:ChunkCoordinates):Chunk = {
 		val chunk = new Chunk(coords.cx, coords.cy)
