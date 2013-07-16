@@ -32,31 +32,30 @@ class AIMonster extends AI {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		val entity = world.entity(coords)
 		if (world.isNight == false && entity.get.isInstanceOf[EntityDragon] == false) {
-			// all monsters except dragons die at daytime
-			if (Math.random < 0.01) world.despawnEntity(coords)
-		} else {
-			// find a nearby player and attack or move toward
-			val aggroRange = Chunk.length
-			world.players.filter({ player:Player =>
-				world find player map { worldEntity =>
-					(worldEntity.pos.distanceTo(coords) < aggroRange)
-				} getOrElse false
-			}).headOption.map({ player =>
-				val playerCoords = world.find(player).get.pos
-				val dir:Direction = new Path(playerCoords).directionFrom(coords)
-				val nextPos = WorldCoordinates(coords.x + dir.x, coords.y + dir.y)
-				world.tileAt(nextPos).entity map { entity =>
-					if (entity.isInstanceOf[EntityPlayer])
-						world.doEntityInteraction(coords, nextPos)
-				} getOrElse {
-					// monsters don't pass through doors
-					if (world.tileAt(nextPos).terrain.isInstanceOf[Door] == false)
-						world.moveEntity(coords, nextPos)
-				}
-			}).getOrElse({
-				wander()
-			})
+			// all monsters except dragons start dying off at sunrise
+			if (Math.random < 0.02) world.despawnEntity(coords)
 		}
+		// find a nearby player and attack or move toward
+		val aggroRange = Chunk.length
+		world.players.filter({ player:Player =>
+			world find player map { worldEntity =>
+				(worldEntity.pos.distanceTo(coords) < aggroRange)
+			} getOrElse false
+		}).headOption.map({ player =>
+			val playerCoords = world.find(player).get.pos
+			val dir:Direction = new Path(playerCoords).directionFrom(coords)
+			val nextPos = WorldCoordinates(coords.x + dir.x, coords.y + dir.y)
+			world.tileAt(nextPos).entity map { entity =>
+				if (entity.isInstanceOf[EntityPlayer])
+					world.doEntityInteraction(coords, nextPos)
+			} getOrElse {
+				// monsters don't pass through doors
+				if (world.tileAt(nextPos).terrain.isInstanceOf[Door] == false)
+					world.moveEntity(coords, nextPos)
+			}
+		}).getOrElse({
+			wander()
+		})
 	}
 }
 

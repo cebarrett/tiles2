@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	val monsterCap = World.tileCount / 333
+	val monsterCap = World.tileCount / 200
 	def radius:Int = 64; // NOTE: also hardcoded in controllers.coffee
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
