@@ -241,7 +241,7 @@ class World {
 	/** Spawn a player. Handles updating other world state and broadcasting the event. */
 	def spawnPlayer(playerName:String):Unit = {
 		val player = fetchPlayer(playerName)
-		val spawnPos = findRandomPositionNearSpawn() getOrElse {
+		val spawnPos = findSpawnPositionForPlayer(player) getOrElse {
 			Logger.error("Could not find a vacant spawn position")
 			return
 		}
@@ -251,6 +251,13 @@ class World {
 		val worldEntity = new WorldEntity(playerEntity, this)
 		entityCache.put(worldEntity, spawnPos);
 		broadcastTileEvent(spawnPos)
+	}
+	
+	def findSpawnPositionForPlayer(player:Player):Option[WorldCoordinates] = {
+		// if player has a spawn position set, spawn them in an adjacent tile,
+		// otherwise spawn them somewhere near the world spawn
+		player.spawn.map(_.getAdjacent.filter(tileAt(_).entity.isEmpty).headOption)
+				.getOrElse(findRandomPositionNearSpawn)
 	}
 	
 	def findRandomPositionNearSpawn():Option[WorldCoordinates] = {
