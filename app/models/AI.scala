@@ -4,7 +4,7 @@ import scala.util.control.Breaks._
 
 sealed abstract class AI {
 	def tick(world:World, coords:WorldCoordinates):Unit = Unit
-	def wander = {
+	def wander(world:World, coords:WorldCoordinates) = {
 		breakable {
 			if (Math.random() < 0.03) {
 				coords getAdjacent() foreach { c2 =>
@@ -24,7 +24,7 @@ sealed abstract class AI {
  */
 class AIAnimal() extends AI {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
-		wander()
+		wander(world, coords)
 	}
 }
 
@@ -54,7 +54,7 @@ class AIMonster extends AI {
 						world.moveEntity(coords, nextPos)
 				}
 			}).getOrElse({
-				wander()
+				wander(world, coords)
 			})
 		}
 	}
