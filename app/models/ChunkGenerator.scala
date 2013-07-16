@@ -5,7 +5,7 @@ import scala.util.Random
 
 object ChunkGenerator {
 	
-	private var terrainGen = new GridNoise(3)
+	private var terrainGen = new GridNoise(2.8)
 
 	private val biomeGen = new GridRandom[Biome](
 		Seq(ForestBiome, SnowBiome, DesertBiome, DirtBiome),

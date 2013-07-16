@@ -7,6 +7,7 @@ class Player (val name:String) {
 	
 	val inventory:Inventory = new Inventory
 	var selected:Option[Int] = None
+	var spawn:Option[WorldCoordinates] = None
 	
 	override def toString = s"$getClass($name)"
 	
