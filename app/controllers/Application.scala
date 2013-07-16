@@ -12,7 +12,7 @@ import models.Join
 import models.Quit
 import models.Talk
 import models.Loop
-import play.api.Logger
+import play.api.{Logger => log}
 import play.api.Play.current
 import play.api.libs.concurrent.Akka
 import play.api.libs.concurrent.Execution.Implicits.defaultContext
@@ -34,8 +34,10 @@ object Application extends Controller {
 
 	private val game:ActorRef = Akka.system.actorOf(Props[Game])
 	// XXX: game loop should be done in game and not using akka
+	val gameLoopStart = (15 seconds)
 	val gameLoopInterval = (.25 seconds)
-	Akka.system.scheduler.schedule(gameLoopInterval, gameLoopInterval, game, Loop())
+	log info s"Starting game loop in $gameLoopStart"
+	Akka.system.scheduler.schedule(gameLoopStart, gameLoopInterval, game, Loop())
 	
 	private val hitCounter:AtomicInteger = new AtomicInteger(0)
 
@@ -65,7 +67,7 @@ object Application extends Controller {
 	def connectPlayer(playerName:String):scala.concurrent.Future[(Iteratee[JsValue,_],Enumerator[JsValue])] = {
 		(game ? Join(playerName)).map {
 			case Connected(enumerator) => 
-				Logger info s"Player joined: $playerName"
+				log info s"Player joined: $playerName"
 				val iteratee = Iteratee.foreach[JsValue] { message =>
 					game ! Talk(playerName, message)
 				}.mapDone { _ =>
@@ -73,7 +75,7 @@ object Application extends Controller {
 				}
 				(iteratee, enumerator)
 			case CannotConnect(error) =>
-				Logger warn s"Could not connect player ${playerName}: $error"
+				log warn s"Could not connect player ${playerName}: $error"
 				val iteratee = Done[JsValue,Unit]((),Input.EOF)
 				val enumerator = Enumerator[JsValue](JsNull).andThen(Enumerator.enumInput(Input.EOF))
 				(iteratee,enumerator)

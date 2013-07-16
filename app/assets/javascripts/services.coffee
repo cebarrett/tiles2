@@ -61,7 +61,7 @@ services.factory "sub", ["socket", (socket) ->
 				scope.player.x = message.x
 				scope.player.y = message.y
 				scope.playerEntity = message.tile.entity
-				apply = true
+			apply = true # XXX: is this too slow or not, try it out
 			scope.$broadcast('tileChange', message.x, message.y, message.tile)
 		switch message.kind 
 			when "error"

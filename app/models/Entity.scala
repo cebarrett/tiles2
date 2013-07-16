@@ -74,7 +74,6 @@ abstract class EntityLiving extends Entity {
 }
 
 class EntityPlayer(val player:Player) extends EntityLiving {
-	if (Game.DEV) hitPoints = 1000
 	override def defense = player.armor.map {_.defenseModifier} getOrElse 0.0
 	override def attackStrength = player.weapon map {1+_.attackModifier} getOrElse 1.0
 }
@@ -96,22 +95,22 @@ abstract class EntityMonster extends EntityMob {
 }
 
 class EntityPig extends EntityAnimal {
-	override def drops = Seq(ItemStack(new Food(), Some(Random nextInt 4)))
+	override def drops = Seq(ItemStack(new Food(), Some(2)))
 }
 
 class EntitySpider extends EntityMonster {
 	hitPoints = 1
 	override def defense = 0.5
-	override def drops = Seq(ItemStack(new Food(), Some(Random nextInt 3)))
+	override def drops = Seq(ItemStack(new Food(), Some(1)))
 }
 
 class EntityGoblin extends EntityMonster {
-	override def drops = Seq(ItemStack(new Food(), Some(Random nextInt 10)))
+	override def drops = Seq(ItemStack(new Food(), Some(2 + (Random nextInt 4))))
 }
 
 class EntityOrc extends EntityMonster {
 	hitPoints = 20
-	override def drops = Seq(ItemStack(new Food(), Some(Random nextInt 20)), ItemStack({
+	override def drops = Seq(ItemStack(new Food(), Some(2 + (Random nextInt 9))), ItemStack({
 		val material = math.random match {
 			case n if n < 0.2 => Gold
 			case n if n < 0.5 => Silver

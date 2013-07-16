@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	val monsterCap = World.tileCount / 150
+	val monsterCap = World.tileCount / 333
 	def radius:Int = 64; // NOTE: also hardcoded in controllers.coffee
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
@@ -41,8 +41,8 @@ class World {
 	/** Emits WorldEvent when things happen in the world. */
 	val (eventEnumerator, eventChannel) = Concurrent.broadcast[WorldEvent]
 
-	/** Cache of positions of entities in the world. Does not contain all entities,
-	 *  just the ones to tick every turn. */
+	/** Cache of positions of entities in the world.
+	 *  Does not contain all entities, just the ones to tick every turn. */
 	private val entityCache = new WorldEntityCache
 	
 	/** All players in the world, logged in or not */
@@ -54,11 +54,12 @@ class World {
 	 * Run 1 tick of the game loop.
 	 */
 	def tick():Unit = {
-		ticks = ticks + 1;
-		
+		ticks = ticks + 1
+		if (ticks == 1L) Logger info "Started game loop"
+
 		// Run a tick for each entity in the entity cache.
 		entityCache.all foreach { obj =>
-			val worldEntity:WorldEntity[Entity] = obj.asInstanceOf[WorldEntity[Entity]]
+			val worldEntity:WorldEntity = obj.asInstanceOf[WorldEntity]
 			val entity:Entity = worldEntity.entity.asInstanceOf[Entity]
 			entity match {
 				case _ => {
@@ -77,28 +78,36 @@ class World {
 		
 		// If it's night and the world is below the monster cap then spawn monsters.
 		if (isNight && entityCache.monsters.size < World.monsterCap) {
-			for (i <- 0 until World.chunkCount / 200) {
+			val numMobsToSpawn = World.monsterCap / 200
+			for (i <- 0 until numMobsToSpawn) {
 				val pos = World.randomCoordinates
-				val tile = tileAt(pos)
-				if (tile.terrain.spawnMonsters && tile.entity.isEmpty) {
-					val entity = Math.random match {
-						case i if i < 0.1 => new EntityOrc()
-						case i if i < 0.4 => new EntityGoblin()
-						case i => new EntitySpider()
+				if (!isPlayerNear(pos)) {
+					val tile = tileAt(pos)
+					if (tile.terrain.spawnMonsters && tile.entity.isEmpty) {
+						val entity = Math.random match {
+							case i if i < 0.1 => new EntityOrc()
+							case i if i < 0.4 => new EntityGoblin()
+							case _ => new EntitySpider()
+						}
+						spawnEntity(entity, pos)
 					}
-					spawnEntity(entity, pos)
 				}
 			}
 		}
 	}
+	
+	def isPlayerNear(pos:WorldCoordinates, radius:Int = Chunk.length*2):Boolean =
+		entityCache.players.map(entityCache.get(_)).filter(_.isDefined)
+				.map(_.get._2)
+				.filter(_.distanceTo(pos) < radius)
+				.nonEmpty
 
 	/** Find an entity in the world. */
-	def find[T <: Entity](entity:T):Option[WorldEntity[T]] = {
+	def find[T <: Entity](entity:T):Option[WorldEntity] = {
 		entityCache get entity map {_._1}
 	}
 	
-	/*  FIXME: getting called a lot during World.tick and too slow */
-	def find(player:Player):Option[WorldEntity[EntityPlayer]] = entityCache get player map {_._1}
+	def find(player:Player):Option[WorldEntity] = entityCache get player map {_._1}
 	
 	/** Find an entity's position in the world. */
 	def pos(e:Entity):Option[WorldCoordinates] = (this find e).map(entityCache get _).getOrElse(None)
@@ -143,7 +152,7 @@ class World {
 	/** Get just the minutes part of the time, an int from 0 to 60. */
 	def minutes = (60 * (time - hours)).toInt
 	
-	def isNight = (hours >= 18 || hours <= 6)
+	def isNight = (hours >= 18 || hours <= 5)
 	
 	/** Gets the time of day as a string HH:MM */
 	def timeStr = "%2d:%2d".format(hours, minutes).replaceAll(" ", "0")
@@ -260,24 +269,23 @@ class World {
 	
 	def spawnEntity(entity:Entity, pos:WorldCoordinates):Unit = {
 		val tile = tileAt(pos)
-		if (tile.entity.isDefined) {
-			// note: just having this if and log stmt present here
-			// fixes a bug where the client stops receiving events (wtf?)
-			Logger warn s"Spawning entity on top of another entity: ${tile.entity}"
-		}
-		tile.entity = Some(entity)
-		if (shouldAddEntityToCache(entity)) {
-			val worldEntity = new WorldEntity(entity, this)
-			entityCache.put(worldEntity, pos)
-		}
-		broadcastTileEvent(pos)
+		tile.entity.map({ entity =>
+			Logger warn s"Spawning entity on top of another entity: ${entity}"
+		}).getOrElse({
+			tile.entity = Option(entity)
+			if (shouldAddEntityToCache(entity)) {
+				val worldEntity = new WorldEntity(entity, this)
+				entityCache.put(worldEntity, pos)
+			}
+			broadcastTileEvent(pos)
+		})
 	}
 
 	/** Remove the entity from a tile and broadcast the event. */
 	def despawnEntity(coords:WorldCoordinates):Option[Entity] = {
 		val tile = tileAt(coords)
 		tile.entity map { entity =>
-			tile.entity = None;
+			tile.entity = None
 			find(entity) map {entityCache.remove(_)}
 			broadcastTileEvent(coords)
 			entity
@@ -356,32 +364,6 @@ class World {
 		if (recipe craft player.inventory)
 			this.broadcastPlayer(player)
 	
-	/** Despawn a player entity. */
-	// FIXME: there are two despawnPlayer methods that do different things
-	def despawnPlayer(playerName:String):Option[EntityPlayer] = {
-		players get playerName map { player =>
-			find(player) map { worldEntity =>
-				despawnEntity(worldEntity.pos) map {
-					_ match {
-						case e:EntityPlayer => {
-							e
-						}
-						case _ => {
-							Logger warn "despawnPlayer despawned something that wasn't a player"
-							null
-						}
-					}
-				}
-			} getOrElse {
-				Logger warn s"Tried to despawn player $playerName who is not spawned"
-				null
-			}
-		} getOrElse {
-			Logger warn s"Tried to despawn nonexistent player $playerName"
-			null
-		}
-	}
-	
 	// FIXME: there are two despawnPlayer methods that do different things
 	def despawnPlayer(player:Player):Unit = {
 		find(player) map { worldEntity =>
@@ -392,7 +374,6 @@ class World {
 			despawnEntity(WorldCoordinates(x, y))
 			// broadcast entity despawn. frontend looks for an event with this message name.
 			this.eventChannel.push(WorldEvent(timeStr, "playerDespawn", Some(x), Some(y), Some(tile), Some(player)))
-			
 		}
 	}
 
@@ -569,7 +550,7 @@ class World {
 	def broadcastTileEvent(pos:WorldCoordinates):Unit = {
 		val tile:Tile = tileAt(pos)
 		val player:Option[Player] = tileAt(pos).entity match {
-			case Some(entity:EntityPlayer) => (players find {_.name == entity.player.name})
+			case Some(entity:EntityPlayer) => Some(entity.player)
 			case _ => None
 		}
 		val event:WorldEvent = WorldEvent(timeStr, "tile", Some(pos.x), Some(pos.y), Some(tile), player)

@@ -4,16 +4,9 @@ import scala.util.control.Breaks._
 
 sealed abstract class AI {
 	def tick(world:World, coords:WorldCoordinates):Unit = Unit
-}
-
-/**
- * AI that slowly wanders around.
- */
-class AIAnimal() extends AI {
-	var chanceOfEntityMoving:Double = 0.03;
-	override def tick(world:World, coords:WorldCoordinates):Unit = {
+	def wander = {
 		breakable {
-			if (Math.random() < chanceOfEntityMoving) {
+			if (Math.random() < 0.03) {
 				coords getAdjacent() foreach { c2 =>
 					val t2:Tile = world.tileAt(c2)
 					if (t2.entity.isEmpty) {
@@ -26,14 +19,21 @@ class AIAnimal() extends AI {
 	}
 }
 
+/**
+ * AI that slowly wanders around.
+ */
+class AIAnimal() extends AI {
+	override def tick(world:World, coords:WorldCoordinates):Unit = {
+		wander()
+	}
+}
+
 class AIMonster extends AI {
 	override def tick(world:World, coords:WorldCoordinates):Unit = {
 		val entity = world.entity(coords)
-		if (world.isNight == false) {
+		if (world.isNight == false && entity.get.isInstanceOf[EntityDragon] == false) {
 			// all monsters except dragons die at daytime
-			if (entity.get.isInstanceOf[EntityDragon] == false) {
-				world.despawnEntity(coords)
-			}
+			if (Math.random < 0.01) world.despawnEntity(coords)
 		} else {
 			// find a nearby player and attack or move toward
 			val aggroRange = Chunk.length
@@ -41,7 +41,7 @@ class AIMonster extends AI {
 				world find player map { worldEntity =>
 					(worldEntity.pos.distanceTo(coords) < aggroRange)
 				} getOrElse false
-			}).headOption map { player =>
+			}).headOption.map({ player =>
 				val playerCoords = world.find(player).get.pos
 				val dir:Direction = new Path(playerCoords).directionFrom(coords)
 				val nextPos = WorldCoordinates(coords.x + dir.x, coords.y + dir.y)
@@ -53,7 +53,9 @@ class AIMonster extends AI {
 					if (world.tileAt(nextPos).terrain.isInstanceOf[Door] == false)
 						world.moveEntity(coords, nextPos)
 				}
-			}
+			}).getOrElse({
+				wander()
+			})
 		}
 	}
 }
