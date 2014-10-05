@@ -8,7 +8,7 @@ import play.api.libs.iteratee.Concurrent
 import play.api.libs.iteratee.Concurrent.Channel
 
 object World {
-	val monsterCap = World.tileCount / 200
+	val monsterCap = World.tileCount / 400
 	def radius:Int = 32
 	def radiusChunks = radius;
 	def radiusTiles = radius * Chunk.length
@@ -33,7 +33,7 @@ object World {
 class World {
 	
 	/** incremented once per tick */
-	var ticks = 0L
+	var ticks = World.ticksPerDay / 3
 
 	/** Grid of all the chunks in the world */
 	private val chunkGrid = new ChunkGrid
