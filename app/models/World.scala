@@ -55,6 +55,8 @@ class World {
 	 */
 	def tick():Unit = {
 		ticks = ticks + 1
+
+		// FIXME: delete or fix next line, never runs if game starts > 0
 		if (ticks == 1L) Logger info "Started game loop"
 
 		// Run a tick for each entity in the entity cache.
@@ -63,14 +65,17 @@ class World {
 			val entity:Entity = worldEntity.entity.asInstanceOf[Entity]
 			entity match {
 				case _ => {
-					val pos:WorldCoordinates = entityCache.get(worldEntity).get
-					val tile = tileAt(pos)
-					if (tile.entity.isEmpty || tile.entity.get != entity) {
-						// XXX: also happens when a sapling changes into a tree
-						Logger warn "entity not found where it was expected"
-						entityCache remove worldEntity
-					} else {
-						entity.tick(this, pos)
+					try {
+						val pos:WorldCoordinates = entityCache.get(worldEntity).get
+						val tile = tileAt(pos)
+						if (tile.entity.isEmpty || tile.entity.get != entity) {
+							Logger warn s"entity not found where it was expected: ${worldEntity}"
+							entityCache remove worldEntity
+						} else {
+							entity.tick(this, pos)
+						}
+					} catch {
+						case _:Exception => Logger warn s"entity not found in cache: ${worldEntity}"
 					}
 				}
 			}
@@ -102,7 +107,10 @@ class World {
 				.filter(_.distanceTo(pos) < radius)
 				.nonEmpty
 
-	/** Find an entity in the world. */
+	/**
+	 * Find an entity in the world.
+	 * FIXME: should this return Option[T]?
+	 */
 	def find[T <: Entity](entity:T):Option[WorldEntity] = {
 		entityCache get entity map {_._1}
 	}
@@ -274,17 +282,17 @@ class World {
 		None
 	}
 	
-	def spawnEntity(entity:Entity, pos:WorldCoordinates):Unit = {
-		val tile = tileAt(pos)
-		tile.entity.map({ entity =>
-			Logger warn s"Spawning entity on top of another entity: ${entity}"
+	def spawnEntity(entity:Entity, coords:WorldCoordinates):Unit = {
+		val tile = tileAt(coords)
+		tile.entity.map({ currTileEntity =>
+			Logger warn s"Spawning entity on top of another entity: ${currTileEntity}"
 		}).getOrElse({
 			tile.entity = Option(entity)
 			if (shouldAddEntityToCache(entity)) {
 				val worldEntity = new WorldEntity(entity, this)
-				entityCache.put(worldEntity, pos)
+				entityCache.put(worldEntity, coords)
 			}
-			broadcastTileEvent(pos)
+			broadcastTileEvent(coords)
 		})
 	}
 
@@ -296,6 +304,20 @@ class World {
 			find(entity) map {entityCache.remove(_)}
 			broadcastTileEvent(coords)
 			entity
+		}
+	}
+
+	/**
+	 * Despawn the entity at coords and replace it with the given entity.
+	 * Assumes the given entity is not currently spawned.
+	 */
+	def replaceEntity(entity:Entity, coords:WorldCoordinates):Unit = {
+		val tile = tileAt(coords)
+		tile.entity map { oldEntity =>
+			Logger info s"replacing entity ${oldEntity}"
+			tile.entity = None
+			find(oldEntity) map {entityCache.remove(_)}
+			spawnEntity(entity, coords)
 		}
 	}
 
@@ -484,6 +506,10 @@ class World {
 								player getSelectedItem() map { stack =>
 									val placed = stack.item match {
 										case entity:Entity => {
+											// FIXME: if the player has a stack, and places multiple,
+											// this places the same entity object each time,
+											// hence the entity cache bugs. this needs to copy the entity
+											// and then place the copy.
 											spawnEntity(entity, target)
 											true
 										}

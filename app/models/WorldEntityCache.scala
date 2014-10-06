@@ -19,7 +19,7 @@ class WorldEntityCache {
 	def monsters = monsterMap.keys
 	
 	def put[T <: Entity](worldEntity:WorldEntity, pos:WorldCoordinates):Unit = {
-		mainMap += ((worldEntity, pos))
+		mainMap.put(worldEntity, pos)
 		entityMap.put(worldEntity.entity, worldEntity)
 		worldEntity.entity match {
 			case entity:EntityPlayer => {
@@ -33,7 +33,7 @@ class WorldEntityCache {
 	}
 	
 	def remove[T <: Entity](worldEntity:WorldEntity):Unit = {
-		mainMap -= worldEntity
+		mainMap.remove(worldEntity)
 		entityMap.remove(worldEntity.entity)
 		worldEntity.entity match {
 			case entity:EntityPlayer => playerMap.remove(entity.player)
