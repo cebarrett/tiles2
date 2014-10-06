@@ -504,12 +504,14 @@ class World {
 							val targetTile = tileAt(target)
 							targetTile.entity map {_ => true} getOrElse {
 								player getSelectedItem() map { stack =>
-									val placed = stack.item match {
+									// Try to place the item. Note that this makes a copy of the item
+									// from the stack before placing it, because each item in the world
+									// should be a separate object instance. 
+									// TODO: ItemStack's and Inventory's interfaces should be cleaned up 
+									// to discourage using the actual Item instance it is holding; e.g.
+									// def popItem():Item instead of subtracting from its count.
+									val placed = stack.item.copy match {
 										case entity:Entity => {
-											// FIXME: if the player has a stack, and places multiple,
-											// this places the same entity object each time,
-											// hence the entity cache bugs. this needs to copy the entity
-											// and then place the copy.
 											spawnEntity(entity, target)
 											true
 										}
