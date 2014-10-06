@@ -33,7 +33,10 @@ class AIMonster extends AI {
 		val entity = world.entity(coords)
 		if (world.isNight == false && entity.get.isInstanceOf[EntityDragon] == false) {
 			// all monsters except dragons start dying off at sunrise
-			if (Math.random < 0.02) world.despawnEntity(coords)
+			if (Math.random < 0.02) {
+				world.despawnEntity(coords)
+				return
+			}
 		}
 		// find a nearby player and attack or move toward
 		val aggroRange = Chunk.length

@@ -48,7 +48,7 @@ class Player (val name:String) {
 		(1.0 / (stack.item.asInstanceOf[Armor].defenseModifier))
 	}).map({_.item.asInstanceOf[Armor]}).headOption;
 	
-	/** Get currently equipped sword (currently always the best sword) */
+	/** Get currently equipped weapon (currently defined as the best weapon in the inventory) */
 	def weapon:Option[Tool] = {
 		inventory.items.filter({
 			_.item.isInstanceOf[Tool]
@@ -57,10 +57,8 @@ class Player (val name:String) {
 		}).map({
 			_.item.asInstanceOf[Tool]
 		}).headOption.map({ weapon =>
-			log debug s"best weapon: ${weapon.material.kind} ${weapon.kind}"
 			Some(weapon)
 		}).getOrElse({
-			log debug "best weapon: none"
 			None
 		})
 	}

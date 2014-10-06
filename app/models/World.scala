@@ -314,7 +314,6 @@ class World {
 	def replaceEntity(entity:Entity, coords:WorldCoordinates):Unit = {
 		val tile = tileAt(coords)
 		tile.entity map { oldEntity =>
-			Logger info s"replacing entity ${oldEntity}"
 			tile.entity = None
 			find(oldEntity) map {entityCache.remove(_)}
 			spawnEntity(entity, coords)
