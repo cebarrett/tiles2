@@ -12,9 +12,9 @@ class GridNoise(val scale:Double = 1) {
 
 	private val z:Double = GridNoise.nextZ
 
-	private val baseScale:Double = .0049 * (if (Game.DEV) 12.01 else 1.01)
-	private val baseOffsetX = 1660
-	private val baseOffsetY = 1875
+	private val baseScale:Double = .005
+	private val baseOffsetX = 4680
+	private val baseOffsetY = 2855
 
 	def noiseAt(x:Int, y:Int):Double = {
 		SimplexNoise.noise(
